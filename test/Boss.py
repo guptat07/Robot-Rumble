@@ -15,6 +15,7 @@ class Boss(arcade.Sprite):
         self.boss_logic_timer = 0
         self.boss_logic_countdown = random.randint(1, 3)
         self.once_jump = True
+        self.r1 = 0
         self.character_face_direction = constants.LEFT_FACING
 
         # Used for flipping between image sequences
@@ -54,15 +55,17 @@ class Boss(arcade.Sprite):
         self.texture = self.jump_l[4]
 
     def boss_logic(self, delta_time):
+        #print("changex" + self.change_x)
         self.boss_logic_timer += delta_time
+
         if self.boss_logic_timer > self.boss_logic_countdown:
-            r1 = random.randint(0, 4)
+            self.r1 = random.randint(0, 4)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
             self.once_jump = True
         #some time per action, rand time between
 
-        match r1:
+        match self.r1:
             #idle
             case 0:
                 self.change_x = 0
@@ -111,7 +114,10 @@ class Boss(arcade.Sprite):
                 return
             else:
                 if self.cur_time_frame >= 1 / 20:
-                    self.texture = self.jump_l[self.start_jump]
+                    if self.character_face_direction == constants.LEFT_FACING:
+                        self.texture = self.jump_l[self.start_jump]
+                    else:
+                        self.texture = self.jump_r[self.start_jump] #refactor this shit
                     self.start_jump = self.start_jump + 1
                     self.cur_time_frame = 0
             return
@@ -121,11 +127,20 @@ class Boss(arcade.Sprite):
 
         if self.change_x == 0 and self.change_y == 0:
             if self.cur_time_frame >= 1/4:
-                self.texture = self.idle_l[self.idle_l[0]]
-                if self.idle_l[0] >= len(self.idle_l) - 1:
-                    self.idle_l[0] = 1
-                else:
-                    self.idle_l[0] = self.idle_l[0] + 1
+                if self.character_face_direction == constants.LEFT_FACING:
+                    self.texture = self.idle_l[self.idle_l[0]]
+                    if self.idle_l[0] >= len(self.idle_l) - 1:
+                        self.idle_l[0] = 1
+                    else:
+                        self.idle_l[0] = self.idle_l[0] + 1
+
+                if self.character_face_direction == constants.RIGHT_FACING:
+                    self.texture = self.idle_r[self.idle_r[0]]
+                    if self.idle_r[0] >= len(self.idle_r) - 1:
+                        self.idle_r[0] = 1
+                    else:
+                        self.idle_r[0] = self.idle_r[0] + 1
+
                 self.cur_time_frame = 0
                 return
 
@@ -152,6 +167,7 @@ class Boss(arcade.Sprite):
         """ Move the player """
         # Move player.
         # Remove these lines if physics engine is moving player.
+        #print("printing")
         self.center_x += self.change_x
         self.center_y += self.change_y
 

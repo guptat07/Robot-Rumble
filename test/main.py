@@ -89,8 +89,8 @@ class MyGame(arcade.Window):
         # Activate the game camera
         self.camera.use()
 
-        self.player_list.draw()
-        self.wall_list.draw()
+        #self.player_list.draw()
+        #self.wall_list.draw()
 
         # Draw our Scene
         self.scene.draw(filter=gl.NEAREST)
@@ -104,7 +104,8 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-
+        self.player.update()
+        #self.player.boss_logic(delta_time)
         self.physics_engine.update()
         # Move the player
         self.player_list.update_animation()
