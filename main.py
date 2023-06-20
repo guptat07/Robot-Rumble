@@ -2,10 +2,12 @@
 Platformer Game
 """
 import arcade
+from arcade import gl
+
 
 # Constants
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 650
+SCREEN_WIDTH = 1080
+SCREEN_HEIGHT = 810
 SCREEN_TITLE = "Platformer"
 
 # Constants used to scale our sprites from their original size
@@ -21,11 +23,6 @@ PLAYER_JUMP_SPEED = 20
 
 PLAYER_START_X = 50
 PLAYER_START_Y = 1000
-
-VIEWPORT_MARGIN_TOP = 60
-VIEWPORT_MARGIN_BOTTOM = 60
-VIEWPORT_RIGHT_MARGIN = 270
-VIEWPORT_LEFT_MARGIN = 270
 
 # How fast the camera pans to the player. 1.0 is instant.
 CAMERA_SPEED = 0.1
@@ -46,7 +43,6 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
         # Our TileMap Object
-
         self.tile_map = None
 
         # Our Scene Object
@@ -70,6 +66,23 @@ class MyGame(arcade.Window):
 
         self.view_bottom = 0
         self.view_left = 0
+
+        self.cur_time_frame = 0
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+        self.start_jump = -1
+
+        # Load textures
+        self.idle_r = [1]
+        self.idle_l = [1]
+
+        for i in range(2):
+            texture_r = arcade.load_texture("assets/robot_series_base_pack/robot1/robo1masked/idle1.png", x=i * 32, y=0, width=32, height=32)
+            texture_l = arcade.load_texture("assets/robot_series_base_pack/robot1/robo1masked/idle1.png", x=i * 32, y=0, width=32, height=32,
+                                            flipped_horizontally=True)
+            self.idle_r.append(texture_r)
+            self.idle_l.append(texture_l)
 
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -110,16 +123,11 @@ class MyGame(arcade.Window):
         self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = "assets/robot_series_base_pack/robot1/robot1.png"
+        image_source = "assets/robot_series_base_pack/robot1/robo1masked/one-dude.png"
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
         self.scene.add_sprite("Player", self.player_sprite)
-
-        # --- Load in a map from the tiled editor ---
-
-        # Calculate the right edge of the my_map in pixels
-        self.end_of_map = self.tile_map.width * GRID_PIXEL_SIZE
 
         # Calculate the right edge of the my_map in pixels
         self.top_of_map = self.tile_map.height * GRID_PIXEL_SIZE
@@ -147,7 +155,7 @@ class MyGame(arcade.Window):
         self.camera.use()
 
         # Draw our Scene
-        self.scene.draw()
+        self.scene.draw(filter = gl.NEAREST)
 
         # Activate the GUI camera before drawing GUI elements
         self.gui_camera.use()
@@ -179,6 +187,10 @@ class MyGame(arcade.Window):
             screen_center_x = 0
         if screen_center_y < 0:
             screen_center_y = 0
+        if screen_center_x > 810:
+            screen_center_x = 810
+        if screen_center_y > 550:
+            screen_center_y = 490
         player_centered = screen_center_x, screen_center_y
 
         self.camera.move_to(player_centered)
