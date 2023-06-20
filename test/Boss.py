@@ -35,24 +35,25 @@ class Boss(arcade.Sprite):
 
 
         for i in range(2):
-            texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32)
-            texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True)
+            texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32,hit_box_algorithm= "Detailed")
+            texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True,hit_box_algorithm= "Detailed")
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
 
         for i in range(8):
-            texture_r = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32)
-            texture_l = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True)
+            texture_r = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32,hit_box_algorithm= "Detailed")
+            texture_l = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True,hit_box_algorithm= "Detailed")
             self.running_r.append(texture_r)
             self.running_l.append(texture_l)
 
         for i in range(7):
-            texture_r = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32)
-            texture_l = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True)
+            texture_r = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32, hit_box_algorithm= "Detailed")
+            texture_l = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True, hit_box_algorithm= "Detailed")
             self.jump_r.append(texture_r)
             self.jump_l.append(texture_l)
 
         self.texture = self.jump_l[4]
+
 
     def boss_logic(self, delta_time):
         #print("changex" + self.change_x)
