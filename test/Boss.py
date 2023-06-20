@@ -11,18 +11,21 @@ class Boss(arcade.Sprite):
 
         # Default to face-right
         self.cur_time_frame = 0
-        self.character_face_direction = LE
+        self.character_face_direction = constants.LEFT_FACING
 
         # Used for flipping between image sequences
         self.cur_texture = 0
 
-        self.scale = CHARACTER_SCALING
+        self.scale = constants.CHARACTER_SCALING
 
         #Load textures
         self.idle_r = [1]
         self.idle_l = [1]
         self.running_r = [1]
         self.running_l = [1]
+
+        self.jump_r = [1]
+        self.jump_l = [1]
 
 
         for i in range(2):
@@ -37,24 +40,23 @@ class Boss(arcade.Sprite):
             self.running_r.append(texture_r)
             self.running_l.append(texture_l)
 
+        self.texture = self.idle_r[1]
+
+    def is_updating(self):
+        print("i exist!!!")
+
+
     def update_animation(self, delta_time):
+        #print("i exist!!!")
         #frames per second -> 60
         self.cur_time_frame += delta_time
-        print("change x: ", self.change_x)
-        print("cur_time_frame time: ", self.cur_time_frame)
+        #print("change x: ", self.change_x)
+        #print("cur_time_frame time: ", self.cur_time_frame)
+
 
 
         if self.change_x == 0 and self.change_y == 0:
             if self.cur_time_frame >= 1/4:
-                if self.left_pressed:
-                    pass
-                self.texture = self.idle_l[self.idle_l[0]]
-                if self.idle_l[0] >= len(self.idle_l) - 1:
-                    self.idle_l[0] = 1
-                else:
-                    self.idle_l[0] = self.idle_l[0] + 1
-                self.cur_time_frame = 0
-
                 self.texture = self.idle_r[self.idle_r[0]]
                 if self.idle_r[0] >= len(self.idle_r) - 1:
                     self.idle_r[0] = 1
@@ -92,11 +94,11 @@ class Boss(arcade.Sprite):
         # Check for out-of-bounds
         if self.left < 0:
             self.left = 0
-        elif self.right > SCREEN_WIDTH - 1:
-            self.right = SCREEN_WIDTH - 1
+        elif self.right > constants.SCREEN_WIDTH - 1:
+            self.right = constants.SCREEN_WIDTH - 1
 
         if self.bottom < 0:
             self.bottom = 0
-        elif self.top > SCREEN_HEIGHT - 1:
-            self.top = SCREEN_HEIGHT - 1
+        elif self.top > constants.SCREEN_HEIGHT - 1:
+            self.top = constants.SCREEN_HEIGHT - 1
 

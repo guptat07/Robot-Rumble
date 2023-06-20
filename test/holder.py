@@ -37,6 +37,7 @@ class Player(arcade.Sprite):
         self.running_l = [1]
 
 
+
         for i in range(2):
             texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32)
             texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True)
@@ -58,14 +59,6 @@ class Player(arcade.Sprite):
 
         if self.change_x == 0 and self.change_y == 0:
             if self.cur_time_frame >= 1/4:
-                if self.left_pressed:
-                    pass
-                self.texture = self.idle_l[self.idle_l[0]]
-                if self.idle_l[0] >= len(self.idle_l) - 1:
-                    self.idle_l[0] = 1
-                else:
-                    self.idle_l[0] = self.idle_l[0] + 1
-                self.cur_time_frame = 0
 
                 self.texture = self.idle_r[self.idle_r[0]]
                 if self.idle_r[0] >= len(self.idle_r) - 1:
@@ -125,9 +118,9 @@ class MyGame(arcade.Window):
         # Calculate speed based on the keys pressed
         self.player.change_x = 0
 
-        if self.player.left_pressed and not self.player.right_pressed:
+        if self.left_pressed and not self.right_pressed:
             self.player.change_x = -MOVEMENT_SPEED
-        elif self.player.right_pressed and not self.player.left_pressed:
+        elif self.right_pressed and not self.left_pressed:
             self.player.change_x = MOVEMENT_SPEED
 
     def __init__(self, width, height, title):
@@ -143,8 +136,8 @@ class MyGame(arcade.Window):
 
         # Set up the player info
         self.player = None
-        self.player.left_pressed = False
-        self.player.right_pressed = False
+        self.left_pressed = False
+        self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
 
@@ -190,13 +183,13 @@ class MyGame(arcade.Window):
             self.up_pressed = True
             self.update_player_speed()
         elif key == arcade.key.S:
-            self.player.down_pressed = True
+            self.down_pressed = True
             self.update_player_speed()
         elif key == arcade.key.A:
-            self.player.left_pressed = True
+            self.left_pressed = True
             self.update_player_speed()
         elif key == arcade.key.D:
-            self.player.right_pressed = True
+            self.right_pressed = True
             self.update_player_speed()
 
     def on_key_release(self, key, modifiers):
@@ -208,10 +201,10 @@ class MyGame(arcade.Window):
             self.down_pressed = False
             self.update_player_speed()
         elif key == arcade.key.A:
-            self.player.left_pressed = False
+            self.left_pressed = False
             self.update_player_speed()
         elif key == arcade.key.D:
-            self.player.right_pressed = False
+            self.right_pressed = False
             self.update_player_speed()
 
 def main():
