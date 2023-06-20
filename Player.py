@@ -26,8 +26,8 @@ class Player(arcade.Sprite):
 
 
         for i in range(2):
-            texture_r = arcade.load_texture("sprites/Robot_idle.png",x=i*1000,y=0,width=1000, height=1000)
-            texture_l = arcade.load_texture("sprites/Robot_idle.png",x=i*1000,y=0,width=1000, height=1000, flipped_horizontally=True)
+            texture_r = arcade.load_texture("sprites/Robot_idle.png", x=i*1000, y=0, width=1000, height=1000)
+            texture_l = arcade.load_texture("sprites/Robot_idle.png", x=i*1000, y=0, width=1000, height=1000, flipped_horizontally=True)
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
 
@@ -90,3 +90,51 @@ class Player(arcade.Sprite):
             self.bottom = 0
         elif self.top > SCREEN_HEIGHT - 1:
             self.top = SCREEN_HEIGHT - 1
+
+
+    def on_update(self, delta_time):
+        """ Movement and game logic """
+
+        # Move the player
+        self.player_list.update_animation()
+
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed. """
+
+        if key == arcade.key.W:
+            self.up_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.S:
+            self.down_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.A:
+            self.left_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.D:
+            self.right_pressed = True
+            self.update_player_speed()
+
+    def on_key_release(self, key, modifiers):
+
+        if key == arcade.key.W:
+            self.up_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.S:
+            self.down_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.A:
+            self.left_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.D:
+            self.right_pressed = False
+            self.update_player_speed()
+
+    def update_player_speed(self):
+
+        # Calculate speed based on the keys pressed
+        self.player.change_x = 0
+
+        if self.left_pressed and not self.right_pressed:
+            self.player.change_x = -MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player.change_x = MOVEMENT_SPEED
