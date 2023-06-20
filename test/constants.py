@@ -7,7 +7,9 @@ TILE_SCALING = 5
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
+MOVE_SPEED = 5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 20
+JUMP_SPEED = 10
 RIGHT_FACING = 0
 LEFT_FACING = 1

@@ -109,8 +109,17 @@ class MyGame(arcade.Window):
         # Move the player
         self.player_list.update_animation()
 
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed. """
 
-        #self.player.is_updating()
+        if key == arcade.key.W:
+            if self.physics_engine.can_jump():
+                self.player.start_jump = 1
+                self.player.change_y = constants.JUMP_SPEED
+
+
+
+
 def main():
     """ Main function """
     window = MyGame()
