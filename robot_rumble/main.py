@@ -48,14 +48,14 @@ class Player(arcade.Sprite):
 
 
         for i in range(2):
-            texture_r = arcade.load_texture(files("robot_rumble_package.sprites").joinpath("Robot_idle.png"), x=i * 1000, y=0, width=1000, height=1000)
-            texture_l = arcade.load_texture(files("robot_rumble_package.sprites").joinpath("Robot_idle.png"), x=i * 1000, y=0, width=1000, height=1000, flipped_horizontally=True)
+            texture_r = arcade.load_texture(files("robot_rumble.sprites").joinpath("Robot_idle.png"), x=i * 1000, y=0, width=1000, height=1000)
+            texture_l = arcade.load_texture(files("robot_rumble.sprites").joinpath("Robot_idle.png"), x=i * 1000, y=0, width=1000, height=1000, flipped_horizontally=True)
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
 
         for i in range(8):
-            texture_r = arcade.load_texture(files("robot_rumble_package.sprites").joinpath("Robot_run.png"), x=i * 1000, y=0, width=1000, height=1000)
-            texture_l = arcade.load_texture(files("robot_rumble_package.sprites").joinpath("Robot_run.png"), x=i * 1000, y=0, width=1000, height=1000, flipped_horizontally=True)
+            texture_r = arcade.load_texture(files("robot_rumble.sprites").joinpath("Robot_run.png"), x=i * 1000, y=0, width=1000, height=1000)
+            texture_l = arcade.load_texture(files("robot_rumble.sprites").joinpath("Robot_run.png"), x=i * 1000, y=0, width=1000, height=1000, flipped_horizontally=True)
             self.running_r.append(texture_r)
             self.running_l.append(texture_l)
 
@@ -217,7 +217,7 @@ class MyGame(arcade.Window):
 def main():
     """ Main function """
     print(os.getcwd())
-    print(files("robot_rumble_package.sprites").joinpath("Robot_idle.png"))
+    print(files("robot_rumble.sprites").joinpath("Robot_idle.png"))
     window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     window.setup()
     arcade.run()
