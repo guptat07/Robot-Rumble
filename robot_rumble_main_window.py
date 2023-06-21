@@ -11,23 +11,13 @@ CHARACTER_SCALING = 5.0
 TILE_SCALING = 2.0
 
 # Player Movement Scaling Constants (pixels/frame)
-PLAYER_MOVEMENT_SPEED = 5
+PLAYER_MOVEMENT_SPEED = 6
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 20
 
 RIGHT_FACING = 0
 LEFT_FACING = 1
 FRAMES_PER_SECOND = 60
-
-
-def load_texture_pair(filename):
-    """
-    Load a texture pair, with the second being a mirror image.
-    """
-    return [
-        arcade.load_texture(filename),
-        arcade.load_texture(filename, flipped_horizontally=True)
-    ]
 
 
 class RobotRumbleWindow(arcade.Window):

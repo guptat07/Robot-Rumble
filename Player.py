@@ -138,3 +138,12 @@ class Player(arcade.Sprite):
             self.player.change_x = -MOVEMENT_SPEED
         elif self.right_pressed and not self.left_pressed:
             self.player.change_x = MOVEMENT_SPEED
+
+    def load_texture_pair(filename):
+        """
+        Load a texture pair, with the second being a mirror image.
+        """
+        return [
+            arcade.load_texture(filename),
+            arcade.load_texture(filename, flipped_horizontally=True)
+        ]
