@@ -24,6 +24,9 @@ class Player(arcade.Sprite):
         # Used for flipping between image sequences
         self.scale = CHARACTER_SCALING
 
+        # Tracking the jumping state, which helps us smooth animations
+        self.is_jumping = False
+
         # Load idle textures by iterating through each sprite in the sheet and adding them to the correct list
         self.idle_r = [1]
         self.idle_l = [1]
@@ -93,6 +96,25 @@ class Player(arcade.Sprite):
         # Should work regardless of framerate
         self.cur_time_frame += delta_time
 
+        # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
+        # This condition must mean that the player WAS jumping but has landed
+        if self.change_y == 0 and self.is_jumping and (self.texture == self.jumping_r[4] or self.texture == self.jumping_l[4]):
+            # Update the tracker for future jumps
+            self.is_jumping = False
+            # Animation depending on whether facing left or right and moving or still
+            if self.character_face_direction == RIGHT_FACING:
+                if self.change_x == 0:
+                    self.texture = self.idle_r[self.idle_r[0]]
+                else:
+                    self.texture = self.running_r[self.running_r[0]]
+            elif self.character_face_direction == LEFT_FACING:
+                if self.change_x == 0:
+                    self.texture = self.idle_l[self.idle_l[0]]
+                else:
+                    self.texture = self.running_l[self.running_l[0]]
+            return
+
+
         # Idle animation
         if self.change_x == 0 and self.change_y == 0:
             # Having the idle animation loop every .33 seconds
@@ -122,13 +144,20 @@ class Player(arcade.Sprite):
         elif self.change_x > 0 and self.character_face_direction == RIGHT_FACING:
             # Check to see if the player is jumping (while moving right)
             if self.change_y != 0:
+                self.is_jumping = True
                 self.texture = self.jumping_r[self.jumping_r[0]]
-                # We DON'T loop back to 1 here because the character should hold the falling pose until they land.
-                if self.jumping_r[0] >= 4:
-                    self.jumping_r[0] = 4
-                else:
-                    self.jumping_r[0] = self.jumping_r[0] + 1
-                self.cur_time_frame = 0
+                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
+                if self.change_y > 0:
+                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
+                    if self.jumping_r[0] >= 3:
+                        self.jumping_r[0] = 3
+                    else:
+                        self.jumping_r[0] = self.jumping_r[0] + 1
+                    self.cur_time_frame = 0
+                elif self.change_y < 0:
+                    self.jumping_r[0] = 1
+                    self.texture = self.jumping_r[4]
+
             # Have the running animation loop every .133 seconds
             elif self.cur_time_frame >= 8 / 60:
                 self.texture = self.running_r[self.running_r[0]]
@@ -143,13 +172,21 @@ class Player(arcade.Sprite):
         elif self.change_x < 0 and self.character_face_direction == LEFT_FACING:
             # Check to see if the player is jumping (while moving left)
             if self.change_y != 0:
+                self.is_jumping = True
                 self.texture = self.jumping_l[self.jumping_l[0]]
-                if self.jumping_l[0] >= 4:
-                    self.jumping_l[0] = 4
-                else:
-                    self.jumping_l[0] = self.jumping_l[0] + 1
-                self.cur_time_frame = 0
-            if self.cur_time_frame >= 8 / 60:
+                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
+                if self.change_y > 0:
+                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
+                    if self.jumping_l[0] >= 3:
+                        self.jumping_l[0] = 3
+                    else:
+                        self.jumping_l[0] = self.jumping_l[0] + 1
+                    self.cur_time_frame = 0
+                elif self.change_y < 0:
+                    self.jumping_l[0] = 1
+                    self.texture = self.jumping_l[4]
+
+            elif self.cur_time_frame >= 8 / 60:
                 self.texture = self.running_l[self.running_l[0]]
                 if self.running_l[0] >= len(self.running_l) - 1:
                     self.running_l[0] = 1
@@ -160,18 +197,27 @@ class Player(arcade.Sprite):
 
         # Jumping in place
         elif self.change_y != 0 and self.change_x == 0:
+            self.is_jumping = True
             if self.character_face_direction == RIGHT_FACING:
                 self.texture = self.jumping_r[self.jumping_r[0]]
-                if self.jumping_r[0] >= 4:
-                    self.jumping_r[0] = 4
-                else:
-                    self.jumping_r[0] = self.jumping_r[0] + 1
-                self.cur_time_frame = 0
+                if self.change_y > 0:
+                    if self.jumping_r[0] >= 3:
+                        self.jumping_r[0] = 3
+                    else:
+                        self.jumping_r[0] = self.jumping_r[0] + 1
+                    self.cur_time_frame = 0
+                elif self.change_y < 0:
+                    self.jumping_r[0] = 1
+                    self.texture = self.jumping_r[4]
             else:
                 self.texture = self.jumping_l[self.jumping_l[0]]
-                if self.jumping_l[0] >= 4:
-                    self.jumping_l[0] = 4
-                else:
-                    self.jumping_l[0] = self.jumping_l[0] + 1
-                self.cur_time_frame = 0
+                if self.change_y > 0:
+                    if self.jumping_l[0] >= 3:
+                        self.jumping_l[0] = 3
+                    else:
+                        self.jumping_l[0] = self.jumping_l[0] + 1
+                    self.cur_time_frame = 0
+                elif self.change_y < 0:
+                    self.jumping_l[0] = 1
+                    self.texture = self.jumping_l[4]
             return
