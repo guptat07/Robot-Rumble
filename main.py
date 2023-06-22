@@ -44,7 +44,7 @@ LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
 DRONE_MOVEMENT_SPEED = 0.25
 DRONE_TIMER = 0.2
 
-BULLET_MOVEMENT_SPEED = 0.5
+BULLET_MOVEMENT_SPEED = 0.4
 
 
 def load_texture_pair(filename):
@@ -106,7 +106,7 @@ class Drone(Entity):
 
         for i in range(3):
             texture_l = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
-                                            x=i, y=0, width=32, height=32, hit_box_algorithm="Simple")
+                                            x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
                                             x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.look_r.append(texture_r)
@@ -114,7 +114,7 @@ class Drone(Entity):
 
         for i in range(6):
             texture_l = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
-                                            x=i, y=0, width=32, height=32, hit_box_algorithm="Simple")
+                                            x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
                                             x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.shoot_r.append(texture_r)
@@ -122,7 +122,7 @@ class Drone(Entity):
 
         for i in range(2):
             texture_l = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
-                                            x=i, y=0, width=32, height=32, hit_box_algorithm="Simple")
+                                            x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
                                             x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.fire_r.append(texture_r)
@@ -177,6 +177,46 @@ class Drone(Entity):
                 self.thrusters.texture = self.fire_r[2]
         return False
 
+class Explosion(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = LEFT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.explode_time = 0
+        self.bomb_r = [1]
+        self.bomb_l = [1]
+
+        self.scale = CHARACTER_SCALING
+
+        for i in range(7):
+            texture_l = arcade.load_texture(
+                files("assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
+                x=i * 64, y=0, width=64, height=64, hit_box_algorithm="Simple")
+            texture_r = arcade.load_texture(
+                files("assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
+                x=i * 64, y=0, width=64, height=64, flipped_horizontally=True, hit_box_algorithm="Simple")
+            self.bomb_r.append(texture_r)
+            self.bomb_l.append(texture_l)
+
+        self.texture = self.bomb_r[1]
+
+    def explode(self, delta_time):
+        self.explode_time += delta_time
+        if self.bomb_r[0] + 1 >= len(self.bomb_r):
+            self.bomb_r[0] = 1
+            return True
+        elif self.explode_time > DRONE_TIMER / 2:
+            self.texture = self.bomb_r[self.bomb_r[0]]
+            self.bomb_r[0] += 1
+            self.explode_time = 0
+        return False
 
 class DroneBullet(Entity):
     def __init__(self):
@@ -191,8 +231,6 @@ class DroneBullet(Entity):
         self.cur_texture = 0
 
         self.scale = CHARACTER_SCALING
-
-        self.visible = False
 
         self.bullet = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1bullet.png"),
                                           x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
@@ -227,11 +265,14 @@ class MyGame(arcade.Window):
         # Separate variable that holds the player sprite
         self.player_sprite = None
 
-        # Variable for the drone sprite
-        self.drone = None
+        # Variable for the drone sprite list
+        self.drone_list = None
 
-        # Variable for the bullet sprite
-        self.bullet = None
+        # Variable for the bullet sprite list
+        self.bullet_list = None
+
+        # Variable for the explosion sprite list
+        self.explosion_list = None
 
         # Our physics engine
         self.physics_engine = None
@@ -318,6 +359,8 @@ class MyGame(arcade.Window):
         self.player_sprite.health = 10
 
         # make the drone
+        self.drone_list = arcade.SpriteList()
+        self.scene.add_sprite_list("drone_list")
         self.drone = Drone()
         self.drone.center_x = DRONE_START_X
         self.drone.center_y = DRONE_START_Y
@@ -325,11 +368,13 @@ class MyGame(arcade.Window):
         self.scene.add_sprite("Drone", self.drone)
         self.scene.add_sprite("Thrusters", self.drone.thrusters)
         self.scene.add_sprite("Shooting", self.drone.shooting)
+        self.drone_list.append(self.drone)
 
-        self.bullet = DroneBullet()
-        self.bullet.center_x = DRONE_START_X + 10
-        self.bullet.center_y = DRONE_START_Y
-        self.scene.add_sprite("Bullet", self.bullet)
+        self.explosion_list = arcade.SpriteList()
+        self.scene.add_sprite_list("explosion_list")
+
+        self.bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("bullet_list")
 
         # Calculate the right edge of the my_map in pixels
         self.end_of_map = self.tile_map.width * GRID_PIXEL_SIZE
@@ -420,26 +465,46 @@ class MyGame(arcade.Window):
             # Load the next level
             self.setup()
 
-        self.drone.update()
-        if self.drone.drone_logic(delta_time):
-            self.bullet = DroneBullet()
-            self.bullet.center_x = self.drone.shooting.center_x + 5
-            self.bullet.center_y = self.drone.shooting.center_y
-            self.scene.add_sprite("Bullet", self.bullet)
-            self.bullet.visible = True
-        self.bullet.move(True)
-        self.bullet.update()
+        drone_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.drone_list)
+        for drone in drone_collisions:
+            drone.thrusters.kill()
+            drone.shooting.kill()
+            self.explosion = Explosion()
+            self.explosion.center_x = drone.center_x
+            self.explosion.center_y = drone.center_y
+            self.scene.add_sprite("Explosion", self.explosion)
+            self.explosion_list.append(self.explosion)
+            drone.remove_from_sprite_lists()
 
-        platform_hit_list = arcade.check_for_collision_with_list(self.bullet, self.platform_list)
+        for explosion in self.explosion_list:
+            if explosion.explode(delta_time):
+                explosion.remove_from_sprite_lists()
 
-        if arcade.check_for_collision(self.bullet, self.player_sprite):
-            self.bullet.kill()
-            self.bullet.update()
+        for drone in self.drone_list:
+            drone.update()
+            if drone.drone_logic(delta_time):
+                self.bullet = DroneBullet()
+                self.bullet.center_x = self.drone.shooting.center_x + 5
+                self.bullet.center_y = self.drone.shooting.center_y
+                self.scene.add_sprite("Bullet", self.bullet)
+                self.bullet_list.append(self.bullet)
+
+        for bullet in self.bullet_list:
+            self.bullet.move(True)
+            bullet.update()
+
+        for bullet in self.bullet_list:
+            platform_hit_list = arcade.check_for_collision_with_list(bullet, self.platform_list)
+            if len(platform_hit_list) > 0:
+                bullet.remove_from_sprite_lists()
+
+        bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.bullet_list)
+        for bullet in bullet_collisions:
+            bullet.remove_from_sprite_lists()
             self.player_sprite.health -= 1
             print(self.player_sprite.health)
 
-        for platform in platform_hit_list:
-            self.bullet.kill()
+
 
 
 def main():
