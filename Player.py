@@ -13,12 +13,9 @@ class Player(arcade.Sprite):
         # Default to face-right
         self.cur_time_frame = 0
         self.character_face_direction = robot_rumble_main_window.RIGHT_FACING
-        self.once_jump = True
-        self.r1 = 0
 
         # Used for flipping between image sequences
         self.cur_texture = 0
-        self.start_jump = -1
 
         self.scale = robot_rumble_main_window.CHARACTER_SCALING
 
@@ -58,11 +55,11 @@ class Player(arcade.Sprite):
         # Iterate through each sprite in the jump animation sheet (sprite is 32wx48h) and load them into a list
         for i in range(7):
             texture_jumping_r = arcade.load_texture(
-                "sprites/robot1/robo1masked/robo1jump-Sheet[48height32wide].png", x=i * 32, y=0, width=32, height=48,
+                "sprites/robot1/robo1masked/robo1jump-Sheet[48height32wide].png", x=i * 32, y=16, width=32, height=32,
                 hit_box_algorithm="Simple"
             )
             texture_jumping_l = arcade.load_texture(
-                "sprites/robot1/robo1masked/robo1jump-Sheet[48height32wide].png", x=i * 32, y=0, width=32, height=48,
+                "sprites/robot1/robo1masked/robo1jump-Sheet[48height32wide].png", x=i * 32, y=16, width=32, height=32,
                 hit_box_algorithm="Simple", flipped_horizontally=True
             )
             self.jumping_r.append(texture_jumping_r)
@@ -70,46 +67,29 @@ class Player(arcade.Sprite):
 
         self.texture = self.jumping_r[4]
 
-    def update_animation(self, delta_time: float = 0.016666666666666666):
-        # for now, frames per second = 60, so frame timing is 16ms
+    def update_animation(self, delta_time):
+        # frames per second -> 60
         self.cur_time_frame += delta_time
-
-        # set start jump to 1 ONLY start
-        if self.start_jump != 0:
-            if self.start_jump > 3:
-                if self.change_y == 0:
-                    self.start_jump = 0
-                return
-            else:
-                if self.cur_time_frame >= 1 / 20:
-                    if self.character_face_direction == robot_rumble_main_window.LEFT_FACING:
-                        self.texture = self.jumping_l[self.start_jump]
-                    else:
-                        self.texture = self.jumping_r[self.start_jump]  # refactor this shit
-                    self.start_jump = self.start_jump + 1
-                    self.cur_time_frame = 0
-            return
 
         if self.change_x == 0 and self.change_y == 0:
             if self.cur_time_frame >= 1 / 4:
-                if self.character_face_direction == robot_rumble_main_window.LEFT_FACING:
-                    self.texture = self.idle_l[self.idle_l[0]]
-                    if self.idle_l[0] >= len(self.idle_l) - 1:
-                        self.idle_l[0] = 1
-                    else:
-                        self.idle_l[0] = self.idle_l[0] + 1
 
-                if self.character_face_direction == robot_rumble_main_window.RIGHT_FACING:
-                    self.texture = self.idle_r[self.idle_r[0]]
-                    if self.idle_r[0] >= len(self.idle_r) - 1:
-                        self.idle_r[0] = 1
-                    else:
-                        self.idle_r[0] = self.idle_r[0] + 1
-
+                self.texture = self.idle_r[self.idle_r[0]]
+                if self.idle_r[0] >= len(self.idle_r) - 1:
+                    self.idle_r[0] = 1
+                else:
+                    self.idle_r[0] = self.idle_r[0] + 1
                 self.cur_time_frame = 0
                 return
 
         if self.change_x > 0:
+            if self.change_y != 0:
+                self.texture = self.jumping_r[self.jumping_r[0]]
+                if self.jumping_r[0] >= 3:
+                    self.jumping_r[0] = 3
+                else:
+                    self.jumping_r[0] = self.jumping_r[0] + 1
+                self.cur_time_frame = 0
             if self.cur_time_frame >= 8 / 60:
                 self.texture = self.running_r[self.running_r[0]]
                 if self.running_r[0] >= len(self.running_r) - 1:
@@ -119,6 +99,13 @@ class Player(arcade.Sprite):
                 self.cur_time_frame = 0
 
         if self.change_x < 0:
+            if self.change_y != 0:
+                self.texture = self.jumping_l[self.jumping_l[0]]
+                if self.jumping_l[0] >= 3:
+                    self.jumping_l[0] = 3
+                else:
+                    self.jumping_l[0] = self.jumping_l[0] + 1
+                self.cur_time_frame = 0
             if self.cur_time_frame >= 8 / 60:
                 self.texture = self.running_l[self.running_l[0]]
                 if self.running_l[0] >= len(self.running_l) - 1:
@@ -126,6 +113,15 @@ class Player(arcade.Sprite):
                 else:
                     self.running_l[0] = self.running_l[0] + 1
                 self.cur_time_frame = 0
+
+        if self.change_y != 0 and self.change_x == 0:
+            self.texture = self.jumping_r[self.jumping_r[0]]
+            if self.jumping_r[0] >= 3:
+                self.jumping_r[0] = 3
+            else:
+                self.jumping_r[0] = self.jumping_r[0] + 1
+            self.cur_time_frame = 0
+
 
     def update(self):
         """ Move the player """

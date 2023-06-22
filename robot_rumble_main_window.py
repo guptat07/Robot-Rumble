@@ -112,7 +112,9 @@ class RobotRumbleWindow(arcade.Window):
     def on_update(self, delta_time):
         """Movement and game logic"""
 
-        # Move the player with the physics engine
+        # Read the user's inputs to run appropriate animations
+        self.scene.get_sprite_list("Player").update_animation()
+        # Actually move the player with the physics engine
         self.physics_engine.update()
 
 
