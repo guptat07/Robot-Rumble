@@ -4,7 +4,6 @@ Platformer Game
 import arcade
 from arcade import gl
 
-
 # Constants
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 810
@@ -30,6 +29,7 @@ CAMERA_SPEED = 0.1
 LAYER_NAME_FOREGROUND = "Foreground"
 LAYER_NAME_BACKGROUND = "Background"
 LAYER_NAME_PLATFORMS = "Platforms"
+LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
 
 
 class MyGame(arcade.Window):
@@ -78,8 +78,10 @@ class MyGame(arcade.Window):
         self.idle_l = [1]
 
         for i in range(2):
-            texture_r = arcade.load_texture("assets/robot_series_base_pack/robot1/robo1masked/idle1.png", x=i * 32, y=0, width=32, height=32)
-            texture_l = arcade.load_texture("assets/robot_series_base_pack/robot1/robo1masked/idle1.png", x=i * 32, y=0, width=32, height=32,
+            texture_r = arcade.load_texture("assets/robot_series_base_pack/robot1/robo1masked/idle1.png", x=i * 32, y=0,
+                                            width=32, height=32)
+            texture_l = arcade.load_texture("assets/robot_series_base_pack/robot1/robo1masked/idle1.png", x=i * 32, y=0,
+                                            width=32, height=32,
                                             flipped_horizontally=True)
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
@@ -104,6 +106,9 @@ class MyGame(arcade.Window):
         layer_options = {
             "Platforms": {
                 "use_spatial_hash": True,
+            },
+            "Horizontal Moving Platform": {
+                "use_spatial_hash": False,
             },
         }
         # Read in the tiled map
@@ -141,6 +146,7 @@ class MyGame(arcade.Window):
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
+            platforms=self.scene[LAYER_NAME_MOVING_PLATFORMS],
             gravity_constant=GRAVITY,
             walls=self.scene[LAYER_NAME_PLATFORMS],
         )
@@ -155,7 +161,7 @@ class MyGame(arcade.Window):
         self.camera.use()
 
         # Draw our Scene
-        self.scene.draw(filter = gl.NEAREST)
+        self.scene.draw(filter=gl.NEAREST)
 
         # Activate the GUI camera before drawing GUI elements
         self.gui_camera.use()
@@ -166,7 +172,6 @@ class MyGame(arcade.Window):
         if key == arcade.key.UP or key == arcade.key.W:
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                arcade.play_sound(self.jump_sound)
         elif key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
@@ -201,6 +206,9 @@ class MyGame(arcade.Window):
         # Move the player with the physics engine
         self.physics_engine.update()
 
+        # Moving Platform
+        self.scene.update([LAYER_NAME_MOVING_PLATFORMS])
+
         # Position the camera
         self.center_camera_to_player()
 
@@ -214,3 +222,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# moving platforms
+# enemy spawnpoints
+# ui
+# menu
