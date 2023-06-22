@@ -136,21 +136,22 @@
                  "height":16,
                  "id":5,
                  "name":"",
-                 "properties":[{
-                       "name":"boundary_left",
-                       "type":"float",
-                       "value":800
-                      },
-                      {
-                       "name":"boundary_right",
-                       "type":"float",
-                       "value":1200
-                      },
-                      {
-                       "name":"change_x",
-                       "type":"float",
-                       "value":2
-                      }],
+                 "properties":[
+                        {
+                         "name":"boundary_left",
+                         "type":"float",
+                         "value":800
+                        }, 
+                        {
+                         "name":"boundary_right",
+                         "type":"float",
+                         "value":1200
+                        }, 
+                        {
+                         "name":"change_x",
+                         "type":"int",
+                         "value":2
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -195,8 +196,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":8,
- "nextobjectid":6,
+ "nextlayerid":9,
+ "nextobjectid":46,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",

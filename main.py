@@ -1,6 +1,8 @@
 """
 Platformer Game
 """
+import math
+
 import arcade
 from arcade import gl
 
@@ -23,6 +25,10 @@ PLAYER_JUMP_SPEED = 20
 PLAYER_START_X = 50
 PLAYER_START_Y = 1000
 
+# Constants used to track if the player is facing left or right
+RIGHT_FACING = 0
+LEFT_FACING = 1
+
 # How fast the camera pans to the player. 1.0 is instant.
 CAMERA_SPEED = 0.1
 
@@ -30,6 +36,37 @@ LAYER_NAME_FOREGROUND = "Foreground"
 LAYER_NAME_BACKGROUND = "Background"
 LAYER_NAME_PLATFORMS = "Platforms"
 LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
+
+
+def load_texture_pair(filename):
+    """
+    Load a texture pair, with the second being a mirror image.
+    """
+    return [
+        arcade.load_texture(filename),
+        arcade.load_texture(filename, flipped_horizontally=True),
+    ]
+
+
+class Entity(arcade.Sprite):
+    def __init__(self, name_file):
+        super().__init__()
+
+        # Default to facing right
+        self.facing_direction = LEFT_FACING
+
+        # Used for image sequences
+        self.cur_texture = 0
+        self.scale = CHARACTER_SCALING
+        self.character_face_direction = RIGHT_FACING
+
+        self.idle_texture_pair = load_texture_pair(name_file)
+
+
+class Enemy(Entity):
+    def __init__(self, name_file):
+        # Setup parent class
+        super().__init__(name_file)
 
 
 class MyGame(arcade.Window):
@@ -62,7 +99,6 @@ class MyGame(arcade.Window):
 
         self.end_of_map = 0
         self.top_of_map = 0
-        self.end_of_map = 0
 
         self.view_bottom = 0
         self.view_left = 0
@@ -135,7 +171,6 @@ class MyGame(arcade.Window):
         self.scene.add_sprite("Player", self.player_sprite)
 
         # Calculate the right edge of the my_map in pixels
-        self.top_of_map = self.tile_map.height * GRID_PIXEL_SIZE
         self.end_of_map = self.tile_map.width * GRID_PIXEL_SIZE
 
         # --- Other stuff
@@ -212,6 +247,18 @@ class MyGame(arcade.Window):
         # Position the camera
         self.center_camera_to_player()
 
+        # Did the player fall off the map?
+        if self.player_sprite.center_y < -100:
+            self.player_sprite.center_x = PLAYER_START_X
+            self.player_sprite.center_y = PLAYER_START_Y
+
+        # See if the user got to the end of the level
+        if self.player_sprite.center_x <= 0:
+            # Advance to the next level
+            self.level += 1
+            # Load the next level
+            self.setup()
+
 
 def main():
     """Main function"""
@@ -223,7 +270,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-# moving platforms
 # enemy spawnpoints
 # ui
 # menu
