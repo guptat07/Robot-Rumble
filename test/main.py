@@ -1,4 +1,7 @@
+import random
+
 import arcade
+import math
 from arcade import gl
 from boss import boss
 from projectile import projectile
@@ -34,6 +37,10 @@ class MyGame(arcade.Window):
         self.timer = 0
         self.health = 10
         self.form_swap_timer = 0
+        self.path_finished = True
+        self.dest_x = 0
+        self.dest_y = 0
+        self.pangle = 0
 
         #WILL MOVE INTO BOSS IN FIRST REFACTOR
         self.first_form = True
@@ -55,10 +62,12 @@ class MyGame(arcade.Window):
         # Move the center of the player sprite to match the mouse x, y
         self.test_sprite.center_x = x
         self.test_sprite.center_y = y
+
         print("vals:")
         print(x)
         print(y)
         print()
+
     def setup(self):
         #TEST
         img = ":resources:images/animated_characters/female_person/femalePerson_idle.png"
@@ -204,6 +213,35 @@ class MyGame(arcade.Window):
 
         if self.first_form:
             self.bullet_list_p.visible = True
+            if self.path_finished:
+                start_x = self.player.center_x
+                start_y = self.player.center_y
+                self.dest_x, self.dest_y = constants.BOSS_PATH[random.randint(0, 2)]
+                x_diff = self.dest_x - start_x
+                y_diff = self.dest_y - start_y
+                self.pangle = math.atan2(y_diff, x_diff)
+                self.path_finished = False
+            distance = math.sqrt((self.player.center_x - self.dest_x) ** 2 + (self.player.center_y - self.dest_y) ** 2)
+            speed = min(3, distance)
+
+            change_x = math.cos(self.pangle) * speed
+            change_y = math.sin(self.pangle) * speed
+
+            self.player.change_x = change_x
+            self.player.change_y = change_y
+
+
+            distance = math.sqrt((self.player.center_x - self.dest_x) ** 2 + (self.player.center_y - self.dest_y) ** 2)
+            ''' 
+            print("values for distance")
+            print(distance)
+            print(self.player.center_x)
+            print(self.player.center_y)
+            print()
+            '''
+            if distance <= 10:
+                self.path_finished = True
+
             #bullet ring
             for bullet in self.bullet_list_p:
                 bullet.pathing(self.player.center_x,self.player.center_y,delta_time)
