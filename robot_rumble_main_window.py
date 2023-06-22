@@ -7,17 +7,13 @@ SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 810
 SCREEN_TITLE = "ROBOT RUMBLE"
 
-# Sprite and Tile Scaling Constants
-CHARACTER_SCALING = 5.0
+# Tile Scaling Constant
 TILE_SCALING = 2.0
 
 # Player Movement Scaling Constants (pixels/frame)
-PLAYER_MOVEMENT_SPEED = 6
+PLAYER_MOVEMENT_SPEED = 7
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 20
-
-RIGHT_FACING = 0
-LEFT_FACING = 1
 
 
 class RobotRumbleWindow(arcade.Window):
@@ -45,10 +41,10 @@ class RobotRumbleWindow(arcade.Window):
 
         # Set up the player info
         self.player = None
+
+        # Track which keys are pressed (for improved movement)
         self.left_pressed = False
         self.right_pressed = False
-        self.up_pressed = False
-        self.down_pressed = False
 
         # Set the background color
         arcade.set_background_color(arcade.color.SPACE_CADET)
@@ -64,7 +60,6 @@ class RobotRumbleWindow(arcade.Window):
 
         # Set up the player sprite and location
         self.player_sprite = Player.Player()
-        # arcade.Sprite("sprites/robot1/robot1.png", scale=CHARACTER_SCALING, image_x=0, image_width=32, image_height=32)
         self.player_sprite.center_x = SCREEN_WIDTH // 2
         self.player_sprite.center_y = SCREEN_HEIGHT // 2
         self.scene.add_sprite("Player", self.player_sprite)
@@ -90,6 +85,15 @@ class RobotRumbleWindow(arcade.Window):
         # Draw all the sprites.
         self.scene.draw(filter=gl.NEAREST)
 
+    def update_player_speed(self):
+        self.player_sprite.change_x = 0
+
+        # Using the key pressed variables lets us create more responsive x-axis movement
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
 
@@ -97,17 +101,21 @@ class RobotRumbleWindow(arcade.Window):
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            self.left_pressed = True
+            self.update_player_speed()
         elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+            self.right_pressed = True
+            self.update_player_speed()
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
 
         if key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = 0
+            self.left_pressed = False
+            self.update_player_speed()
         elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = 0
+            self.right_pressed = False
+            self.update_player_speed()
 
     def on_update(self, delta_time):
         """Movement and game logic"""
