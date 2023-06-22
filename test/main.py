@@ -37,11 +37,8 @@ class MyGame(arcade.Window):
         self.timer = 0
         self.health = 10
         self.form_swap_timer = 0
-        self.path_finished = True
-        self.dest_x = 0
-        self.dest_y = 0
-        self.pangle = 0
-
+        self.form_pos_timer = [0,0]
+        self.posy = 0
         #WILL MOVE INTO BOSS IN FIRST REFACTOR
         self.first_form = True
 
@@ -63,10 +60,12 @@ class MyGame(arcade.Window):
         self.test_sprite.center_x = x
         self.test_sprite.center_y = y
 
+        '''
         print("vals:")
         print(x)
         print(y)
         print()
+        '''
 
     def setup(self):
         #TEST
@@ -122,6 +121,7 @@ class MyGame(arcade.Window):
         #bullet test
 
         #bullet ring
+        #lowkey redundant
         for i in range(0,360,60):
             x = projectile(100,constants.BULLET_RADIUS, self.player.center_x, self.player.center_y, 0,0,i)
             y = projectile(100,constants.BULLET_RADIUS+100, self.player.center_x, self.player.center_y, 0,0, i+30)
@@ -129,7 +129,6 @@ class MyGame(arcade.Window):
             self.bullet_list_p.append(y)
             self.scene.add_sprite("name",x)
             self.scene.add_sprite("name",y)
-
 
 
 
@@ -207,40 +206,40 @@ class MyGame(arcade.Window):
             #platform.remove_from_sprite_lists()
 
         self.form_swap_timer = self.form_swap_timer + delta_time
+        self.form_pos_timer[1] = self.form_pos_timer[1] + delta_time
+
+        #rebuild bullets if going into first form
         if self.form_swap_timer >= constants.FORM_TIMER:
             self.first_form = not self.first_form
             self.form_swap_timer = 0
+            if self.first_form:
+                for i in range(0, 360, 60):
+                    x = projectile(100, constants.BULLET_RADIUS, self.player.center_x, self.player.center_y, 0, 0, i)
+                    y = projectile(100, constants.BULLET_RADIUS + 100, self.player.center_x, self.player.center_y, 0, 0,
+                                   i + 30)
+                    self.bullet_list_p.append(x)
+                    self.bullet_list_p.append(y)
+                    self.scene.add_sprite("name", x)
+                    self.scene.add_sprite("name", y)
 
         if self.first_form:
-            self.bullet_list_p.visible = True
-            if self.path_finished:
-                start_x = self.player.center_x
-                start_y = self.player.center_y
-                self.dest_x, self.dest_y = constants.BOSS_PATH[random.randint(0, 2)]
-                x_diff = self.dest_x - start_x
-                y_diff = self.dest_y - start_y
-                self.pangle = math.atan2(y_diff, x_diff)
-                self.path_finished = False
-            distance = math.sqrt((self.player.center_x - self.dest_x) ** 2 + (self.player.center_y - self.dest_y) ** 2)
-            speed = min(3, distance)
+            self.player.change_x = 0
 
-            change_x = math.cos(self.pangle) * speed
-            change_y = math.sin(self.pangle) * speed
-
-            self.player.change_x = change_x
-            self.player.change_y = change_y
+            #teleport and wait
+            if self.form_pos_timer[0] == 0:
+                self.player.teleport = [False, 0]
+                self.form_pos_timer[0] = 1
 
 
-            distance = math.sqrt((self.player.center_x - self.dest_x) ** 2 + (self.player.center_y - self.dest_y) ** 2)
-            ''' 
-            print("values for distance")
-            print(distance)
-            print(self.player.center_x)
-            print(self.player.center_y)
-            print()
-            '''
-            if distance <= 10:
-                self.path_finished = True
+            if self.form_pos_timer[1] > 3/20 and self.form_pos_timer[0] == 1:
+                posx, self.posy = constants.BOSS_PATH[random.randint(0,2)]
+                self.player.center_x = posx
+                self.player.center_y = self.posy
+                self.player.teleport = [True, 3]
+                self.form_pos_timer = [2, 0]
+
+            if self.form_pos_timer[1] > 3 and self.form_pos_timer[0] == 2:
+                self.form_pos_timer[0] = 0
 
             #bullet ring
             for bullet in self.bullet_list_p:
@@ -264,9 +263,18 @@ class MyGame(arcade.Window):
 
         else:
             self.player.boss_logic(delta_time)
-            self.bullet_list_p.visible = False
+
+            for bullet in self.bullet_list_p:
+                bullet.remove_from_sprite_lists()
+            for bullet in self.bullet_list:
+                # print("running")
+                bullet.homing(delta_time)
             #print(self.bullet_list_p.visible)
 
+        if self.player.center_x > self.test_sprite.center_x:
+            self.player.character_face_direction = constants.LEFT_FACING
+        else:
+            self.player.character_face_direction = constants.RIGHT_FACING
 
 
         self.player.update() #refactor this shit

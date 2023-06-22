@@ -10,6 +10,9 @@ class boss(arcade.Sprite):
         # Set up parent class
         super().__init__()
 
+        #important
+        self.health = 4
+
         # Default to face-right
         self.cur_time_frame = 0
         self.boss_logic_timer = 0
@@ -21,6 +24,7 @@ class boss(arcade.Sprite):
         # Used for flipping between image sequences
         self.cur_texture = 0
         self.start_jump = -1
+        self.teleport = [False,-1] #true means we have teleported
 
         self.scale = constants.CHARACTER_SCALING
 
@@ -32,6 +36,12 @@ class boss(arcade.Sprite):
 
         self.jump_r = [1]
         self.jump_l = [1]
+
+        self.teleport_r = [1]
+        self.teleport_l = [1]
+
+        self.damaged_r = [1]
+        self.damaged_l = [1]
 
 
         for i in range(2):
@@ -51,6 +61,26 @@ class boss(arcade.Sprite):
             texture_l = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True, hit_box_algorithm= "Detailed")
             self.jump_r.append(texture_r)
             self.jump_l.append(texture_l)
+
+
+        for i in range(2):
+            texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32,hit_box_algorithm= "Detailed")
+            texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True,hit_box_algorithm= "Detailed")
+            self.idle_r.append(texture_r)
+            self.idle_l.append(texture_l)
+
+        for i in range(6):
+            texture_r = arcade.load_texture("sprites/teleport.png", x=i * 32, y=0, width=32, height=32,
+                                            hit_box_algorithm="Detailed")
+            texture_l = arcade.load_texture("sprites/teleport.png", x=i * 32, y=0, width=32, height=32,
+                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
+            self.teleport_r.append(texture_r)
+            self.teleport_l.append(texture_l)
+
+        self.damaged_r.append(self.teleport_r[1])
+        self.damaged_r.append(self.teleport_r[6])
+        self.damaged_l.append(self.teleport_l[1])
+        self.damaged_l.append(self.teleport_l[6])
 
         self.texture = self.jump_l[4]
 
@@ -76,6 +106,9 @@ class boss(arcade.Sprite):
             self.boss_logic_timer = 0
             self.once_jump = True
         #some time per action, rand time between
+
+        #if player is near, focus on attack
+
 
         match self.r1:
             #idle
@@ -118,6 +151,32 @@ class boss(arcade.Sprite):
         #print("change x: ", self.change_x)
         #print("cur_time_frame time: ", self.cur_time_frame)
 
+        if self.teleport[1] != -1:
+            if self.teleport[1] >= 3 and self.teleport[0] == False:
+                return
+            elif self.teleport[0] == True:
+                if self.cur_time_frame >= 1 / 20:
+                    if self.teleport[1] >= 5:
+                        self.texture = self.teleport_l[5]
+                        self.teleport[1] = -1
+                        self.teleport[0] = False
+                    else:
+                        if self.character_face_direction == constants.LEFT_FACING:
+                            self.texture = self.teleport_l[self.teleport[1]]
+                        else:
+                            self.texture = self.teleport_r[self.teleport[1]]  # refactor this shit
+                        self.teleport[1] = self.teleport[1] + 1
+                        self.cur_time_frame = 0
+            else:
+                if self.cur_time_frame >= 1 / 20:
+                    if self.character_face_direction == constants.LEFT_FACING:
+                        self.texture = self.teleport_l[self.teleport[1]]
+                    else:
+                        self.texture = self.teleport_r[self.teleport[1]]  # refactor this shit
+                    self.teleport[1] = self.teleport[1] + 1
+                    self.cur_time_frame = 0
+
+            return
         #set start jump to 1 ONLY start
         if self.start_jump != 0:
             if self.start_jump > 3:

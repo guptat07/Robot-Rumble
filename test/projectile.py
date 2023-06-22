@@ -25,7 +25,7 @@ class projectile(arcade.Sprite):
         self.scale = constants.BULLET_SIZE
 
     def pathing(self, offset_x, offset_y, delta_time):
-        self.angle = self.angle + math.radians(self.omega)
+        self.angle = self.angle + math.radians(self.omega/5)
         self.timer = self.timer + delta_time
         self.center_x = offset_x + self.radius * math.sin(self.angle)  # New x
         self.center_y = offset_y + self.radius * math.cos(self.angle)  # New y
