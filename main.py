@@ -4,6 +4,7 @@ Platformer Game
 import math
 
 import arcade
+import arcade.gui
 from arcade import gl
 
 # Constants
@@ -37,6 +38,9 @@ LAYER_NAME_BACKGROUND = "Background"
 LAYER_NAME_PLATFORMS = "Platforms"
 LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
 
+SCENE_MENU = 'SCENE_MENU'
+SCENE_GAME = 'SCENE_GAME'
+
 
 def load_texture_pair(filename):
     """
@@ -46,30 +50,6 @@ def load_texture_pair(filename):
         arcade.load_texture(filename),
         arcade.load_texture(filename, flipped_horizontally=True),
     ]
-
-
-class InstructionView(arcade.View):
-    def on_show_view(self):
-        """ This is run once when we switch to this view """
-        arcade.set_background_color(arcade.csscolor.BLACK)
-
-        # Reset the viewport, necessary if we have a scrolling game and we need
-        # to reset the viewport back to the start so we can see what we draw.
-        arcade.set_viewport(0, self.window.width, 0, self.window.height)
-
-    def on_draw(self):
-        """ Draw this view """
-        self.clear()
-        arcade.draw_text("Robot Rumble", self.window.width / 2, self.window.height / 2,
-                         arcade.color.WHITE, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to advance", self.window.width / 2, self.window.height / 2 - 75,
-                         arcade.color.WHITE, font_size=20, anchor_x="center")
-
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        """ If the user presses the mouse button, start the game. """
-        game_view = GameView()
-        game_view.setup()
-        self.window.show_view(game_view)
 
 
 class Entity(arcade.Sprite):
@@ -93,7 +73,7 @@ class Enemy(Entity):
         super().__init__(name_file)
 
 
-class GameView(arcade.View):
+class MyGame(arcade.Window):
     """
     Main application class.
     """
@@ -101,12 +81,14 @@ class GameView(arcade.View):
     def __init__(self):
 
         # Call the parent class and set up the window
-        super().__init__()
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
         # Our TileMap Object
         self.tile_map = None
 
         # Our Scene Object
+        self.scene_type = SCENE_MENU
+
         self.scene = None
 
         # Separate variable that holds the player sprite
@@ -149,12 +131,48 @@ class GameView(arcade.View):
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+        # --- Required for all code that uses UI element,
+        # a UIManager to handle the UI.
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+
+        # Set background color
+        arcade.set_background_color(arcade.color.BLACK)
+
+        # Create a vertical BoxGroup to align buttons
+        self.v_box = arcade.gui.UIBoxLayout()
+
+        # Create Text Label
+        ui_text_label = arcade.gui.UITextArea(text="Robot Rumble",
+                                              width=450,
+                                              height=40,
+                                              font_size=24,
+                                              font_name="Kenney Future")
+        self.v_box.add(ui_text_label.with_space_around(bottom=0))
+
+        # Create the buttons
+        start_button = arcade.gui.UIFlatButton(text="Start Game", width=200)
+        self.v_box.add(start_button.with_space_around(bottom=20))
+
+        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        self.v_box.add(quit_button.with_space_around(bottom=20))
+
+        start_button.on_click = self.on_click_start
+        quit_button.on_click = self.on_click_quit
+
+        self.manager.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x",
+                anchor_y="center_y",
+                child=self.v_box)
+        )
+
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
         # Set up the Cameras
-        self.camera = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.gui_camera = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera = arcade.Camera(self.width, self.height)
+        self.gui_camera = arcade.Camera(self.width, self.height)
 
         # Name of map file to load
         map_name = "assets/Prototype.json"
@@ -213,17 +231,17 @@ class GameView(arcade.View):
     def on_draw(self):
         """Render the screen."""
 
-        # Clear the screen to the background color
         self.clear()
+        if self.scene_type == SCENE_MENU:
+            self.manager.draw()
 
-        # Activate the game camera
-        self.camera.use()
-
-        # Draw our Scene
-        self.scene.draw(filter=gl.NEAREST)
-
-        # Activate the GUI camera before drawing GUI elements
-        self.gui_camera.use()
+        elif self.scene_type == SCENE_GAME:
+            # Activate the game camera
+            self.camera.use()
+            # Draw our Scene
+            self.scene.draw(filter=gl.NEAREST)
+            # Activate the GUI camera before drawing GUI elements
+            self.gui_camera.use()
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -261,34 +279,42 @@ class GameView(arcade.View):
 
     def on_update(self, delta_time):
         """Movement and game logic"""
+        if self.scene_type == SCENE_GAME:
+            # Move the player with the physics engine
+            self.physics_engine.update()
 
-        # Move the player with the physics engine
-        self.physics_engine.update()
+            # Moving Platform
+            self.scene.update([LAYER_NAME_MOVING_PLATFORMS])
 
-        # Moving Platform
-        self.scene.update([LAYER_NAME_MOVING_PLATFORMS])
+            # Position the camera
+            self.center_camera_to_player()
 
-        # Position the camera
-        self.center_camera_to_player()
+            # Did the player fall off the map?
+            if self.player_sprite.center_y < -100:
+                self.player_sprite.center_x = PLAYER_START_X
+                self.player_sprite.center_y = PLAYER_START_Y
 
-        # Did the player fall off the map?
-        if self.player_sprite.center_y < -100:
-            self.player_sprite.center_x = PLAYER_START_X
-            self.player_sprite.center_y = PLAYER_START_Y
+            # See if the user got to the end of the level
+            if self.player_sprite.center_x <= 0:
+                # Advance to the next level
+                self.level += 1
+                # Load the next level
+                self.setup()
 
-        # See if the user got to the end of the level
-        if self.player_sprite.center_x <= 0:
-            # Advance to the next level
-            self.level += 1
-            # Load the next level
-            self.setup()
+    def on_click_start(self, event):
+        self.setup()
+        self.scene_type = SCENE_GAME
+        self.manager.disable()
+        print("Start:", event)
+
+    def on_click_quit(self, event):
+        arcade.exit()
 
 
 def main():
     """Main function"""
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    start_view = InstructionView()
-    window.show_view(start_view)
+    window = MyGame()
+    window.setup()
     arcade.run()
 
 
@@ -297,4 +323,3 @@ if __name__ == "__main__":
 
 # enemy spawnpoints
 # ui
-# menu
