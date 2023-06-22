@@ -1,1 +1,1 @@
-include sprites/*.png
+include robot_rumble/sprites/*.png

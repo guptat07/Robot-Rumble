@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='robot_rumble',
-    version='0.0.1',
+    version='0.0.2',
     packages=["robot_rumble"],
     url='https://github.com/guptat07/Robot-Rumble',
     license='',
