@@ -11,7 +11,7 @@ python -m arcade.examples.sprite_tiled_map
 import time
 
 import arcade
-from Boss import Boss
+from boss import boss
 
 TILE_SCALING = 0.5
 PLAYER_SCALING = 1
@@ -74,7 +74,7 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
 
         # Set up the player
-        self.player_sprite = Boss()
+        self.player_sprite = boss()
 
         # Starting position of the player
         self.player_sprite.center_x = 196

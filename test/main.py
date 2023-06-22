@@ -1,6 +1,7 @@
 import arcade
 from arcade import gl
-from Boss import Boss
+from boss import boss
+from projectile import projectile
 import constants
 
 
@@ -24,10 +25,12 @@ class MyGame(arcade.Window):
         self.player_list = None
         self.wall_list = None
         self.platform_list = None
+        self.bullet_list = None
 
         # player info
         self.player = None
         self.test_sprite = None
+        self.timer = 0
 
         # Our physics engine
         self.physics_engine = None
@@ -48,7 +51,7 @@ class MyGame(arcade.Window):
     def setup(self):
         #TEST
         img = ":resources:images/animated_characters/female_person/femalePerson_idle.png"
-        self.test_sprite = arcade.Sprite(img, 3)
+        self.test_sprite = arcade.Sprite(img)
 
 
         """Set up the game here. Call this function to restart the game."""
@@ -81,12 +84,29 @@ class MyGame(arcade.Window):
         # initialize scene and lists
         self.player_list = arcade.SpriteList()
         self.scene.add_sprite_list("player_list")
+        self.bullet_list = arcade.SpriteList()
 
         # initialize player
-        self.player = Boss()
+        self.player = boss()
         self.player.center_x = constants.SCREEN_WIDTH // 2
         self.player.center_y = constants.SCREEN_HEIGHT // 2 + 200
         self.scene.add_sprite("Boss", self.player)
+        self.scene.add_sprite("Test", self.test_sprite)
+
+        #bullet test
+
+        #bullet ring
+        self.bullet_list_p =[]
+        for i in range(0,360,60):
+            x = projectile(100,constants.BULLET_RADIUS, self.player.center_x, self.player.center_y, 0,0,i)
+            y = projectile(100,constants.BULLET_RADIUS+100, self.player.center_x, self.player.center_y, 0,0, i+30)
+            self.bullet_list_p.append(x)
+            self.bullet_list_p.append(y)
+            self.scene.add_sprite("name",x)
+            self.scene.add_sprite("name",y)
+
+
+
 
         if self.tile_map.background_color:
             arcade.set_background_color(self.tile_map.background_color)
@@ -112,7 +132,11 @@ class MyGame(arcade.Window):
 
         # Draw our Scene
         self.scene.draw(filter=gl.NEAREST)
-        self.scene.draw_hit_boxes(color=[255,255,255],names=["Boss","Platforms"])
+        self.bullet_list.draw()
+
+        #testing HITBOX/PATH
+        #self.scene.draw_hit_boxes(color=[255,255,255],names=["Boss","Platforms"])
+        #arcade.draw_arc_outline(self.player.center_x, self.player.center_y,2*constants.BULLET_RADIUS,2*constants.BULLET_RADIUS,arcade.color.WHITE,0,360)
 
         # Activate the GUI camera before drawing GUI elements
         self.gui_camera.use()
@@ -127,10 +151,32 @@ class MyGame(arcade.Window):
                                                                  self.platform_list)
         for platform in platform_hit_list:
             print("hit somethin!")
-            platform.remove_from_sprite_lists()
+            #platform.remove_from_sprite_lists()
+
+
+        #bullet ring
+        for bullet in self.bullet_list_p:
+            bullet.pathing(self.player.center_x,self.player.center_y,delta_time)
+
+        #spawn homing bullets
+
+        self.timer = self.timer + delta_time
+        #print(len(self.bullet_list))
+        for bullet in self.bullet_list:
+            #print("running")
+            bullet.homing(delta_time)
+
+        if self.timer >= 1:
+            x = projectile(100, 0, self.player.center_x, self.player.center_y, self.test_sprite.center_x,self.test_sprite.center_y,0)
+            self.bullet_list.append(x)
+            self.scene.add_sprite("bull", x)
+           #print("player stuff going in")
+            #print(self.player.center_x, self.player.center_y, self.test_sprite.center_x,self.test_sprite.center_y,sep=", ")
+            self.timer = 0
+
 
         self.player.update()
-        self.player.boss_logic(delta_time)
+        #self.player.boss_logic(delta_time)
         self.physics_engine.update()
         # Move the player
         self.player_list.update_animation()
@@ -142,6 +188,10 @@ class MyGame(arcade.Window):
             if self.physics_engine.can_jump():
                 self.player.start_jump = 1
                 self.player.change_y = constants.JUMP_SPEED
+
+
+        if key == arcade.key.A:
+            self.timer = 2
 
 
 def main():

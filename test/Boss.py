@@ -2,7 +2,7 @@ import arcade
 import constants
 import random
 
-class Boss(arcade.Sprite):
+class boss(arcade.Sprite):
     """ Boss Class """
 
     def __init__(self):
@@ -58,6 +58,17 @@ class Boss(arcade.Sprite):
     def boss_logic(self, delta_time):
         #print("changex" + self.change_x)
         self.boss_logic_timer += delta_time
+
+        if self.left < 0:
+            self.r1 = random.randint(0, 4)
+            self.boss_logic_countdown = random.randint(1, 3)
+            self.boss_logic_timer = 0
+            self.once_jump = True
+        elif self.right > constants.SCREEN_WIDTH - 1:
+            self.r1 = random.randint(0, 4)
+            self.boss_logic_countdown = random.randint(1, 3)
+            self.boss_logic_timer = 0
+            self.once_jump = True
 
         if self.boss_logic_timer > self.boss_logic_countdown:
             self.r1 = random.randint(0, 4)
