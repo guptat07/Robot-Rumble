@@ -1,5 +1,6 @@
 import arcade
 from arcade import gl
+import Player
 
 # Screen Size Constants
 SCREEN_WIDTH = 1080
@@ -17,7 +18,6 @@ PLAYER_JUMP_SPEED = 20
 
 RIGHT_FACING = 0
 LEFT_FACING = 1
-FRAMES_PER_SECOND = 60
 
 
 class RobotRumbleWindow(arcade.Window):
@@ -63,7 +63,8 @@ class RobotRumbleWindow(arcade.Window):
         # Spatial hash reduces time to detect collisions for stationary objects
 
         # Set up the player sprite and location
-        self.player_sprite = arcade.Sprite("sprites/robot1/robot1.png", scale=CHARACTER_SCALING, image_x=0, image_width=32, image_height=32)
+        self.player_sprite = Player.Player()
+        # arcade.Sprite("sprites/robot1/robot1.png", scale=CHARACTER_SCALING, image_x=0, image_width=32, image_height=32)
         self.player_sprite.center_x = SCREEN_WIDTH // 2
         self.player_sprite.center_y = SCREEN_HEIGHT // 2
         self.scene.add_sprite("Player", self.player_sprite)
