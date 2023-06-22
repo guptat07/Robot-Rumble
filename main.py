@@ -81,7 +81,7 @@ class MyGame(arcade.Window):
     def __init__(self):
 
         # Call the parent class and set up the window
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
 
         # Our TileMap Object
         self.tile_map = None
@@ -144,11 +144,10 @@ class MyGame(arcade.Window):
 
         # Create Text Label
         ui_text_label = arcade.gui.UITextArea(text="Robot Rumble",
-                                              width=450,
-                                              height=40,
+                                              width=320,
                                               font_size=24,
                                               font_name="Kenney Future")
-        self.v_box.add(ui_text_label.with_space_around(bottom=0))
+        self.v_box.add(ui_text_label.with_space_around(bottom=50))
 
         # Create the buttons
         start_button = arcade.gui.UIFlatButton(text="Start Game", width=200)
@@ -230,7 +229,6 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         """Render the screen."""
-
         self.clear()
         if self.scene_type == SCENE_MENU:
             self.manager.draw()
