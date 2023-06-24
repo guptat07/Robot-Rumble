@@ -15,7 +15,6 @@ PLAYER_MOVEMENT_SPEED = 7
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 20
 
-
 class RobotRumbleWindow(arcade.Window):
     """
     Main application class.
@@ -107,6 +106,9 @@ class RobotRumbleWindow(arcade.Window):
             self.right_pressed = True
             self.update_player_speed()
 
+        if key == arcade.key.Q:
+            self.player_sprite.is_attacking = True
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
 
@@ -116,6 +118,9 @@ class RobotRumbleWindow(arcade.Window):
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.right_pressed = False
             self.update_player_speed()
+
+        if key == arcade.key.Q:
+            self.player_sprite.is_attacking = False
 
     def on_update(self, delta_time):
         """Movement and game logic"""
