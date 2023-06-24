@@ -2,6 +2,23 @@ import arcade
 import constants
 import random
 
+
+class temp_laser(arcade.Sprite):
+    def __init__(self):
+        # Set up parent class
+        super().__init__()
+
+        self.animation_r = []
+        self.animation_l = []
+        for i in range(14):
+            texture_r = arcade.load_texture("sprites/laser.png", x=i * 32, y=0, width=32, height=32,
+                                            hit_box_algorithm="Detailed")
+            texture_l = arcade.load_texture("sprites/laser.png", x=i * 32, y=0, width=32, height=32,
+                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
+            self.animation_r.append(texture_r)
+            self.animation_l.append(texture_l)
+
+
 class boss(arcade.Sprite):
     """ Boss Class """
 
@@ -21,10 +38,14 @@ class boss(arcade.Sprite):
         self.r1 = 0
         self.character_face_direction = constants.LEFT_FACING
 
+
+
         # Used for flipping between image sequences
         self.cur_texture = 0
         self.start_jump = -1
         self.teleport = [False,-1] #true means we have teleported
+        self.damaged = -1
+        self.damaged_bool = True
 
         self.scale = constants.CHARACTER_SCALING
 
@@ -40,8 +61,8 @@ class boss(arcade.Sprite):
         self.teleport_r = [1]
         self.teleport_l = [1]
 
-        self.damaged_r = [1]
-        self.damaged_l = [1]
+        self.damaged_r = []
+        self.damaged_l = []
 
 
         for i in range(2):
@@ -77,10 +98,11 @@ class boss(arcade.Sprite):
             self.teleport_r.append(texture_r)
             self.teleport_l.append(texture_l)
 
+
         self.damaged_r.append(self.teleport_r[1])
-        self.damaged_r.append(self.teleport_r[6])
+        self.damaged_r.append(self.teleport_r[5])
         self.damaged_l.append(self.teleport_l[1])
-        self.damaged_l.append(self.teleport_l[6])
+        self.damaged_l.append(self.teleport_l[5])
 
         self.texture = self.jump_l[4]
 
@@ -88,6 +110,24 @@ class boss(arcade.Sprite):
     def boss_logic(self, delta_time):
         #print("changex" + self.change_x)
         self.boss_logic_timer += delta_time
+
+        if self.damaged == 0 or self.damaged == 1:
+            if self.damaged_bool:
+                self.boss_logic_timer = 0
+                self.damaged_bool = False
+            if self.boss_logic_timer >= constants.BOSS_STUN_TIME:
+                self.damaged = 2
+            self.change_x = 0
+            return
+        elif self.damaged == 2:
+            self.r1 = random.randint(1, 4)
+            self.boss_logic_countdown = random.randint(1, 3)
+            self.boss_logic_timer = 0
+            self.once_jump = True
+            self.damaged = -1
+            self.damaged_bool = True
+
+
 
         if self.left < 0:
             self.r1 = random.randint(0, 4)
@@ -108,6 +148,9 @@ class boss(arcade.Sprite):
         #some time per action, rand time between
 
         #if player is near, focus on attack
+
+
+
 
 
         match self.r1:
@@ -150,6 +193,28 @@ class boss(arcade.Sprite):
         self.cur_time_frame += delta_time
         #print("change x: ", self.change_x)
         #print("cur_time_frame time: ", self.cur_time_frame)
+
+        #damaged animation
+        if self.damaged != -1:
+            if self.damaged == 2:
+                return
+            if self.cur_time_frame >= 1 / 20:
+                if self.character_face_direction == constants.LEFT_FACING:
+                    self.texture = self.damaged_l[self.damaged]
+                else:
+                    self.texture = self.damaged_r[self.damaged]
+                self.cur_time_frame = 0
+
+                if self.damaged == 1:
+                    self.damaged = 0
+                else:
+                    self.damaged = 1
+                return
+
+
+
+
+
 
         if self.teleport[1] != -1:
             if self.teleport[1] >= 3 and self.teleport[0] == False:

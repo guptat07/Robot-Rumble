@@ -225,6 +225,10 @@ class MyGame(arcade.Window):
         if self.first_form:
             self.player.change_x = 0
 
+            if self.player.damaged != -1:
+                self.player.boss_logic(delta_time)
+                return
+
             #teleport and wait
             if self.form_pos_timer[0] == 0:
                 self.player.teleport = [False, 0]
@@ -294,6 +298,9 @@ class MyGame(arcade.Window):
         if key == arcade.key.A:
             self.timer = 2
 
+        #test damaged state
+        if key == arcade.key.Q:
+            self.player.damaged = 0
 
 def main():
     """ Main function """
