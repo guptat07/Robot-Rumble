@@ -26,9 +26,6 @@ PLAYER_JUMP_SPEED = 20
 PLAYER_START_X = 50
 PLAYER_START_Y = 1000
 
-DRONE_START_X = 150
-DRONE_START_Y = 625
-
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
 LEFT_FACING = 1
@@ -79,7 +76,7 @@ class Drone(Entity):
 
         # Default to face-right
         self.cur_time_frame = 0
-        self.character_face_direction = LEFT_FACING
+        self.character_face_direction = RIGHT_FACING
 
         # Used for flipping between image sequences
         self.cur_texture = 0
@@ -95,6 +92,9 @@ class Drone(Entity):
         self.time_to_shoot = 0
 
         self.scale = CHARACTER_SCALING
+
+        # Need a variable to track the center of the drone's path
+        self.start_y = 0
 
         # Load textures
         self.look_r = [1]
@@ -128,14 +128,24 @@ class Drone(Entity):
             self.fire_r.append(texture_r)
             self.fire_l.append(texture_l)
 
+        if self.character_face_direction == RIGHT_FACING:
+            self.look = self.look_r
+            self.fire = self.fire_r
+            self.shoot = self.shoot_r
+        else:
+            self.look = self.look_l
+            self.fire = self.fire_l
+            self.shoot = self.shoot_l
+
         self.thrusters = arcade.Sprite()
         self.shooting = arcade.Sprite()
         self.thrusters.scale = CHARACTER_SCALING
         self.shooting.scale = CHARACTER_SCALING
-        self.thrusters.texture = self.fire_r[1]
-        self.shooting.texture = self.shoot_r[1]
+        self.thrusters.texture = self.fire[1]
+        self.shooting.texture = self.shoot[1]
         self.shooting.visible = False
-        self.texture = self.look_r[1]
+        self.texture = self.look[1]
+
 
     def update(self):
         self.center_x += self.change_x
@@ -143,7 +153,10 @@ class Drone(Entity):
         self.thrusters.center_x = self.center_x
         self.thrusters.center_y = self.center_y
         # change the ten to be negative if left
-        self.shooting.center_x = self.center_x + 10
+        if self.character_face_direction == RIGHT_FACING:
+            self.shooting.center_x = self.center_x + 10
+        else:
+            self.shooting.center_x = self.center_x - 10
         self.shooting.center_y = self.center_y
 
     def drone_logic(self, delta_time):
@@ -156,26 +169,40 @@ class Drone(Entity):
             self.time_to_shoot = 0
             self.change_y = 0
         if self.is_shooting:
-            if self.shoot_r[0]+1 >= len(self.shoot_r):
-                self.shoot_r[0] = 1
+            if self.shoot[0]+1 >= len(self.shoot):
+                self.shoot[0] = 1
                 self.is_shooting = False
                 self.shooting.visible = False
                 return True
             elif self.shoot_animate > DRONE_TIMER / 2:
                 self.shooting.visible = True
-                self.shooting.texture = self.shoot_r[self.shoot_r[0]]
-                self.shoot_r[0] += 1
+                self.shooting.texture = self.shoot[self.shoot[0]]
+                self.shoot[0] += 1
                 self.shoot_animate = 0
         else:
-            if self.center_y >= DRONE_START_Y + self.limit_drone or self.center_y <= DRONE_START_Y - self.limit_drone:
+            if self.center_y >= self.start_y + self.limit_drone or self.center_y <= self.start_y - self.limit_drone:
                 self.move_up = not self.move_up
             if self.move_up:
                 self.change_y = DRONE_MOVEMENT_SPEED
-                self.thrusters.texture = self.fire_r[1]
+                self.thrusters.texture = self.fire[1]
             else:
                 self.change_y = -DRONE_MOVEMENT_SPEED
-                self.thrusters.texture = self.fire_r[2]
+                self.thrusters.texture = self.fire[2]
         return False
+
+    def face_direction(self, direction):
+        self.character_face_direction = direction
+        if self.character_face_direction == RIGHT_FACING:
+            self.look = self.look_r
+            self.fire = self.fire_r
+            self.shoot = self.shoot_r
+        else:
+            self.look = self.look_l
+            self.fire = self.fire_l
+            self.shoot = self.shoot_l
+        self.thrusters.texture = self.fire[1]
+        self.shooting.texture = self.shoot[1]
+        self.texture = self.look[1]
 
 class Explosion(Entity):
     def __init__(self):
@@ -184,7 +211,7 @@ class Explosion(Entity):
 
         # Default to face-right
         self.cur_time_frame = 0
-        self.character_face_direction = LEFT_FACING
+        self.character_face_direction = RIGHT_FACING
 
         # Used for flipping between image sequences
         self.cur_texture = 0
@@ -204,17 +231,28 @@ class Explosion(Entity):
                 x=i * 64, y=0, width=64, height=64, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.bomb_r.append(texture_r)
             self.bomb_l.append(texture_l)
+        if self.character_face_direction == RIGHT_FACING:
+            self.bomb = self.bomb_r
+        else:
+            self.bomb = self.bomb_r
+        self.texture = self.bomb[1]
 
-        self.texture = self.bomb_r[1]
+    def face_direction(self, direction):
+        self.character_face_direction = direction
+        if self.character_face_direction == RIGHT_FACING:
+            self.bomb = self.bomb_r
+        else:
+            self.bomb = self.bomb_r
+        self.texture = self.bomb[1]
 
     def explode(self, delta_time):
         self.explode_time += delta_time
-        if self.bomb_r[0] + 1 >= len(self.bomb_r):
-            self.bomb_r[0] = 1
+        if self.bomb[0] + 1 >= len(self.bomb):
+            self.bomb[0] = 1
             return True
         elif self.explode_time > DRONE_TIMER / 2:
-            self.texture = self.bomb_r[self.bomb_r[0]]
-            self.bomb_r[0] += 1
+            self.texture = self.bomb[self.bomb[0]]
+            self.bomb[0] += 1
             self.explode_time = 0
         return False
 
@@ -225,7 +263,7 @@ class DroneBullet(Entity):
 
         # Default to face-right
         self.cur_time_frame = 0
-        self.character_face_direction = LEFT_FACING
+        self.character_face_direction = RIGHT_FACING
 
         # Used for flipping between image sequences
         self.cur_texture = 0
@@ -236,8 +274,8 @@ class DroneBullet(Entity):
                                           x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
         self.texture = self.bullet
 
-    def move(self, right):
-        if right:
+    def move(self):
+        if self.character_face_direction == RIGHT_FACING:
             self.change_x += BULLET_MOVEMENT_SPEED
         else:
             self.change_x += -BULLET_MOVEMENT_SPEED
@@ -361,14 +399,19 @@ class MyGame(arcade.Window):
         # make the drone
         self.drone_list = arcade.SpriteList()
         self.scene.add_sprite_list("drone_list")
-        self.drone = Drone()
-        self.drone.center_x = DRONE_START_X
-        self.drone.center_y = DRONE_START_Y
-        self.drone.update()
-        self.scene.add_sprite("Drone", self.drone)
-        self.scene.add_sprite("Thrusters", self.drone.thrusters)
-        self.scene.add_sprite("Shooting", self.drone.shooting)
-        self.drone_list.append(self.drone)
+
+        drone_positions = [[150, 625, RIGHT_FACING], [1600, 750, LEFT_FACING], [1800, 235, LEFT_FACING]]
+        for x, y, direction in drone_positions:
+            self.drone = Drone()
+            self.drone.center_x = x
+            self.drone.center_y = y
+            self.drone.start_y = self.drone.center_y
+            self.drone.face_direction(direction)
+            self.drone.update()
+            self.scene.add_sprite("Drone", self.drone)
+            self.scene.add_sprite("Thrusters", self.drone.thrusters)
+            self.scene.add_sprite("Shooting", self.drone.shooting)
+            self.drone_list.append(self.drone)
 
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
@@ -472,6 +515,7 @@ class MyGame(arcade.Window):
             self.explosion = Explosion()
             self.explosion.center_x = drone.center_x
             self.explosion.center_y = drone.center_y
+            self.explosion.face_direction(drone.character_face_direction)
             self.scene.add_sprite("Explosion", self.explosion)
             self.explosion_list.append(self.explosion)
             drone.remove_from_sprite_lists()
@@ -484,13 +528,17 @@ class MyGame(arcade.Window):
             drone.update()
             if drone.drone_logic(delta_time):
                 self.bullet = DroneBullet()
-                self.bullet.center_x = self.drone.shooting.center_x + 5
-                self.bullet.center_y = self.drone.shooting.center_y
+                self.bullet.character_face_direction = drone.character_face_direction
+                if self.bullet.character_face_direction == RIGHT_FACING:
+                    self.bullet.center_x = drone.shooting.center_x + 5
+                else:
+                    self.bullet.center_x = drone.shooting.center_x - 5
+                self.bullet.center_y = drone.shooting.center_y
                 self.scene.add_sprite("Bullet", self.bullet)
                 self.bullet_list.append(self.bullet)
 
         for bullet in self.bullet_list:
-            self.bullet.move(True)
+            bullet.move()
             bullet.update()
 
         for bullet in self.bullet_list:
