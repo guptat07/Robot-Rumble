@@ -5,6 +5,9 @@ import arcade
 from arcade import gl
 from importlib.resources import files
 
+import arcade
+import arcade.gui
+from arcade import gl
 
 # Constants
 SCREEN_WIDTH = 1080
@@ -25,12 +28,51 @@ PLAYER_JUMP_SPEED = 20
 PLAYER_START_X = 50
 PLAYER_START_Y = 1000
 
+# Constants used to track if the player is facing left or right
+RIGHT_FACING = 0
+LEFT_FACING = 1
+
 # How fast the camera pans to the player. 1.0 is instant.
 CAMERA_SPEED = 0.1
 
 LAYER_NAME_FOREGROUND = "Foreground"
 LAYER_NAME_BACKGROUND = "Background"
 LAYER_NAME_PLATFORMS = "Platforms"
+LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
+
+SCENE_MENU = 'SCENE_MENU'
+SCENE_GAME = 'SCENE_GAME'
+
+
+def load_texture_pair(filename):
+    """
+    Load a texture pair, with the second being a mirror image.
+    """
+    return [
+        arcade.load_texture(filename),
+        arcade.load_texture(filename, flipped_horizontally=True),
+    ]
+
+
+class Entity(arcade.Sprite):
+    def __init__(self, name_file):
+        super().__init__()
+
+        # Default to facing right
+        self.facing_direction = LEFT_FACING
+
+        # Used for image sequences
+        self.cur_texture = 0
+        self.scale = CHARACTER_SCALING
+        self.character_face_direction = RIGHT_FACING
+
+        self.idle_texture_pair = load_texture_pair(name_file)
+
+
+class Enemy(Entity):
+    def __init__(self, name_file):
+        # Setup parent class
+        super().__init__(name_file)
 
 
 class MyGame(arcade.Window):
@@ -41,12 +83,14 @@ class MyGame(arcade.Window):
     def __init__(self):
 
         # Call the parent class and set up the window
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
 
         # Our TileMap Object
         self.tile_map = None
 
         # Our Scene Object
+        self.scene_type = SCENE_MENU
+
         self.scene = None
 
         # Separate variable that holds the player sprite
@@ -63,7 +107,6 @@ class MyGame(arcade.Window):
 
         self.end_of_map = 0
         self.top_of_map = 0
-        self.end_of_map = 0
 
         self.view_bottom = 0
         self.view_left = 0
@@ -75,18 +118,58 @@ class MyGame(arcade.Window):
         self.start_jump = -1
 
         # Load textures
+        # Load textures
         self.idle_r = [1]
         self.idle_l = [1]
 
         for i in range(2):
-            texture_r = arcade.load_texture(files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("idle1.png"), x=i * 32, y=0, width=32, height=32)
-            texture_l = arcade.load_texture(files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("idle1.png"), x=i * 32, y=0, width=32, height=32,
-                                            flipped_horizontally=True)
+            texture_r = arcade.load_texture(
+                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("idle1.png"), x=i * 32,
+                y=0, width=32, height=32)
+            texture_l = arcade.load_texture(
+                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("idle1.png"), x=i * 32,
+                y=0, width=32, height=32,
+                flipped_horizontally=True)
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
 
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+        # --- Required for all code that uses UI element,
+        # a UIManager to handle the UI.
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+
+        # Set background color
+        arcade.set_background_color(arcade.color.BLACK)
+
+        # Create a vertical BoxGroup to align buttons
+        self.v_box = arcade.gui.UIBoxLayout()
+
+        # Create Text Label
+        ui_text_label = arcade.gui.UITextArea(text="Robot Rumble",
+                                              width=320,
+                                              font_size=24,
+                                              font_name="Kenney Future")
+        self.v_box.add(ui_text_label.with_space_around(bottom=50))
+
+        # Create the buttons
+        start_button = arcade.gui.UIFlatButton(text="Start Game", width=200)
+        self.v_box.add(start_button.with_space_around(bottom=20))
+
+        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        self.v_box.add(quit_button.with_space_around(bottom=20))
+
+        start_button.on_click = self.on_click_start
+        quit_button.on_click = self.on_click_quit
+
+        self.manager.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x",
+                anchor_y="center_y",
+                child=self.v_box)
+        )
 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
@@ -105,6 +188,9 @@ class MyGame(arcade.Window):
         layer_options = {
             "Platforms": {
                 "use_spatial_hash": True,
+            },
+            "Horizontal Moving Platform": {
+                "use_spatial_hash": False,
             },
         }
         # Read in the tiled map
@@ -142,24 +228,24 @@ class MyGame(arcade.Window):
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
+            platforms=self.scene[LAYER_NAME_MOVING_PLATFORMS],
             gravity_constant=GRAVITY,
             walls=self.scene[LAYER_NAME_PLATFORMS],
         )
 
     def on_draw(self):
         """Render the screen."""
-
-        # Clear the screen to the background color
         self.clear()
+        if self.scene_type == SCENE_MENU:
+            self.manager.draw()
 
-        # Activate the game camera
-        self.camera.use()
-
-        # Draw our Scene
-        self.scene.draw(filter = gl.NEAREST)
-
-        # Activate the GUI camera before drawing GUI elements
-        self.gui_camera.use()
+        elif self.scene_type == SCENE_GAME:
+            # Activate the game camera
+            self.camera.use()
+            # Draw our Scene
+            self.scene.draw(filter=gl.NEAREST)
+            # Activate the GUI camera before drawing GUI elements
+            self.gui_camera.use()
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -197,12 +283,36 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """Movement and game logic"""
+        if self.scene_type == SCENE_GAME:
+            # Move the player with the physics engine
+            self.physics_engine.update()
 
-        # Move the player with the physics engine
-        self.physics_engine.update()
+            # Moving Platform
+            self.scene.update([LAYER_NAME_MOVING_PLATFORMS])
 
-        # Position the camera
-        self.center_camera_to_player()
+            # Position the camera
+            self.center_camera_to_player()
+
+            # Did the player fall off the map?
+            if self.player_sprite.center_y < -100:
+                self.player_sprite.center_x = PLAYER_START_X
+                self.player_sprite.center_y = PLAYER_START_Y
+
+            # See if the user got to the end of the level
+            if self.player_sprite.center_x <= 0:
+                # Advance to the next level
+                self.level += 1
+                # Load the next level
+                self.setup()
+
+    def on_click_start(self, event):
+        self.setup()
+        self.scene_type = SCENE_GAME
+        self.manager.disable()
+        print("Start:", event)
+
+    def on_click_quit(self, event):
+        arcade.exit()
 
 
 def main():
