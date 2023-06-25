@@ -456,16 +456,16 @@ class MyGame(arcade.Window):
 
         drone_positions = [[150, 625, RIGHT_FACING], [1600, 750, LEFT_FACING], [1800, 235, LEFT_FACING]]
         for x, y, direction in drone_positions:
-            self.drone = Drone()
-            self.drone.center_x = x
-            self.drone.center_y = y
-            self.drone.start_y = self.drone.center_y
-            self.drone.face_direction(direction)
-            self.drone.update()
-            self.scene.add_sprite("Drone", self.drone)
-            self.scene.add_sprite("Thrusters", self.drone.thrusters)
-            self.scene.add_sprite("Shooting", self.drone.shooting)
-            self.drone_list.append(self.drone)
+            drone = Drone()
+            drone.center_x = x
+            drone.center_y = y
+            drone.start_y = drone.center_y
+            drone.face_direction(direction)
+            drone.update()
+            self.scene.add_sprite("Drone", drone)
+            self.scene.add_sprite("Thrusters", drone.thrusters)
+            self.scene.add_sprite("Shooting", drone.shooting)
+            self.drone_list.append(drone)
 
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
@@ -563,16 +563,18 @@ class MyGame(arcade.Window):
                 self.setup()
 
             drone_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.drone_list)
-            for drone in drone_collisions:
-                drone.thrusters.kill()
-                drone.shooting.kill()
-                self.explosion = Explosion()
-                self.explosion.center_x = drone.center_x
-                self.explosion.center_y = drone.center_y
-                self.explosion.face_direction(drone.character_face_direction)
-                self.scene.add_sprite("Explosion", self.explosion)
-                self.explosion_list.append(self.explosion)
-                drone.remove_from_sprite_lists()
+            for sprite in drone_collisions:
+                for drone in self.drone_list:
+                    if sprite == drone:
+                        drone.thrusters.kill()
+                        drone.shooting.kill()
+                        drone.explosion = Explosion()
+                        drone.explosion.center_x = drone.center_x
+                        drone.explosion.center_y = drone.center_y
+                        drone.explosion.face_direction(drone.character_face_direction)
+                        self.scene.add_sprite("Explosion", drone.explosion)
+                        self.explosion_list.append(drone.explosion)
+                        drone.remove_from_sprite_lists()
 
             for explosion in self.explosion_list:
                 if explosion.explode(delta_time):
@@ -581,15 +583,15 @@ class MyGame(arcade.Window):
             for drone in self.drone_list:
                 drone.update()
                 if drone.drone_logic(delta_time):
-                    self.bullet = DroneBullet()
-                    self.bullet.character_face_direction = drone.character_face_direction
-                    if self.bullet.character_face_direction == RIGHT_FACING:
-                        self.bullet.center_x = drone.shooting.center_x + 5
+                    bullet = DroneBullet()
+                    bullet.character_face_direction = drone.character_face_direction
+                    if bullet.character_face_direction == RIGHT_FACING:
+                        bullet.center_x = drone.shooting.center_x + 5
                     else:
-                        self.bullet.center_x = drone.shooting.center_x - 5
-                    self.bullet.center_y = drone.shooting.center_y
-                    self.scene.add_sprite("Bullet", self.bullet)
-                    self.bullet_list.append(self.bullet)
+                        bullet.center_x = drone.shooting.center_x - 5
+                    bullet.center_y = drone.shooting.center_y
+                    self.scene.add_sprite("Bullet", bullet)
+                    self.bullet_list.append(bullet)
 
             for bullet in self.bullet_list:
                 bullet.move()
