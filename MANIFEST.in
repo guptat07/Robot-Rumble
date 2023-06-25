@@ -1,0 +1,16 @@
+include robot_rumble/assets/*
+include robot_rumble/assets/robot_series_base_pack/*
+include robot_rumble/assets/robot_series_base_pack/enemy3/*
+include robot_rumble/assets/robot_series_base_pack/enemy2/*
+include robot_rumble/assets/robot_series_base_pack/enemy1/*
+include robot_rumble/assets/robot_series_base_pack/miniboss1/*
+include robot_rumble/assets/robot_series_base_pack/other/*
+include robot_rumble/assets/robot_series_base_pack/robot1/*
+include robot_rumble/assets/robot_series_base_pack/robot1/robo1/*
+include robot_rumble/assets/robot_series_base_pack/robot1/robo1masked/*
+include robot_rumble/assets/robot_series_base_pack/robot2/*
+include robot_rumble/assets/robot_series_base_pack/robot2/robo2/*
+include robot_rumble/assets/robot_series_base_pack/robot2/robo2masked/*
+include robot_rumble/assets/robot_series_base_pack/robot3/*
+include robot_rumble/assets/robot_series_base_pack/robot3/robo3/*
+include robot_rumble/assets/robot_series_base_pack/robot3/robo3masked/*
