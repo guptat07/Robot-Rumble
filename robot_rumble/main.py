@@ -268,6 +268,58 @@ class Explosion(Entity):
             self.explode_time = 0
         return False
 
+class Player_Death(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.death_time = 0
+        self.death_r = [1]
+        self.death_l = [1]
+
+        self.scale = CHARACTER_SCALING
+
+        for i in range(7):
+            texture_r = arcade.load_texture(
+                files("assets.robot_series_base_pack.robot1.robo1masked").joinpath("robot1death-Sheet[32height64wide].png"),
+                x=i * 64, y=0, width=64, height=32, hit_box_algorithm="Simple")
+            texture_l = arcade.load_texture(
+                files("assets.robot_series_base_pack.robot1.robo1masked").joinpath("robot1death-Sheet[32height64wide].png"),
+                x=i * 64, y=0, width=64, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
+            self.death_r.append(texture_r)
+            self.death_l.append(texture_l)
+        if self.character_face_direction == RIGHT_FACING:
+            self.death = self.death_r
+        else:
+            self.death = self.death_r
+        self.texture = self.death[1]
+
+    def face_direction(self, direction):
+        self.character_face_direction = direction
+        if self.character_face_direction == RIGHT_FACING:
+            self.death = self.death_r
+        else:
+            self.death = self.death_r
+        self.texture = self.death[1]
+
+    def die(self, delta_time):
+        self.death_time += delta_time
+        if self.death[0] + 1 >= len(self.death):
+            self.death[0] = 1
+            return True
+        elif self.death_time > DRONE_TIMER / 2:
+            self.texture = self.death[self.death[0]]
+            self.death[0] += 1
+            self.death_time = 0
+        return False
+
 
 class DroneBullet(Entity):
     def __init__(self):
@@ -327,6 +379,9 @@ class MyGame(arcade.Window):
 
         # Variable for the explosion sprite list
         self.explosion_list = None
+
+        # Variable for the death sprite list
+        self.death_list = None
 
         # Our physics engine
         self.physics_engine = None
@@ -448,7 +503,8 @@ class MyGame(arcade.Window):
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
         self.scene.add_sprite("Player", self.player_sprite)
-        self.player_sprite.health = 10
+        self.player_sprite.health = 1
+        self.player_sprite.is_active = True
 
         # make the drone
         self.drone_list = arcade.SpriteList()
@@ -469,6 +525,9 @@ class MyGame(arcade.Window):
 
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
+
+        self.death_list = arcade.SpriteList()
+        self.scene.add_sprite_list("death_list")
 
         self.bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("bullet_list")
@@ -507,13 +566,14 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
 
-        if key == arcade.key.UP or key == arcade.key.W:
-            if self.physics_engine.can_jump():
-                self.player_sprite.change_y = PLAYER_JUMP_SPEED
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+        if(self.player_sprite.is_active):
+            if key == arcade.key.UP or key == arcade.key.W:
+                if self.physics_engine.can_jump():
+                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            elif key == arcade.key.LEFT or key == arcade.key.A:
+                self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            elif key == arcade.key.RIGHT or key == arcade.key.D:
+                self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
@@ -536,7 +596,8 @@ class MyGame(arcade.Window):
             screen_center_y = 490
         player_centered = screen_center_x, screen_center_y
 
-        self.camera.move_to(player_centered)
+        if self.player_sprite.is_active:
+            self.camera.move_to(player_centered)
 
     def on_update(self, delta_time):
         """Movement and game logic"""
@@ -607,6 +668,24 @@ class MyGame(arcade.Window):
                 bullet.remove_from_sprite_lists()
                 self.player_sprite.health -= 1
                 print(self.player_sprite.health)
+                if(self.player_sprite.health == 0):
+                    death = Player_Death()
+                    death.center_x = self.player_sprite.center_x
+                    death.center_y = self.player_sprite.center_y
+                    # This line was removed because the current player doesn't have direction
+                    # death.face_direction(self.player_sprite.character_face_direction)
+                    self.scene.add_sprite("Death", death)
+                    self.death_list.append(death)
+                    self.player_sprite.kill()
+                    self.player_sprite.is_active = False
+                    self.player_sprite.change_x = 0
+                    self.player_sprite.change_y = 0
+
+            for death in self.death_list:
+                if death.die(delta_time):
+                    death.remove_from_sprite_lists()
+                    self.scene_type = SCENE_MENU
+                    self.manager.enable()
 
     def on_click_start(self, event):
         self.setup()
