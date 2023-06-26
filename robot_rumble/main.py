@@ -301,6 +301,57 @@ class Explosion(Entity):
             self.explode_time = 0
         return False
 
+class Player_Death(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.death_time = 0
+        self.death_r = [1]
+        self.death_l = [1]
+
+        self.scale = CHARACTER_SCALING
+
+        for i in range(7):
+            texture_r = arcade.load_texture(
+                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("robot1death-Sheet[32height64wide].png"),
+                x=i * 64, y=0, width=64, height=32, hit_box_algorithm="Simple")
+            texture_l = arcade.load_texture(
+                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("robot1death-Sheet[32height64wide].png"),
+                x=i * 64, y=0, width=64, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
+            self.death_r.append(texture_r)
+            self.death_l.append(texture_l)
+        if self.character_face_direction == RIGHT_FACING:
+            self.death = self.death_r
+        else:
+            self.death = self.death_r
+        self.texture = self.death[1]
+
+    def face_direction(self, direction):
+        self.character_face_direction = direction
+        if self.character_face_direction == RIGHT_FACING:
+            self.death = self.death_r
+        else:
+            self.death = self.death_r
+        self.texture = self.death[1]
+
+    def die(self, delta_time):
+        self.death_time += delta_time
+        if self.death[0] + 1 >= len(self.death):
+            self.death[0] = 1
+            return True
+        elif self.death_time > DRONE_TIMER / 2:
+            self.texture = self.death[self.death[0]]
+            self.death[0] += 1
+            self.death_time = 0
+        return False
 
 class DroneBullet(Entity):
     def __init__(self):
@@ -376,10 +427,12 @@ class MyGame(arcade.Window):
         # Variable for the explosion sprite list
         self.explosion_list = None
 
+        # Variable for the death sprite list
+        self.death_list = None
+
         # Variable for the boss sprite
         self.boss = None
         self.boss_list = None
-        self.boss_health = 10
         self.boss_timer = 0
         self.boss_form_swap_timer = 0
         self.boss_form_pos_timer = [0, 0]
@@ -406,6 +459,10 @@ class MyGame(arcade.Window):
 
         self.view_bottom = 0
         self.view_left = 0
+        
+        # screen center
+        self.screen_center_x = 0
+        self.screen_center_y = 0
 
         self.cur_time_frame = 0
 
@@ -531,9 +588,15 @@ class MyGame(arcade.Window):
             self.player_sprite.center_y = PLAYER_START_Y
         self.scene_level.add_sprite("Player", self.player_sprite)
         self.scene_boss.add_sprite("Player", self.player_sprite)
-        self.player_sprite.health = 10
+        self.player_sprite.health = 20
+        self.player_sprite.is_active = True
 
+        # health bar to both
         self.scene_level.add_sprite("hp", self.player_health_bar)
+        self.scene_boss.add_sprite("hp", self.player_health_bar)
+
+        self.player_hp[0] = 1
+        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
 
         self.player_bullet_list = arcade.SpriteList()
         self.scene_level.add_sprite_list("player_bullet_list")
@@ -581,6 +644,10 @@ class MyGame(arcade.Window):
 
         self.explosion_list = arcade.SpriteList()
         self.scene_level.add_sprite_list("explosion_list")
+
+        self.death_list = arcade.SpriteList()
+        self.scene_level.add_sprite_list("death_list")
+        self.scene_boss.add_sprite_list("death_list")
 
         self.bullet_list = arcade.SpriteList()
         self.scene_level.add_sprite_list("bullet_list")
@@ -647,57 +714,59 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
-        if self.scene_type == SCENE_GAME:
-            if key == arcade.key.UP or key == arcade.key.W:
-                if self.physics_engine_level.can_jump():
-                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
-            elif key == arcade.key.LEFT or key == arcade.key.A:
-                self.left_pressed = True
-                self.update_player_speed()
-            elif key == arcade.key.RIGHT or key == arcade.key.D:
-                self.right_pressed = True
-                self.update_player_speed()
-            elif key == arcade.key.Q:
-                self.player_sprite.is_attacking = True
-                bullet = PlayerBullet()
-                bullet.character_face_direction = self.player_sprite.character_face_direction
-                if bullet.character_face_direction == RIGHT_FACING:
-                    bullet.center_x = self.player_sprite.center_x + 30
-                else:
-                    bullet.texture = arcade.load_texture(
-                        files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                            "bullet[32height32wide].png"),
-                        x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
-                    bullet.center_x = self.player_sprite.center_x - 30
-                bullet.center_y = self.player_sprite.center_y - 20
-                self.scene_level.add_sprite("player_bullet_list", bullet)
-                self.player_bullet_list.append(bullet)
+        if (self.player_sprite.is_active):
+            if self.scene_type == SCENE_GAME:
+                if key == arcade.key.UP or key == arcade.key.W:
+                    if self.physics_engine_level.can_jump():
+                        self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                elif key == arcade.key.LEFT or key == arcade.key.A:
+                    self.left_pressed = True
+                    self.update_player_speed()
+                elif key == arcade.key.RIGHT or key == arcade.key.D:
+                    self.right_pressed = True
+                    self.update_player_speed()
+                elif key == arcade.key.Q:
+                    self.player_sprite.is_attacking = True
+                    bullet = PlayerBullet()
+                    bullet.character_face_direction = self.player_sprite.character_face_direction
+                    if bullet.character_face_direction == RIGHT_FACING:
+                        bullet.center_x = self.player_sprite.center_x + 30
+                    else:
+                        bullet.texture = arcade.load_texture(
+                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
+                                "bullet[32height32wide].png"),
+                            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
+                        bullet.center_x = self.player_sprite.center_x - 30
+                    bullet.center_y = self.player_sprite.center_y - 20
+                    self.scene_level.add_sprite("player_bullet_list", bullet)
+                    self.player_bullet_list.append(bullet)
 
-        elif self.scene_type == SCENE_BOSS:
-            if key == arcade.key.UP or key == arcade.key.W:
-                if self.physics_engine_level.can_jump():
-                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
-            elif key == arcade.key.LEFT or key == arcade.key.A:
-                self.left_pressed = True
-                self.update_player_speed()
-            elif key == arcade.key.RIGHT or key == arcade.key.D:
-                self.right_pressed = True
-                self.update_player_speed()
-            elif key == arcade.key.Q:
-                self.player_sprite.is_attacking = True
-                bullet = PlayerBullet()
-                bullet.character_face_direction = self.player_sprite.character_face_direction
-                if bullet.character_face_direction == RIGHT_FACING:
-                    bullet.center_x = self.player_sprite.center_x + 30
-                else:
-                    bullet.texture = arcade.load_texture(
-                        files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                            "bullet[32height32wide].png"),
-                        x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
-                    bullet.center_x = self.player_sprite.center_x - 30
-                bullet.center_y = self.player_sprite.center_y - 20
-                self.scene_level.add_sprite("player_bullet_list", bullet)
-                self.player_bullet_list.append(bullet)
+            elif self.scene_type == SCENE_BOSS:
+                if key == arcade.key.UP or key == arcade.key.W:
+                    if self.physics_engine_level.can_jump():
+                        self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                elif key == arcade.key.LEFT or key == arcade.key.A:
+                    self.left_pressed = True
+                    self.update_player_speed()
+                elif key == arcade.key.RIGHT or key == arcade.key.D:
+                    self.right_pressed = True
+                    self.update_player_speed()
+                elif key == arcade.key.Q:
+                    self.player_sprite.is_attacking = True
+                    bullet = PlayerBullet()
+                    bullet.character_face_direction = self.player_sprite.character_face_direction
+                    if bullet.character_face_direction == RIGHT_FACING:
+                        bullet.center_x = self.player_sprite.center_x + 30
+                    else:
+                        bullet.texture = arcade.load_texture(
+                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
+                                "bullet[32height32wide].png"),
+                            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
+                        bullet.center_x = self.player_sprite.center_x - 30
+                    bullet.center_y = self.player_sprite.center_y - 20
+                    self.scene_level.add_sprite("player_bullet_list", bullet)
+                    self.player_bullet_list.append(bullet)
+
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
@@ -712,38 +781,24 @@ class MyGame(arcade.Window):
             self.player_sprite.is_attacking = False
 
     def center_camera_to_player(self):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
-        if screen_center_x < 0:
-            screen_center_x = 0
-        if screen_center_y < 0:
-            screen_center_y = 0
-        if screen_center_x > 810:
-            screen_center_x = 810
-        if screen_center_y > 550:
-            screen_center_y = 490
-        player_centered = screen_center_x, screen_center_y
+        self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
+        self.screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
+        if self.screen_center_x < 0:
+            self.screen_center_x = 0
+        if self.screen_center_y < 0:
+            self.screen_center_y = 0
+        if self.screen_center_x > 810:
+            self.screen_center_x = 810
+        if self.screen_center_y > 550:
+            self.screen_center_y = 490
+        player_centered = self.screen_center_x, self.screen_center_y
 
-        self.camera.move_to(player_centered)
+        if self.player_sprite.is_active:
+            self.camera.move_to(player_centered)
 
     def center_camera_to_health(self):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
-
-        self.player_health_bar.center_x = screen_center_x + SCREEN_WIDTH - (SCREEN_WIDTH * 9 // 10)
-        self.player_health_bar.center_y = screen_center_y + SCREEN_HEIGHT - (SCREEN_HEIGHT // 10)
-
-        if screen_center_x < 0:
-            screen_center_x = 0
-        if screen_center_y < 0:
-            screen_center_y = 0
-        if screen_center_x > 810:
-            screen_center_x = 810
-        if screen_center_y > 550:
-            screen_center_y = 490
-
-        self.player_health_bar.center_x = screen_center_x
-        self.player_health_bar.center_y = screen_center_y
+        self.player_health_bar.center_x = self.screen_center_x + SCREEN_WIDTH - (SCREEN_WIDTH * 9 // 10)
+        self.player_health_bar.center_y = self.screen_center_y + SCREEN_HEIGHT - (SCREEN_HEIGHT // 20)
 
     def on_update(self, delta_time):
         """Movement and game logic"""
@@ -759,11 +814,13 @@ class MyGame(arcade.Window):
 
             # Position the camera
             self.center_camera_to_player()
+            self.center_camera_to_health()
 
             # Did the player fall off the map?
             if self.player_sprite.center_y < -100:
-                self.player_sprite.center_x = PLAYER_START_X
-                self.player_sprite.center_y = PLAYER_START_Y
+                #self.player_sprite.center_x = PLAYER_START_X
+                #self.player_sprite.center_y = PLAYER_START_Y
+                self.setup()
 
             # See if the user got to the end of the level
             if self.player_sprite.center_x <= 0:
@@ -817,6 +874,7 @@ class MyGame(arcade.Window):
             for bullet in bullet_collisions:
                 bullet.remove_from_sprite_lists()
                 self.player_sprite.health -= 1
+                self.hit()
                 print(self.player_sprite.health)
 
         if self.scene_type == SCENE_BOSS:
@@ -830,7 +888,7 @@ class MyGame(arcade.Window):
             for bullet in bullet_collisions:
                 bullet.remove_from_sprite_lists()
                 self.hit()
-                self.boss_health = self.boss_health - 1
+                self.player_sprite.health = self.player_sprite.health - 1
 
             bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite,
                                                                             self.boss_bullet_list_circle)
@@ -838,7 +896,7 @@ class MyGame(arcade.Window):
             for bull in bullet_collisions_circle:
                 bull.remove_from_sprite_lists()
                 self.hit()
-                self.boss_health = self.boss_health - 1
+                self.player_sprite.health = self.player_sprite.health - 1
 
             self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
             self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
@@ -913,6 +971,14 @@ class MyGame(arcade.Window):
             self.physics_engine_boss.update()
             self.boss_list.update_animation()
 
+
+
+        for death in self.death_list:
+            if death.die(delta_time):
+                death.remove_from_sprite_lists()
+                self.scene_type = SCENE_MENU
+                self.manager.enable()
+
     def on_click_start(self, event):
         self.setup()
         self.scene_type = SCENE_GAME
@@ -922,6 +988,19 @@ class MyGame(arcade.Window):
         arcade.exit()
 
     def hit(self):
+        if (self.player_sprite.health == 0):
+            death = Player_Death()
+            death.center_x = self.player_sprite.center_x
+            death.center_y = self.player_sprite.center_y
+            # This line was removed because the current player doesn't have direction
+            # death.face_direction(self.player_sprite.character_face_direction)
+            self.scene_level.add_sprite("Death", death)
+            self.scene_boss.add_sprite("Death", death)
+            self.death_list.append(death)
+            self.player_sprite.kill()
+            self.player_sprite.is_active = False
+            self.player_sprite.change_x = 0
+            self.player_sprite.change_y = 0
         if self.player_hp[0] < 21:
             self.player_hp[0] = self.player_hp[0] + 1
             self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
