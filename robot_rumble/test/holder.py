@@ -39,14 +39,14 @@ class Player(arcade.Sprite):
 
 
         for i in range(2):
-            texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32)
-            texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True)
+            texture_r = arcade.load_texture("../assets/boss_assets/idle1.png", x=i * 32, y=0, width=32, height=32)
+            texture_l = arcade.load_texture("../assets/boss_assets/idle1.png", x=i * 32, y=0, width=32, height=32, flipped_horizontally=True)
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
 
         for i in range(8):
-            texture_r = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32)
-            texture_l = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True)
+            texture_r = arcade.load_texture("../assets/boss_assets/run1.png", x=i * 32, y=0, width=32, height=32)
+            texture_l = arcade.load_texture("../assets/boss_assets/run1.png", x=i * 32, y=0, width=32, height=32, flipped_horizontally=True)
             self.running_r.append(texture_r)
             self.running_l.append(texture_l)
 

@@ -1,22 +1,7 @@
 import arcade
 import constants
 import random
-
-
-class temp_laser(arcade.Sprite):
-    def __init__(self):
-        # Set up parent class
-        super().__init__()
-
-        self.animation_r = []
-        self.animation_l = []
-        for i in range(14):
-            texture_r = arcade.load_texture("sprites/laser.png", x=i * 32, y=0, width=32, height=32,
-                                            hit_box_algorithm="Detailed")
-            texture_l = arcade.load_texture("sprites/laser.png", x=i * 32, y=0, width=32, height=32,
-                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
-            self.animation_r.append(texture_r)
-            self.animation_l.append(texture_l)
+from importlib.resources import files
 
 
 class boss(arcade.Sprite):
@@ -27,7 +12,7 @@ class boss(arcade.Sprite):
         # Set up parent class
         super().__init__()
 
-        #important
+        # important
         self.health = 4
 
         # Default to face-right
@@ -38,18 +23,16 @@ class boss(arcade.Sprite):
         self.r1 = 0
         self.character_face_direction = constants.LEFT_FACING
 
-
-
         # Used for flipping between image sequences
         self.cur_texture = 0
         self.start_jump = -1
-        self.teleport = [False,-1] #true means we have teleported
+        self.teleport = [False, -1]  # true means we have teleported
         self.damaged = -1
         self.damaged_bool = True
 
         self.scale = constants.CHARACTER_SCALING
 
-        #Load textures
+        # Load textures
         self.idle_r = [1]
         self.idle_l = [1]
         self.running_r = [1]
@@ -64,40 +47,37 @@ class boss(arcade.Sprite):
         self.damaged_r = []
         self.damaged_l = []
 
-
         for i in range(2):
-            texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32,hit_box_algorithm= "Detailed")
-            texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True,hit_box_algorithm= "Detailed")
+            texture_r = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("idle1.png"), x=i * 32, y=0, width=32, height=32,
+                                            hit_box_algorithm="Detailed")
+            texture_l = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("idle1.png"), x=i * 32, y=0, width=32, height=32,
+                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
             self.idle_r.append(texture_r)
             self.idle_l.append(texture_l)
 
         for i in range(8):
-            texture_r = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32,hit_box_algorithm= "Detailed")
-            texture_l = arcade.load_texture("sprites/run1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True,hit_box_algorithm= "Detailed")
+            texture_r = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("run1.png"), x=i * 32, y=0, width=32, height=32,
+                                            hit_box_algorithm="Detailed")
+            texture_l = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("run1.png"), x=i * 32, y=0, width=32, height=32,
+                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
             self.running_r.append(texture_r)
             self.running_l.append(texture_l)
 
         for i in range(7):
-            texture_r = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32, hit_box_algorithm= "Detailed")
-            texture_l = arcade.load_texture("sprites/jump1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True, hit_box_algorithm= "Detailed")
+            texture_r = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("jump1.png"), x=i * 32, y=0, width=32, height=32,
+                                            hit_box_algorithm="Detailed")
+            texture_l = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("jump1.png"), x=i * 32, y=0, width=32, height=32,
+                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
             self.jump_r.append(texture_r)
             self.jump_l.append(texture_l)
 
-
-        for i in range(2):
-            texture_r = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32,hit_box_algorithm= "Detailed")
-            texture_l = arcade.load_texture("sprites/idle1.png",x=i*32,y=0,width=32, height=32, flipped_horizontally=True,hit_box_algorithm= "Detailed")
-            self.idle_r.append(texture_r)
-            self.idle_l.append(texture_l)
-
         for i in range(6):
-            texture_r = arcade.load_texture("sprites/teleport.png", x=i * 32, y=0, width=32, height=32,
+            texture_r = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("teleport.png"), x=i * 32, y=0, width=32, height=32,
                                             hit_box_algorithm="Detailed")
-            texture_l = arcade.load_texture("sprites/teleport.png", x=i * 32, y=0, width=32, height=32,
+            texture_l = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("teleport.png"), x=i * 32, y=0, width=32, height=32,
                                             flipped_horizontally=True, hit_box_algorithm="Detailed")
             self.teleport_r.append(texture_r)
             self.teleport_l.append(texture_l)
-
 
         self.damaged_r.append(self.teleport_r[1])
         self.damaged_r.append(self.teleport_r[5])
@@ -106,9 +86,8 @@ class boss(arcade.Sprite):
 
         self.texture = self.jump_l[4]
 
-
     def boss_logic(self, delta_time):
-        #print("changex" + self.change_x)
+        # print("changex" + self.change_x)
         self.boss_logic_timer += delta_time
 
         if self.damaged == 0 or self.damaged == 1:
@@ -127,8 +106,6 @@ class boss(arcade.Sprite):
             self.damaged = -1
             self.damaged_bool = True
 
-
-
         if self.left < 0:
             self.r1 = random.randint(0, 4)
             self.boss_logic_countdown = random.randint(1, 3)
@@ -145,23 +122,19 @@ class boss(arcade.Sprite):
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
             self.once_jump = True
-        #some time per action, rand time between
+        # some time per action, rand time between
 
-        #if player is near, focus on attack
-
-
-
-
+        # if player is near, focus on attack
 
         match self.r1:
-            #idle
+            # idle
             case 0:
                 self.change_x = 0
-            #walk left
+            # walk left
             case 1:
                 self.change_x = -constants.MOVE_SPEED
                 self.character_face_direction = constants.LEFT_FACING
-            #jump left
+            # jump left
             case 2:
                 self.character_face_direction = constants.LEFT_FACING
                 if self.once_jump:
@@ -169,11 +142,11 @@ class boss(arcade.Sprite):
                     self.change_y = constants.JUMP_SPEED
                     self.once_jump = False
                 self.change_x = -constants.MOVE_SPEED
-            #walk right
+            # walk right
             case 3:
                 self.character_face_direction = constants.RIGHT_FACING
                 self.change_x = constants.MOVE_SPEED
-            #jump right
+            # jump right
             case 4:
                 self.character_face_direction = constants.RIGHT_FACING
                 if self.once_jump:
@@ -181,20 +154,21 @@ class boss(arcade.Sprite):
                     self.change_y = constants.JUMP_SPEED
                     self.once_jump = False
                 self.change_x = constants.MOVE_SPEED
-            #only jump
+            # only jump
             case 5:
                 if self.once_jump:
                     self.start_jump = 1
                     self.change_y = constants.JUMP_SPEED
                     self.once_jump = False
-    def update_animation(self, delta_time):
-        #print("i exist!!!")
-        #frames per second -> 60
-        self.cur_time_frame += delta_time
-        #print("change x: ", self.change_x)
-        #print("cur_time_frame time: ", self.cur_time_frame)
 
-        #damaged animation
+    def update_animation(self, delta_time):
+        # print("i exist!!!")
+        # frames per second -> 60
+        self.cur_time_frame += delta_time
+        # print("change x: ", self.change_x)
+        # print("cur_time_frame time: ", self.cur_time_frame)
+
+        # damaged animation
         if self.damaged != -1:
             if self.damaged == 2:
                 return
@@ -210,11 +184,6 @@ class boss(arcade.Sprite):
                 else:
                     self.damaged = 1
                 return
-
-
-
-
-
 
         if self.teleport[1] != -1:
             if self.teleport[1] >= 3 and self.teleport[0] == False:
@@ -242,7 +211,7 @@ class boss(arcade.Sprite):
                     self.cur_time_frame = 0
 
             return
-        #set start jump to 1 ONLY start
+        # set start jump to 1 ONLY start
         if self.start_jump != 0:
             if self.start_jump > 3:
                 if self.change_y == 0:
@@ -253,16 +222,13 @@ class boss(arcade.Sprite):
                     if self.character_face_direction == constants.LEFT_FACING:
                         self.texture = self.jump_l[self.start_jump]
                     else:
-                        self.texture = self.jump_r[self.start_jump] #refactor this shit
+                        self.texture = self.jump_r[self.start_jump]  # refactor this shit
                     self.start_jump = self.start_jump + 1
                     self.cur_time_frame = 0
             return
 
-
-
-
         if self.change_x == 0 and self.change_y == 0:
-            if self.cur_time_frame >= 1/4:
+            if self.cur_time_frame >= 1 / 4:
                 if self.character_face_direction == constants.LEFT_FACING:
                     self.texture = self.idle_l[self.idle_l[0]]
                     if self.idle_l[0] >= len(self.idle_l) - 1:
@@ -280,9 +246,8 @@ class boss(arcade.Sprite):
                 self.cur_time_frame = 0
                 return
 
-
         if self.change_x > 0:
-            if self.cur_time_frame >= 8/60:
+            if self.cur_time_frame >= 8 / 60:
                 self.texture = self.running_r[self.running_r[0]]
                 if self.running_r[0] >= len(self.running_r) - 1:
                     self.running_r[0] = 1
@@ -291,7 +256,7 @@ class boss(arcade.Sprite):
                 self.cur_time_frame = 0
 
         if self.change_x < 0:
-            if self.cur_time_frame >= 8/60:
+            if self.cur_time_frame >= 8 / 60:
                 self.texture = self.running_l[self.running_l[0]]
                 if self.running_l[0] >= len(self.running_l) - 1:
                     self.running_l[0] = 1
@@ -303,7 +268,7 @@ class boss(arcade.Sprite):
         """ Move the player """
         # Move player.
         # Remove these lines if physics engine is moving player.
-        #print("printing")
+        # print("printing")
         self.center_x += self.change_x
         self.center_y += self.change_y
 
@@ -317,4 +282,3 @@ class boss(arcade.Sprite):
             self.bottom = 0
         elif self.top > constants.SCREEN_HEIGHT - 1:
             self.top = constants.SCREEN_HEIGHT - 1
-
