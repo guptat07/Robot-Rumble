@@ -127,7 +127,8 @@ class Player(arcade.Sprite):
                 self.jumping_attack_l.append(texture_jumping_attack_l)
 
         # Set an initial texture. Required for the code to run.
-        self.texture = self.jumping_r[4]
+        self.texture = self.idle_r[1]
+        self.hit_box = self.texture.hit_box_points
 
     def update_animation(self, delta_time):
         # Check for out-of-bounds
