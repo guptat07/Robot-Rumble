@@ -401,6 +401,20 @@ class MyGame(arcade.Window):
             self.player_idle_r.append(texture_r)
             self.player_idle_l.append(texture_l)
 
+        # load hp
+        self.player_hp = [1]
+
+        for i in range(21):
+            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0, width=61, height=19)
+            self.player_hp.append(texture)
+
+        self.player_health_bar = arcade.Sprite()
+        self.player_health_bar.scale = 3
+        self.player_health_bar.texture = self.player_hp[1]
+        self.player_health_bar.center_x = 100
+        self.player_health_bar.center_y = 770
+
+
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
@@ -506,6 +520,8 @@ class MyGame(arcade.Window):
         self.scene_level.add_sprite("Player", self.player_sprite)
         self.scene_boss.add_sprite("Player", self.player_sprite)
         self.player_sprite.health = 10
+
+        self.scene_level.add_sprite("hp", self.player_health_bar)
 
         # Set up Boss
         self.boss_list = arcade.SpriteList()
@@ -646,6 +662,26 @@ class MyGame(arcade.Window):
 
         self.camera.move_to(player_centered)
 
+    def center_camera_to_health(self):
+        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
+        screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
+
+        self.player_health_bar.center_x = screen_center_x + SCREEN_WIDTH - (SCREEN_WIDTH * 9 // 10)
+        self.player_health_bar.center_y = screen_center_y + SCREEN_HEIGHT - (SCREEN_HEIGHT // 10)
+
+        if screen_center_x < 0:
+            screen_center_x = 0
+        if screen_center_y < 0:
+            screen_center_y = 0
+        if screen_center_x > 810:
+            screen_center_x = 810
+        if screen_center_y > 550:
+            screen_center_y = 490
+
+        self.player_health_bar.center_x = screen_center_x
+        self.player_health_bar.center_y = screen_center_y
+
+
     def on_update(self, delta_time):
         """Movement and game logic"""
         if self.scene_type == SCENE_GAME:
@@ -657,6 +693,7 @@ class MyGame(arcade.Window):
 
             # Position the camera
             self.center_camera_to_player()
+            self.center_camera_to_health()
 
             # Did the player fall off the map?
             if self.player_sprite.center_y < -100:
@@ -717,12 +754,13 @@ class MyGame(arcade.Window):
         if self.scene_type == SCENE_BOSS:
             self.physics_engine_boss.update()
             self.physics_engine_boss_player.update()
-            # Move the player with the physics engine
+
             platform_hit_list = arcade.check_for_collision_with_list(self.boss, self.platform_list_boss)
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
             for bullet in bullet_collisions:
                 bullet.remove_from_sprite_lists()
+                self.hit()
                 self.boss_health = self.boss_health - 1
 
             bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite,
@@ -730,6 +768,7 @@ class MyGame(arcade.Window):
 
             for bull in bullet_collisions_circle:
                 bull.remove_from_sprite_lists()
+                self.hit()
                 self.boss_health = self.boss_health - 1
 
             self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
@@ -812,6 +851,11 @@ class MyGame(arcade.Window):
 
     def on_click_quit(self, event):
         arcade.exit()
+
+    def hit(self):
+        if self.player_hp[0] < 21:
+            self.player_hp[0] = self.player_hp[0] + 1
+            self.health_bar.texture = self.player_hp[self.player_hp[0]]
 
 
 def main():
