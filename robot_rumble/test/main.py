@@ -15,6 +15,9 @@ class MyGame(arcade.Window):
 
     def __init__(self):
 
+
+
+
         # Call the parent class and set up the window
         super().__init__(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, constants.SCREEN_TITLE)
 
@@ -41,6 +44,20 @@ class MyGame(arcade.Window):
         self.posy = 0
         #WILL MOVE INTO BOSS IN FIRST REFACTOR
         self.first_form = True
+
+        #load hp
+        self.player_hp = [1]
+
+        for i in range(21):
+            texture = arcade.load_texture("sprites/health_bar.png", x=i * 61, y=0, width=61, height=19)
+            self.player_hp.append(texture)
+
+        self.health_bar = arcade.Sprite()
+        self.health_bar.scale = 3
+        self.health_bar.texture = self.player_hp[1]
+        self.health_bar.center_x = 100
+        self.health_bar.center_y = 770
+
 
 
         # Our physics engine
@@ -117,6 +134,7 @@ class MyGame(arcade.Window):
         self.player.center_y = constants.SCREEN_HEIGHT // 2 + 200
         self.scene.add_sprite("Boss", self.player)
         self.scene.add_sprite("Test", self.test_sprite)
+        self.scene.add_sprite("hp",self.health_bar)
 
         #bullet test
 
@@ -175,9 +193,8 @@ class MyGame(arcade.Window):
                                                                  self.player_list)
 
         for boss in boss_col:
-            print("hit somethin!")
-            self.health = self.health - 1
-            print(self.health)
+            self.hit()
+
 
         platform_hit_list = arcade.check_for_collision_with_list(self.player,
                                                                  self.platform_list)
@@ -188,6 +205,7 @@ class MyGame(arcade.Window):
         for bull in bullet_collisions:
             print("hit somethin!")
             bull.remove_from_sprite_lists()
+            self.hit()
             self.health = self.health - 1
             print(self.health)
 
@@ -197,6 +215,7 @@ class MyGame(arcade.Window):
         for bull in bullet_collisions_p:
             print("hit somethin!")
             bull.remove_from_sprite_lists()
+            self.hit()
             self.health = self.health - 1
             print(self.health)
 
@@ -270,6 +289,18 @@ class MyGame(arcade.Window):
 
             for bullet in self.bullet_list_p:
                 bullet.remove_from_sprite_lists()
+            for bullet in self.bullet_list_p:
+                bullet.remove_from_sprite_lists()
+            for bullet in self.bullet_list_p:
+                bullet.remove_from_sprite_lists()
+            for bullet in self.bullet_list_p:
+                bullet.remove_from_sprite_lists()
+            self.bullet_list_p.clear()
+            count = 0
+            for bullet in self.bullet_list_p:
+                count = count + 1
+                print("his not dead", count)
+
             for bullet in self.bullet_list:
                 # print("running")
                 bullet.homing(delta_time)
@@ -285,6 +316,12 @@ class MyGame(arcade.Window):
         self.physics_engine.update()
         # Move the player
         self.player_list.update_animation()
+
+
+    def hit(self):
+        if self.player_hp[0] < 21:
+            self.player_hp[0] = self.player_hp[0] + 1
+            self.health_bar.texture = self.player_hp[self.player_hp[0]]
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
