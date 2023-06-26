@@ -5,9 +5,9 @@ Platformer Game
 import random
 import arcade
 import arcade.gui
-import Player
-from boss import boss
-from projectile import projectile
+import robot_rumble.Player as Player
+from robot_rumble.boss import boss as boss
+from robot_rumble.projectile import projectile as projectile
 from arcade import gl
 from importlib.resources import files
 
@@ -145,30 +145,30 @@ class Drone(Entity):
 
         for i in range(3):
             texture_l = arcade.load_texture(
-                files("assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
                 x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(
-                files("assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
                 x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.look_r.append(texture_r)
             self.look_l.append(texture_l)
 
         for i in range(6):
             texture_l = arcade.load_texture(
-                files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
                 x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(
-                files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
                 x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.shoot_r.append(texture_r)
             self.shoot_l.append(texture_l)
 
         for i in range(2):
             texture_l = arcade.load_texture(
-                files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
                 x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(
-                files("assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
                 x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.fire_r.append(texture_r)
             self.fire_l.append(texture_l)
@@ -269,10 +269,10 @@ class Explosion(Entity):
 
         for i in range(7):
             texture_l = arcade.load_texture(
-                files("assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
                 x=i * 64, y=0, width=64, height=64, hit_box_algorithm="Simple")
             texture_r = arcade.load_texture(
-                files("assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
+                files("robot_rumble.assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
                 x=i * 64, y=0, width=64, height=64, flipped_horizontally=True, hit_box_algorithm="Simple")
             self.bomb_r.append(texture_r)
             self.bomb_l.append(texture_l)
@@ -367,7 +367,7 @@ class DroneBullet(Entity):
 
         self.scale = CHARACTER_SCALING
 
-        self.bullet = arcade.load_texture(files("assets.robot_series_base_pack.enemy1").joinpath("enemy1bullet.png"),
+        self.bullet = arcade.load_texture(files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1bullet.png"),
                                           x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
         self.texture = self.bullet
 

@@ -1,5 +1,5 @@
 import arcade
-import constants
+import robot_rumble.constants as constants
 from importlib.resources import files
 
 # Character scaling constant

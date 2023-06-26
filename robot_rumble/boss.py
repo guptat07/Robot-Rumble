@@ -1,5 +1,5 @@
 import arcade
-import constants
+import robot_rumble.constants as constants
 import random
 from importlib.resources import files
 from arcade import gl

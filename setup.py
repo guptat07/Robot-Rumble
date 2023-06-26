@@ -1,8 +1,13 @@
 from setuptools import setup
 
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(
     name='robot_rumble',
-    version='0.0.6',
+    version='0.1.0',
     packages=["robot_rumble"],
     url='https://github.com/guptat07/Robot-Rumble',
     license='',
@@ -13,6 +18,8 @@ setup(
     install_requires=['arcade>=2.6.17'],
     python_requires='==3.10',
     include_package_data=True,
+    long_description=long_description,
+    long_description_content_type='text/plain',
 
     entry_points =
     {
