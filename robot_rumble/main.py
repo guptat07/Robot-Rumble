@@ -459,6 +459,10 @@ class MyGame(arcade.Window):
 
         self.view_bottom = 0
         self.view_left = 0
+        
+        # screen center
+        self.screen_center_x = 0
+        self.screen_center_y = 0
 
         # screen center
         self.screen_center_x = 0
