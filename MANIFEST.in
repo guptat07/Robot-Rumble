@@ -14,3 +14,4 @@ include robot_rumble/assets/robot_series_base_pack/robot2/robo2masked/*
 include robot_rumble/assets/robot_series_base_pack/robot3/*
 include robot_rumble/assets/robot_series_base_pack/robot3/robo3/*
 include robot_rumble/assets/robot_series_base_pack/robot3/robo3masked/*
+include robot_rumble/assets/boss_assets/*

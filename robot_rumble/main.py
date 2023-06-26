@@ -5,9 +5,9 @@ Platformer Game
 import random
 import arcade
 import arcade.gui
-import Player
-from boss import boss
-from projectile import projectile
+import robot_rumble.Player as Player
+from robot_rumble.boss import boss as boss
+from robot_rumble.projectile import projectile as projectile
 from arcade import gl
 from importlib.resources import files
 

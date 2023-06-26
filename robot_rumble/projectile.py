@@ -2,7 +2,7 @@ from importlib.resources import files
 
 import arcade
 import math
-import constants
+import robot_rumble.constants as constants
 import random
 
 
