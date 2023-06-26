@@ -379,6 +379,10 @@ class MyGame(arcade.Window):
 
         self.view_bottom = 0
         self.view_left = 0
+        
+        # screen center
+        self.screen_center_x = 0
+        self.screen_center_y = 0
 
         self.cur_time_frame = 0
 
@@ -519,7 +523,7 @@ class MyGame(arcade.Window):
             self.player_sprite.center_y = PLAYER_START_Y
         self.scene_level.add_sprite("Player", self.player_sprite)
         self.scene_boss.add_sprite("Player", self.player_sprite)
-        self.player_sprite.health = 10
+        self.player_sprite.health = 20
 
         self.scene_level.add_sprite("hp", self.player_health_bar)
 
@@ -648,38 +652,23 @@ class MyGame(arcade.Window):
             self.player_sprite.change_x = 0
 
     def center_camera_to_player(self):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
-        if screen_center_x < 0:
-            screen_center_x = 0
-        if screen_center_y < 0:
-            screen_center_y = 0
-        if screen_center_x > 810:
-            screen_center_x = 810
-        if screen_center_y > 550:
-            screen_center_y = 490
-        player_centered = screen_center_x, screen_center_y
+        self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
+        self.screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
+        if self.screen_center_x < 0:
+            self.screen_center_x = 0
+        if self.screen_center_y < 0:
+            self.screen_center_y = 0
+        if self.screen_center_x > 810:
+            self.screen_center_x = 810
+        if self.screen_center_y > 550:
+            self.screen_center_y = 490
+        player_centered = self.screen_center_x, self.screen_center_y
 
         self.camera.move_to(player_centered)
 
     def center_camera_to_health(self):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
-
-        self.player_health_bar.center_x = screen_center_x + SCREEN_WIDTH - (SCREEN_WIDTH * 9 // 10)
-        self.player_health_bar.center_y = screen_center_y + SCREEN_HEIGHT - (SCREEN_HEIGHT // 10)
-
-        if screen_center_x < 0:
-            screen_center_x = 0
-        if screen_center_y < 0:
-            screen_center_y = 0
-        if screen_center_x > 810:
-            screen_center_x = 810
-        if screen_center_y > 550:
-            screen_center_y = 490
-
-        self.player_health_bar.center_x = screen_center_x
-        self.player_health_bar.center_y = screen_center_y
+        self.player_health_bar.center_x = self.screen_center_x + SCREEN_WIDTH - (SCREEN_WIDTH * 9 // 10)
+        self.player_health_bar.center_y = self.screen_center_y + SCREEN_HEIGHT - (SCREEN_HEIGHT // 20)
 
 
     def on_update(self, delta_time):
@@ -749,6 +738,7 @@ class MyGame(arcade.Window):
             for bullet in bullet_collisions:
                 bullet.remove_from_sprite_lists()
                 self.player_sprite.health -= 1
+                self.hit()
                 print(self.player_sprite.health)
 
         if self.scene_type == SCENE_BOSS:
@@ -855,7 +845,7 @@ class MyGame(arcade.Window):
     def hit(self):
         if self.player_hp[0] < 21:
             self.player_hp[0] = self.player_hp[0] + 1
-            self.health_bar.texture = self.player_hp[self.player_hp[0]]
+            self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
 
 
 def main():
