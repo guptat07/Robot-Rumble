@@ -186,7 +186,7 @@ class boss(arcade.Sprite):
                 return
 
         if self.teleport[1] != -1:
-            if self.teleport[1] >= 3 and self.teleport[0] == False:
+            if self.teleport[1] >= 3 and self.teleport[0] == False: #havent teleported yet, finished frame
                 return
             elif self.teleport[0] == True:
                 if self.cur_time_frame >= 1 / 20:
@@ -204,6 +204,7 @@ class boss(arcade.Sprite):
             else:
                 if self.cur_time_frame >= 1 / 20:
                     if self.character_face_direction == constants.LEFT_FACING:
+                        print("hello", self.teleport[1])
                         self.texture = self.teleport_l[self.teleport[1]]
                     else:
                         self.texture = self.teleport_r[self.teleport[1]]  # refactor this shit

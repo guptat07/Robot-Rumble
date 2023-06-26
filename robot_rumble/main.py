@@ -2,7 +2,6 @@
 Platformer Game
 """
 
-
 import random
 import arcade
 import arcade.gui
@@ -22,7 +21,7 @@ TILE_SCALING = 4
 SPRITE_PIXEL_SIZE = 32
 GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
 
-BOSS_TILE_SCALING = 3
+BOSS_TILE_SCALING = 2.8
 BOSS_JUMP_SPEED = 1
 
 # Movement speed of player, in pixels per frame
@@ -321,6 +320,8 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
 
         # Our TileMap Level Object
+        self.foreground_boss_level = None
+        self.physics_engine_boss_player = None
         self.physics_engine_boss = None
         self.physics_engine_level = None
         self.platform_list_level = None
@@ -335,7 +336,6 @@ class MyGame(arcade.Window):
         self.scene_type = SCENE_MENU
         self.scene_level = None
         self.scene_boss = None
-
 
         # Separate variable that holds the player sprite
         self.player_sprite = None
@@ -479,6 +479,7 @@ class MyGame(arcade.Window):
         self.tile_map_boss_level = arcade.load_tilemap(map_name_boss_level, BOSS_TILE_SCALING, layer_options_boss_level)
         self.platform_list_boss = self.tile_map_boss_level.sprite_lists["Platforms"]
         self.wall_list_boss_level = self.tile_map_boss_level.sprite_lists["Floor"]
+        self.foreground_boss_level = self.tile_map_boss_level.sprite_lists["Foreground"]
 
         # Initialize Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -496,8 +497,12 @@ class MyGame(arcade.Window):
         # Set up the player, specifically placing it at these coordinates.
         image_source = files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("one-dude.png")
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
-        self.player_sprite.center_x = PLAYER_START_X
-        self.player_sprite.center_y = PLAYER_START_Y
+        if self.scene_type == SCENE_BOSS:
+            self.player_sprite.center_x = 100
+            self.player_sprite.center_y = 300
+        else:
+            self.player_sprite.center_x = PLAYER_START_X
+            self.player_sprite.center_y = PLAYER_START_Y
         self.scene_level.add_sprite("Player", self.player_sprite)
         self.scene_boss.add_sprite("Player", self.player_sprite)
         self.player_sprite.health = 10
@@ -568,8 +573,13 @@ class MyGame(arcade.Window):
         self.physics_engine_boss = arcade.PhysicsEnginePlatformer(
             self.boss,
             gravity_constant=GRAVITY,
-            platforms=[self.platform_list_boss],
-            walls=[self.wall_list_boss_level],
+            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+        )
+
+        self.physics_engine_boss_player = arcade.PhysicsEnginePlatformer(
+            self.player_sprite,
+            gravity_constant=GRAVITY,
+            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
     def on_draw(self):
@@ -596,7 +606,7 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
-        if self.scene_type == SCENE_GAME or self.scene_type == SCENE_BOSS:
+        if self.scene_type == SCENE_GAME:
             if key == arcade.key.UP or key == arcade.key.W:
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = PLAYER_JUMP_SPEED
@@ -605,13 +615,21 @@ class MyGame(arcade.Window):
             elif key == arcade.key.RIGHT or key == arcade.key.D:
                 self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
 
+        elif self.scene_type == SCENE_BOSS:
+            if key == arcade.key.UP or key == arcade.key.W:
+                if self.physics_engine_boss_player.can_jump():
+                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            elif key == arcade.key.LEFT or key == arcade.key.A:
+                self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            elif key == arcade.key.RIGHT or key == arcade.key.D:
+                self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
-        if self.scene_type == SCENE_GAME or self.scene_type == SCENE_BOSS:
-            if key == arcade.key.LEFT or key == arcade.key.A:
-                self.player_sprite.change_x = 0
-            elif key == arcade.key.RIGHT or key == arcade.key.D:
-                self.player_sprite.change_x = 0
+        if key == arcade.key.LEFT or key == arcade.key.A:
+            self.player_sprite.change_x = 0
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.player_sprite.change_x = 0
 
     def center_camera_to_player(self):
         screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
@@ -648,6 +666,7 @@ class MyGame(arcade.Window):
             # See if the user got to the end of the level
             if self.player_sprite.center_x <= 0:
                 self.scene_type = SCENE_BOSS
+                self.setup()
 
             drone_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.drone_list)
             for sprite in drone_collisions:
@@ -695,9 +714,10 @@ class MyGame(arcade.Window):
                 self.player_sprite.health -= 1
                 print(self.player_sprite.health)
 
-        elif self.scene_type == SCENE_BOSS:
+        if self.scene_type == SCENE_BOSS:
+            self.physics_engine_boss.update()
+            self.physics_engine_boss_player.update()
             # Move the player with the physics engine
-            self.physics_engine_level.update()
             platform_hit_list = arcade.check_for_collision_with_list(self.boss, self.platform_list_boss)
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
@@ -705,12 +725,12 @@ class MyGame(arcade.Window):
                 bullet.remove_from_sprite_lists()
                 self.boss_health = self.boss_health - 1
 
-            bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list_circle)
+            bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite,
+                                                                            self.boss_bullet_list_circle)
 
             for bull in bullet_collisions_circle:
                 bull.remove_from_sprite_lists()
                 self.boss_health = self.boss_health - 1
-
 
             self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
             self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
@@ -726,8 +746,8 @@ class MyGame(arcade.Window):
                         y = projectile(100, BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y,
                                        0, 0,
                                        i + 30)
-                        self.bullet_list_p.append(x)
-                        self.bullet_list_p.append(y)
+                        self.boss_bullet_list_circle.append(x)
+                        self.boss_bullet_list_circle.append(y)
                         self.scene_boss.add_sprite("name", x)
                         self.scene_boss.add_sprite("name", y)
 
@@ -740,7 +760,7 @@ class MyGame(arcade.Window):
 
                 # teleport and wait
                 if self.boss_form_pos_timer[0] == 0:
-                    self.boss.teleport = [False, 0]
+                    self.boss.teleport = [False, 1]
                     self.boss_form_pos_timer[0] = 1
 
                 if self.boss_form_pos_timer[1] > 3 / 20 and self.boss_form_pos_timer[0] == 1:
@@ -789,7 +809,6 @@ class MyGame(arcade.Window):
         self.setup()
         self.scene_type = SCENE_GAME
         self.manager.disable()
-        print("Start:", event)
 
     def on_click_quit(self, event):
         arcade.exit()
