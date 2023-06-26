@@ -5,6 +5,7 @@ Platformer Game
 import random
 import arcade
 import arcade.gui
+import Player
 from boss import boss
 from projectile import projectile
 from arcade import gl
@@ -48,7 +49,7 @@ DRONE_MOVEMENT_SPEED = 0.25
 DRONE_TIMER = 0.2
 
 BULLET_MOVEMENT_SPEED = 0.4
-BULLET_SIZE = 2
+BULLET_SIZE = 1
 BULLET_SPEED = 8
 BULLET_RADIUS = 100
 FORM_TIMER = 10
@@ -60,15 +61,7 @@ SCENE_MENU = 'SCENE_MENU'
 SCENE_GAME = 'SCENE_GAME'
 SCENE_BOSS = 'SCENE_BOSS'
 
-
-def load_texture_pair(filename):
-    """
-    Load a texture pair, with the second being a mirror image.
-    """
-    return [
-        arcade.load_texture(filename),
-        arcade.load_texture(filename, flipped_horizontally=True),
-    ]
+PLAYER_BULLET_MOVEMENT_SPEED = 2.0
 
 
 class Entity(arcade.Sprite):
@@ -80,10 +73,39 @@ class Entity(arcade.Sprite):
 
         # Used for image sequences
         self.cur_texture = 0
-        self.scale = CHARACTER_SCALING
+        self.scale = 1
         self.character_face_direction = RIGHT_FACING
 
-        # self.idle_texture_pair = load_texture_pair(name_file)
+
+class PlayerBullet(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = 2
+
+        self.bullet = arcade.load_texture(
+            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
+                "bullet[32height32wide].png"),
+            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.bullet
+
+    def move(self):
+        if self.character_face_direction == RIGHT_FACING:
+            self.change_x += BULLET_MOVEMENT_SPEED
+        else:
+            self.change_x += -BULLET_MOVEMENT_SPEED
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
 
 
 class Drone(Entity):
@@ -370,7 +392,12 @@ class MyGame(arcade.Window):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
 
+        self.right_pressed = None
+        self.left_pressed = None
+
+
         # Our TileMap Level Object
+
         self.foreground_boss_level = None
         self.physics_engine_boss_player = None
         self.physics_engine_boss = None
@@ -443,26 +470,13 @@ class MyGame(arcade.Window):
         self.cur_texture = 0
         self.start_jump = -1
 
-        # Load textures
-        self.player_idle_r = [1]
-        self.player_idle_l = [1]
-
-        for i in range(2):
-            texture_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("idle1.png"), x=i * 32,
-                y=0, width=32, height=32)
-            texture_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("idle1.png"), x=i * 32,
-                y=0, width=32, height=32,
-                flipped_horizontally=True)
-            self.player_idle_r.append(texture_r)
-            self.player_idle_l.append(texture_l)
-
+        self.player_bullet_list = None
         # load hp
         self.player_hp = [1]
 
         for i in range(21):
-            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0, width=61, height=19)
+            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0,
+                                          width=61, height=19)
             self.player_hp.append(texture)
 
         self.player_health_bar = arcade.Sprite()
@@ -470,7 +484,6 @@ class MyGame(arcade.Window):
         self.player_health_bar.texture = self.player_hp[1]
         self.player_health_bar.center_x = 100
         self.player_health_bar.center_y = 770
-
 
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -566,8 +579,7 @@ class MyGame(arcade.Window):
         self.scene_level.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("one-dude.png")
-        self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
+        self.player_sprite = Player.Player()
         if self.scene_type == SCENE_BOSS:
             self.player_sprite.center_x = 100
             self.player_sprite.center_y = 300
@@ -582,6 +594,13 @@ class MyGame(arcade.Window):
         # health bar to both
         self.scene_level.add_sprite("hp", self.player_health_bar)
         self.scene_boss.add_sprite("hp", self.player_health_bar)
+
+        self.player_hp[0] = 1
+        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
+
+        self.player_bullet_list = arcade.SpriteList()
+        self.scene_level.add_sprite_list("player_bullet_list")
+        self.scene_boss.add_sprite_list("player_bullet_list")
 
         # Set up Boss
         self.boss_list = arcade.SpriteList()
@@ -610,7 +629,7 @@ class MyGame(arcade.Window):
         self.drone_list = arcade.SpriteList()
         self.scene_level.add_sprite_list("drone_list")
 
-        drone_positions = [[150, 625, RIGHT_FACING], [1600, 750, LEFT_FACING], [1800, 235, LEFT_FACING]]
+        drone_positions = [[150, 605, RIGHT_FACING], [1600, 730, LEFT_FACING], [1800, 220, LEFT_FACING]]
         for x, y, direction in drone_positions:
             drone = Drone()
             drone.center_x = x
@@ -684,6 +703,15 @@ class MyGame(arcade.Window):
             # Activate the GUI camera before drawing GUI elements
             self.gui_camera.use()
 
+    def update_player_speed(self):
+        self.player_sprite.change_x = 0
+
+        # Using the key pressed variables lets us create more responsive x-axis movement
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
         if (self.player_sprite.is_active):
@@ -692,25 +720,65 @@ class MyGame(arcade.Window):
                     if self.physics_engine_level.can_jump():
                         self.player_sprite.change_y = PLAYER_JUMP_SPEED
                 elif key == arcade.key.LEFT or key == arcade.key.A:
-                    self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+                    self.left_pressed = True
+                    self.update_player_speed()
                 elif key == arcade.key.RIGHT or key == arcade.key.D:
-                    self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+                    self.right_pressed = True
+                    self.update_player_speed()
+                elif key == arcade.key.Q:
+                    self.player_sprite.is_attacking = True
+                    bullet = PlayerBullet()
+                    bullet.character_face_direction = self.player_sprite.character_face_direction
+                    if bullet.character_face_direction == RIGHT_FACING:
+                        bullet.center_x = self.player_sprite.center_x + 30
+                    else:
+                        bullet.texture = arcade.load_texture(
+                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
+                                "bullet[32height32wide].png"),
+                            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
+                        bullet.center_x = self.player_sprite.center_x - 30
+                    bullet.center_y = self.player_sprite.center_y - 20
+                    self.scene_level.add_sprite("player_bullet_list", bullet)
+                    self.player_bullet_list.append(bullet)
 
             elif self.scene_type == SCENE_BOSS:
                 if key == arcade.key.UP or key == arcade.key.W:
-                    if self.physics_engine_boss_player.can_jump():
+                    if self.physics_engine_level.can_jump():
                         self.player_sprite.change_y = PLAYER_JUMP_SPEED
                 elif key == arcade.key.LEFT or key == arcade.key.A:
-                    self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+                    self.left_pressed = True
+                    self.update_player_speed()
                 elif key == arcade.key.RIGHT or key == arcade.key.D:
-                    self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+                    self.right_pressed = True
+                    self.update_player_speed()
+                elif key == arcade.key.Q:
+                    self.player_sprite.is_attacking = True
+                    bullet = PlayerBullet()
+                    bullet.character_face_direction = self.player_sprite.character_face_direction
+                    if bullet.character_face_direction == RIGHT_FACING:
+                        bullet.center_x = self.player_sprite.center_x + 30
+                    else:
+                        bullet.texture = arcade.load_texture(
+                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
+                                "bullet[32height32wide].png"),
+                            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
+                        bullet.center_x = self.player_sprite.center_x - 30
+                    bullet.center_y = self.player_sprite.center_y - 20
+                    self.scene_level.add_sprite("player_bullet_list", bullet)
+                    self.player_bullet_list.append(bullet)
+
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
         if key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = 0
+            self.left_pressed = False
+            self.update_player_speed()
         elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = 0
+            self.right_pressed = False
+            self.update_player_speed()
+
+        if key == arcade.key.Q:
+            self.player_sprite.is_attacking = False
 
     def center_camera_to_player(self):
         self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
@@ -732,12 +800,14 @@ class MyGame(arcade.Window):
         self.player_health_bar.center_x = self.screen_center_x + SCREEN_WIDTH - (SCREEN_WIDTH * 9 // 10)
         self.player_health_bar.center_y = self.screen_center_y + SCREEN_HEIGHT - (SCREEN_HEIGHT // 20)
 
-
     def on_update(self, delta_time):
         """Movement and game logic"""
+        # Read the user's inputs to run appropriate animations
+
         if self.scene_type == SCENE_GAME:
             # Move the player with the physics engine
             self.physics_engine_level.update()
+            self.scene_level.get_sprite_list("Player").update_animation()
 
             # Moving Platform
             self.scene_level.update([LAYER_NAME_MOVING_PLATFORMS])
@@ -748,27 +818,31 @@ class MyGame(arcade.Window):
 
             # Did the player fall off the map?
             if self.player_sprite.center_y < -100:
-                self.player_sprite.center_x = PLAYER_START_X
-                self.player_sprite.center_y = PLAYER_START_Y
+                #self.player_sprite.center_x = PLAYER_START_X
+                #self.player_sprite.center_y = PLAYER_START_Y
+                self.setup()
 
             # See if the user got to the end of the level
             if self.player_sprite.center_x <= 0:
                 self.scene_type = SCENE_BOSS
                 self.setup()
 
-            drone_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.drone_list)
-            for sprite in drone_collisions:
-                for drone in self.drone_list:
-                    if sprite == drone:
-                        drone.thrusters.kill()
-                        drone.shooting.kill()
-                        drone.explosion = Explosion()
-                        drone.explosion.center_x = drone.center_x
-                        drone.explosion.center_y = drone.center_y
-                        drone.explosion.face_direction(drone.character_face_direction)
-                        self.scene_level.add_sprite("Explosion", drone.explosion)
-                        self.explosion_list.append(drone.explosion)
-                        drone.remove_from_sprite_lists()
+            for bullet in self.player_bullet_list:
+                bullet.move()
+                bullet.update()
+                drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
+                for collision in drone_collisions_with_player_bullet:
+                    for drone in self.drone_list:
+                        if collision == drone:
+                            drone.thrusters.kill()
+                            drone.shooting.kill()
+                            drone.explosion = Explosion()
+                            drone.explosion.center_x = drone.center_x
+                            drone.explosion.center_y = drone.center_y
+                            drone.explosion.face_direction(drone.character_face_direction)
+                            self.scene_level.add_sprite("Explosion", drone.explosion)
+                            self.explosion_list.append(drone.explosion)
+                            drone.remove_from_sprite_lists()
 
             for explosion in self.explosion_list:
                 if explosion.explode(delta_time):
@@ -806,6 +880,7 @@ class MyGame(arcade.Window):
         if self.scene_type == SCENE_BOSS:
             self.physics_engine_boss.update()
             self.physics_engine_boss_player.update()
+            self.scene_boss.get_sprite_list("Player").update_animation()
 
             platform_hit_list = arcade.check_for_collision_with_list(self.boss, self.platform_list_boss)
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
