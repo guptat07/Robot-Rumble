@@ -613,8 +613,9 @@ class MyGame(arcade.Window):
 
             # Did the player fall off the map?
             if self.player_sprite.center_y < -100:
-                self.player_sprite.center_x = PLAYER_START_X
-                self.player_sprite.center_y = PLAYER_START_Y
+                # self.player_sprite.center_x = PLAYER_START_X
+                # self.player_sprite.center_y = PLAYER_START_Y
+                self.setup()
 
             # See if the user got to the end of the level
             if self.player_sprite.center_x <= 0:
