@@ -40,7 +40,7 @@ class MyGame(arcade.Window):
         self.timer = 0
         self.health = 10
         self.form_swap_timer = 0
-        self.form_pos_timer = [0,0]
+        self.form_pos_timer = [0,0] #0 is state, 1 is timer
         self.posy = 0
         #WILL MOVE INTO BOSS IN FIRST REFACTOR
         self.first_form = True
@@ -174,6 +174,7 @@ class MyGame(arcade.Window):
 
         # Draw our Scene
         self.scene.draw(filter=gl.NEAREST)
+        self.player.drawing()
         #self.bullet_list.draw()
 
         #testing HITBOX/PATH
@@ -250,7 +251,7 @@ class MyGame(arcade.Window):
 
             #teleport and wait
             if self.form_pos_timer[0] == 0:
-                self.player.teleport = [False, 0]
+                self.player.teleport = [False, 1]
                 self.form_pos_timer[0] = 1
 
 
@@ -338,6 +339,20 @@ class MyGame(arcade.Window):
         #test damaged state
         if key == arcade.key.Q:
             self.player.damaged = 0
+
+        if key == arcade.key.P:
+            if self.player.damaged_bool:
+                self.player.health = self.player.health + 1
+            else:
+                self.player.health = self.player.health + 10
+
+
+        if key == arcade.key.L:
+            if self.player.damaged_bool:
+                self.player.health = self.player.health - 1
+            else:
+                self.player.health = self.player.health - 10
+
 
 def main():
     """ Main function """

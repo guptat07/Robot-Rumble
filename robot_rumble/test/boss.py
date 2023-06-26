@@ -1,6 +1,7 @@
 import arcade
 import constants
 import random
+from arcade import gl
 
 
 class temp_laser(arcade.Sprite):
@@ -18,9 +19,24 @@ class temp_laser(arcade.Sprite):
             self.animation_r.append(texture_r)
             self.animation_l.append(texture_l)
 
+class boss_health_bar(arcade.Sprite):
+    def __init__(self):
+        # Set up parent class
+        super().__init__()
+        self.red_bar = []
+        self.green_bar = []
+        for i in range(40):
+            texture_r = arcade.load_texture("sprites/boss_red.png", x=i * 85, y=0, width=85, height=8)
+            texture_g = arcade.load_texture("sprites/boss_green.png", x=i * 85, y=0, width=85, height=8)
+            self.red_bar.append(texture_r)
+            self.green_bar.append(texture_g)
+
+        self.red_bar.append(arcade.load_texture("sprites/boss_red.png", x=3400, y=0, width=85, height=8))
+        self.texture = self.red_bar[0]
 
 class boss(arcade.Sprite):
     """ Boss Class """
+
 
     def __init__(self):
 
@@ -28,7 +44,15 @@ class boss(arcade.Sprite):
         super().__init__()
 
         #important
-        self.health = 4
+        self.health = 40
+        self.hp_bar = boss_health_bar()
+        self.hp_bar.scale = 5
+        self.hp_bar.center_x = constants.SCREEN_WIDTH // 2
+        self.hp_bar.center_y = constants.SCREEN_HEIGHT // 2 + 380
+
+
+
+
 
         # Default to face-right
         self.cur_time_frame = 0
@@ -106,7 +130,12 @@ class boss(arcade.Sprite):
 
         self.texture = self.jump_l[4]
 
-
+    def drawing(self):
+        if self.health >= 41:
+            self.hp_bar.texture = self.hp_bar.green_bar[self.health-41]
+        elif self.health >= 0:
+            self.hp_bar.texture = self.hp_bar.red_bar[40-self.health]
+        self.hp_bar.draw(filter=gl.NEAREST)
     def boss_logic(self, delta_time):
         #print("changex" + self.change_x)
         self.boss_logic_timer += delta_time
@@ -193,6 +222,11 @@ class boss(arcade.Sprite):
         self.cur_time_frame += delta_time
         #print("change x: ", self.change_x)
         #print("cur_time_frame time: ", self.cur_time_frame)
+
+        if self.health >= 80:
+            self.health = 80
+        elif self.health <= 0:
+            self.health = 0
 
         #damaged animation
         if self.damaged != -1:
