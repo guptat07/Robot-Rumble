@@ -440,6 +440,7 @@ class MyGame(arcade.Window):
         self.boss_first_form = True
         self.boss_center_x = 0
         self.boss_center_y = 0
+        self.boss_hit_time = 0
 
         # Variable for the boss bullet
         self.boss_bullet_list = None
@@ -706,6 +707,7 @@ class MyGame(arcade.Window):
             self.scene_boss.draw(filter=gl.NEAREST)
             # Activate the GUI camera before drawing GUI elements
             self.gui_camera.use()
+            self.boss.drawing()
 
     def update_player_speed(self):
         self.player_sprite.change_x = 0
@@ -746,6 +748,16 @@ class MyGame(arcade.Window):
                     self.player_bullet_list.append(bullet)
 
             elif self.scene_type == SCENE_BOSS:
+                #shoot bullet boss
+                if key == arcade.key.I:
+                    self.boss_timer = 2
+                if key == arcade.key.P: #disabled state
+                    self.boss.damaged = 0
+                if key == arcade.key.O:#heal
+                    if self.boss.damaged_bool:
+                        self.boss.health = self.boss.health + 1
+                    else:
+                        self.boss.health = self.boss.health + 10
                 if key == arcade.key.UP or key == arcade.key.W:
                     if self.physics_engine_level.can_jump():
                         self.player_sprite.change_y = PLAYER_JUMP_SPEED
@@ -883,6 +895,49 @@ class MyGame(arcade.Window):
                 print(self.player_sprite.health)
 
         if self.scene_type == SCENE_BOSS:
+
+            boss_collision = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
+
+            self.boss_hit_time += delta_time
+            if self.boss_hit_time > 1:
+                for boss_hit in boss_collision:
+                    print("hithithit")
+                    self.player_sprite.health -= 1
+                    self.hit()
+                self.boss_hit_time = 0
+
+            boss_collision.clear()
+
+            for bullet in self.player_bullet_list:
+                bullet.move()
+                bullet.update()
+                boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
+                #teleport here
+                for collision in boss_collision:
+                    collision.kill()
+                    self.boss.health -= 1
+                    if self.boss.health <= 0:
+                        death = Player_Death()
+                        death.scale = 3
+                        death.center_x = self.boss.center_x
+                        death.center_y = self.boss.center_y
+                        # This line was removed because the current player doesn't have direction
+                        # death.face_direction(self.player_sprite.character_face_direction)
+                        #self.scene_level.add_sprite("Death", death)
+                        self.scene_boss.add_sprite("Death", death)
+                        self.death_list.append(death)
+                        self.boss.kill()
+                        self.boss.is_active = False
+                        self.boss.change_x = 0
+                        self.boss.change_y = 0
+
+                        if death.die(delta_time):
+                            death.remove_from_sprite_lists()
+                            self.scene_type = SCENE_MENU
+                            self.manager.enable()
+
+
+
             self.physics_engine_boss.update()
             self.physics_engine_boss_player.update()
             self.scene_boss.get_sprite_list("Player").update_animation()
@@ -962,8 +1017,16 @@ class MyGame(arcade.Window):
 
             else:
                 self.boss.boss_logic(delta_time)
+                #todo stupid clear shit figure it out memory leak
                 for bullet in self.boss_bullet_list_circle:
                     bullet.remove_from_sprite_lists()
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                self.boss_bullet_list_circle.clear()
                 for bullet in self.boss_bullet_list:
                     bullet.homing(delta_time)
 
