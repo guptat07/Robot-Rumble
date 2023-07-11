@@ -2,11 +2,11 @@ from importlib.resources import files
 
 import arcade
 import math
-import robot_rumble.constants as constants
-import random
+import robot_rumble.Util.constants as constants
+from robot_rumble.Characters.entities import Entity
 
 
-class projectile(arcade.Sprite):
+class BossProjectile(Entity):
 
     def __init__(self, timeToExist, radius, x, y, destx=0, desty=0, init_angle=0):
 
@@ -58,3 +58,62 @@ class projectile(arcade.Sprite):
 
         if self.timer >= self.time_before_death:
             super().kill()
+
+
+class PlayerBullet(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = constants.RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = 2
+
+        self.bullet = arcade.load_texture(
+            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
+                "bullet[32height32wide].png"),
+            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.bullet
+
+    def move(self):
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.change_x += constants.PLAYER_BULLET_MOVEMENT_SPEED
+        else:
+            self.change_x += -constants.PLAYER_BULLET_MOVEMENT_SPEED
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+class DroneBullet(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = constants.RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = constants.CHARACTER_SCALING
+
+        self.bullet = arcade.load_texture(files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1bullet.png"),
+                                          x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.bullet
+
+    def move(self):
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.change_x += constants.DRONE_BULLET_MOVEMENT_SPEED
+        else:
+            self.change_x += -constants.DRONE_BULLET_MOVEMENT_SPEED
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
