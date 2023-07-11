@@ -1,27 +1,8 @@
 import arcade
-import robot_rumble.constants as constants
+import robot_rumble.Util.constants as constants
 import random
 from importlib.resources import files
 from arcade import gl
-
-
-'''
-class temp_laser(arcade.Sprite):
-    def __init__(self):
-        # Set up parent class
-        super().__init__()
-
-        self.animation_r = []
-        self.animation_l = []
-        for i in range(14):
-            texture_r = arcade.load_texture("sprites/laser.png", x=i * 32, y=0, width=32, height=32,
-                                            hit_box_algorithm="Detailed")
-            texture_l = arcade.load_texture("sprites/laser.png", x=i * 32, y=0, width=32, height=32,
-                                            flipped_horizontally=True, hit_box_algorithm="Detailed")
-            self.animation_r.append(texture_r)
-            self.animation_l.append(texture_l)
-            
-        '''
 
 class boss_health_bar(arcade.Sprite):
     def __init__(self):
@@ -29,6 +10,7 @@ class boss_health_bar(arcade.Sprite):
         super().__init__()
         self.red_bar = []
         self.green_bar = []
+
         for i in range(40):
             texture_r = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("boss_red.png"), x=i * 85, y=0, width=85, height=8)
             texture_g = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("boss_green.png"), x=i * 85, y=0, width=85, height=8)
@@ -38,7 +20,7 @@ class boss_health_bar(arcade.Sprite):
         self.red_bar.append(arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("boss_red.png"), x=3400, y=0, width=85, height=8))
         self.texture = self.red_bar[0]
 
-class boss(arcade.Sprite):
+class Boss(arcade.Sprite):
     """ Boss Class """
 
 
@@ -351,7 +333,7 @@ class boss(arcade.Sprite):
                 self.cur_time_frame = 0
 
     def update(self):
-        """ Move the player """
+        """ Move the boss """
         # Move player.
         # Remove these lines if physics engine is moving player.
         #print("printing")
