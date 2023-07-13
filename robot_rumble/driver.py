@@ -3,16 +3,28 @@ import random
 import arcade
 from arcade.gui import UIManager
 from importlib.resources import files
-import Util.constants as const
+import robot_rumble.Util.constants as const
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.drone import Drone
-from robot_rumble.Characters.projectiles import BossProjectile, DroneBullet, PlayerBullet
+from robot_rumble.Characters.projectiles import DroneBullet, PlayerBullet
 from arcade import gl
 import robot_rumble.Characters.player as player
 
 TILE_SCALING = 4
 SPRITE_PIXEL_SIZE = 32
 GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
+
+PLAYER_MOVEMENT_SPEED = 10
+MOVE_SPEED = 2
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 20
+RIGHT_FACING = 0
+LEFT_FACING = 1
+
+LAYER_NAME_FOREGROUND = "Foreground"
+LAYER_NAME_BACKGROUND = "Background"
+LAYER_NAME_PLATFORMS = "Platforms"
+LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
 
 
 class LevelOne(arcade.View):
@@ -38,9 +50,6 @@ class LevelOne(arcade.View):
 
         # Variable for the death sprite list
         self.death_list = None
-
-        # Our physics engine
-        self.physics_engine = None
 
         # A Camera that can be used for scrolling the screen
         self.camera = None
@@ -88,21 +97,14 @@ class LevelOne(arcade.View):
         self.PLAYER_START_X = 50
         self.PLAYER_START_Y = 1000
 
-        self.LAYER_NAME_FOREGROUND = "Foreground"
-        self.LAYER_NAME_BACKGROUND = "Background"
-        self.LAYER_NAME_PLATFORMS = "Platforms"
-        self.LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
-
-        self.SPRITE_PIXEL_SIZE = 32
-
         self.scene = None
 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
         # Set up the Cameras
-        self.camera = arcade.Camera()
-        self.gui_camera = arcade.Camera()
+        self.camera = arcade.Camera(const.SCREEN_WIDTH,const.SCREEN_HEIGHT)
+        self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
         # Name of map file to load
         map_name_level = files("robot_rumble.assets").joinpath("Prototype.json")
@@ -134,7 +136,7 @@ class LevelOne(arcade.View):
         # Setting before using scene.add_sprite allows us to define where the SpriteList
         # will be in the draw order. If we just use add_sprite, it will be appended to the
         # end of the order.
-        self.scene.add_sprite_list_after("Player", self.LAYER_NAME_FOREGROUND)
+        self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = player.Player()
@@ -144,7 +146,7 @@ class LevelOne(arcade.View):
         self.player_sprite.health = 20
         self.player_sprite.is_active = True
 
-        # health bar to both
+        # health bar
         self.scene.add_sprite("hp", self.player_health_bar)
 
         self.player_hp[0] = 1
@@ -194,10 +196,13 @@ class LevelOne(arcade.View):
         # Create the 'physics engine'
         self.physics_engine_level = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
-            platforms=self.scene[self.LAYER_NAME_MOVING_PLATFORMS],
-            gravity_constant=1,
-            walls=self.scene[self.LAYER_NAME_PLATFORMS],
+            platforms=self.scene[LAYER_NAME_MOVING_PLATFORMS],
+            gravity_constant=GRAVITY,
+            walls=self.scene[LAYER_NAME_PLATFORMS],
         )
+
+    def on_show_view(self):
+        self.setup()
 
     def on_draw(self):
         """Render the screen."""
@@ -213,16 +218,17 @@ class LevelOne(arcade.View):
         self.player_sprite.change_x = 0
         # Using the key pressed variables lets us create more responsive x-axis movement
         if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -const.PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = const.PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
         if self.player_sprite.is_active:
             if key == arcade.key.UP or key == arcade.key.W:
                 if self.physics_engine_level.can_jump():
-                    self.player_sprite.change_y = const.PLAYER_JUMP_SPEED
+                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                    print(self.player_sprite.change_y)
 
             elif key == arcade.key.LEFT or key == arcade.key.A:
                 self.left_pressed = True
@@ -236,7 +242,7 @@ class LevelOne(arcade.View):
                 self.player_sprite.is_attacking = True
                 bullet = PlayerBullet()
                 bullet.character_face_direction = self.player_sprite.character_face_direction
-                if bullet.character_face_direction == const.RIGHT_FACING:
+                if bullet.character_face_direction == RIGHT_FACING:
                     bullet.center_x = self.player_sprite.center_x + 20
                 else:
                     bullet.texture = arcade.load_texture(
@@ -291,7 +297,7 @@ class LevelOne(arcade.View):
         self.scene.get_sprite_list("Player").update_animation()
 
         # Moving Platform
-        self.scene.update([self.LAYER_NAME_MOVING_PLATFORMS])
+        self.scene.update([LAYER_NAME_MOVING_PLATFORMS])
 
         # Position the camera
         self.center_camera_to_player()
@@ -327,7 +333,7 @@ class LevelOne(arcade.View):
             if drone.drone_logic(delta_time):
                 bullet = DroneBullet()
                 bullet.character_face_direction = drone.character_face_direction
-                if bullet.character_face_direction == const.RIGHT_FACING:
+                if bullet.character_face_direction == RIGHT_FACING:
                     bullet.center_x = drone.shooting.center_x + 5
                 else:
                     bullet.center_x = drone.shooting.center_x - 5
@@ -406,7 +412,6 @@ class TitleScreen(arcade.View):
     def on_click_start(self, event):
         self.manager.disable()
         level_one = LevelOne(self.window)
-        level_one.setup()
         self.window.show_view(level_one)
 
     def on_click_quit(self, event):
@@ -416,8 +421,8 @@ class TitleScreen(arcade.View):
 class GameWindow(arcade.Window):
     def __init__(self):
         super().__init__(const.SCREEN_WIDTH, const.SCREEN_HEIGHT, const.SCREEN_TITLE)
-        game_map = TitleScreen(self)
-        self.show_view(game_map)
+        title_screen = TitleScreen(self)
+        self.show_view(title_screen)
 
 
 def main():
