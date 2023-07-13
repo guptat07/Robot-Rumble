@@ -106,74 +106,11 @@ class LevelOne(arcade.View):
         self.camera = arcade.Camera(const.SCREEN_WIDTH,const.SCREEN_HEIGHT)
         self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
-        # Name of map file to load
-        map_name_level = files("robot_rumble.assets").joinpath("Prototype.json")
+        self.level_map_setup()
 
-        # Layer specific options are defined based on Layer names in a dictionary
-        # Doing this will make the SpriteList for the platforms layer
-        # use spatial hashing for detection.
+        self.level_player_setup()
 
-        layer_options_level = {
-            "Platforms": {
-                "use_spatial_hash": True,
-            },
-            "Horizontal Moving Platform": {
-                "use_spatial_hash": False,
-            },
-        }
-
-        # Read in the tiled map level
-        self.tile_map_level = arcade.load_tilemap(map_name_level, TILE_SCALING, layer_options_level)
-        self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
-
-        # Initialize Scene with our TileMap, this will automatically add all layers
-        # from the map as SpriteLists in the scene in the proper order.
-
-        self.scene = arcade.Scene.from_tilemap(self.tile_map_level)
-
-        # Add Player Spritelist before "Foreground" layer. This will make the foreground
-        # be drawn after the player, making it appear to be in front of the Player.
-        # Setting before using scene.add_sprite allows us to define where the SpriteList
-        # will be in the draw order. If we just use add_sprite, it will be appended to the
-        # end of the order.
-        self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
-
-        # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = player.Player()
-        self.player_sprite.center_x = self.PLAYER_START_X
-        self.player_sprite.center_y = self.PLAYER_START_Y
-        self.scene.add_sprite("Player", self.player_sprite)
-        self.player_sprite.health = 20
-        self.player_sprite.is_active = True
-
-        # health bar
-        self.scene.add_sprite("hp", self.player_health_bar)
-
-        self.player_hp[0] = 1
-        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
-
-        self.player_bullet_list = arcade.SpriteList()
-        self.scene.add_sprite_list("player_bullet_list")
-
-        # make the drone
-        self.drone_list = arcade.SpriteList()
-        self.scene.add_sprite_list("drone_list")
-
-        drone_positions = [[150, 605, const.RIGHT_FACING],
-                           [1600, 730, const.LEFT_FACING],
-                           [1800, 220, const.LEFT_FACING]]
-
-        for x, y, direction in drone_positions:
-            drone = Drone()
-            drone.center_x = x
-            drone.center_y = y
-            drone.start_y = drone.center_y
-            drone.face_direction(direction)
-            drone.update()
-            self.scene.add_sprite("Drone", drone)
-            self.scene.add_sprite("Thrusters", drone.thrusters)
-            self.scene.add_sprite("Shooting", drone.shooting)
-            self.drone_list.append(drone)
+        self.level_enemy_setup()
 
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
@@ -200,6 +137,74 @@ class LevelOne(arcade.View):
             gravity_constant=GRAVITY,
             walls=self.scene[LAYER_NAME_PLATFORMS],
         )
+
+    def level_enemy_setup(self):
+        # make the drone
+        self.drone_list = arcade.SpriteList()
+        self.scene.add_sprite_list("drone_list")
+        drone_positions = [[150, 605, const.RIGHT_FACING],
+                           [1600, 730, const.LEFT_FACING],
+                           [1800, 220, const.LEFT_FACING]]
+        for x, y, direction in drone_positions:
+            drone = Drone()
+            drone.center_x = x
+            drone.center_y = y
+            drone.start_y = drone.center_y
+            drone.face_direction(direction)
+            drone.update()
+            self.scene.add_sprite("Drone", drone)
+            self.scene.add_sprite("Thrusters", drone.thrusters)
+            self.scene.add_sprite("Shooting", drone.shooting)
+            self.drone_list.append(drone)
+
+    def level_player_setup(self):
+        # Add Player Spritelist before "Foreground" layer. This will make the foreground
+        # be drawn after the player, making it appear to be in front of the Player.
+        # Setting before using scene.add_sprite allows us to define where the SpriteList
+        # will be in the draw order. If we just use add_sprite, it will be appended to the
+        # end of the order.
+        self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
+
+        # Set up the player, specifically placing it at these coordinates.
+        self.player_sprite = player.Player()
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
+        self.scene.add_sprite("Player", self.player_sprite)
+        self.player_sprite.health = 20
+        self.player_sprite.is_active = True
+
+        # Set up player health and health bar
+        self.scene.add_sprite("hp", self.player_health_bar)
+        self.player_hp[0] = 1
+        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
+
+        # If the player is a gunner - set up bullet list
+        self.player_bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("player_bullet_list")
+
+    def level_map_setup(self):
+        # Name of map file to load
+        map_name_level = files("robot_rumble.assets").joinpath("Prototype.json")
+
+        # Layer specific options are defined based on Layer names in a dictionary
+        # Doing this will make the SpriteList for the platforms layer
+        # use spatial hashing for detection.
+        layer_options_level = {
+            "Platforms": {
+                "use_spatial_hash": True,
+            },
+            "Horizontal Moving Platform": {
+                "use_spatial_hash": False,
+            },
+        }
+
+        # Read in the tiled map level
+        self.tile_map_level = arcade.load_tilemap(map_name_level, TILE_SCALING, layer_options_level)
+        self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
+
+        # Initialize Scene with our TileMap, this will automatically add all layers
+        # from the map as SpriteLists in the scene in the proper order.
+        self.scene = arcade.Scene.from_tilemap(self.tile_map_level)
 
     def on_show_view(self):
         self.setup()
@@ -228,7 +233,6 @@ class LevelOne(arcade.View):
             if key == arcade.key.UP or key == arcade.key.W:
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                    print(self.player_sprite.change_y)
 
             elif key == arcade.key.LEFT or key == arcade.key.A:
                 self.left_pressed = True
