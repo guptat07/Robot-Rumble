@@ -4,9 +4,10 @@ import arcade
 from arcade.gui import UIManager
 from importlib.resources import files
 import robot_rumble.Util.constants as const
+from robot_rumble.Characters.boss import Boss
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.drone import Drone
-from robot_rumble.Characters.projectiles import DroneBullet, PlayerBullet
+from robot_rumble.Characters.projectiles import DroneBullet, PlayerBullet, BossProjectile
 from arcade import gl
 import robot_rumble.Characters.player as player
 
@@ -21,10 +22,162 @@ PLAYER_JUMP_SPEED = 20
 RIGHT_FACING = 0
 LEFT_FACING = 1
 
+BOSS_TILE_SCALING = 2.8
+BOSS_JUMP_SPEED = 1
+
 LAYER_NAME_FOREGROUND = "Foreground"
 LAYER_NAME_BACKGROUND = "Background"
 LAYER_NAME_PLATFORMS = "Platforms"
 LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
+
+
+class BossOne(arcade.View):
+    def __init__(self, window: arcade.Window):
+        super().__init__(window)
+
+        # Physics Engine
+        self.physics_engine_boss_player = None
+        self.physics_engine_boss = None
+
+        # Our TileMap Boss Object
+        self.platform_list_boss = None
+        self.foreground_boss_level = None
+        self.wall_list_boss_level = None
+        self.tile_map_boss_level = None
+
+        # Variables for the boss sprite
+        self.boss = None
+        self.boss_list = None
+        self.boss_timer = 0
+        self.boss_form_swap_timer = 0
+        self.boss_form_pos_timer = [0, 0]
+        self.boss_pos_y = 0
+        self.boss_first_form = True
+        self.boss_center_x = 0
+        self.boss_center_y = 0
+        self.boss_hit_time = 0
+
+        # Variable for the boss bullet
+        self.boss_bullet_list = None
+        self.boss_bullet_list_circle = None
+
+        # Player sprite
+        self.player_sprite = None
+        self.player_bullet_list = None
+
+        # A Camera that can be used for scrolling the screen
+        self.camera = None
+
+        # A Camera that can be used to draw GUI elements
+        self.gui_camera = None
+
+        # Variables for HP
+        self.player_hp = [1]
+
+        for i in range(21):
+            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0,
+                                          width=61, height=19)
+            self.player_hp.append(texture)
+
+        self.player_health_bar = arcade.Sprite()
+        self.player_health_bar.scale = 3
+        self.player_health_bar.texture = self.player_hp[1]
+        self.player_health_bar.center_x = 100
+        self.player_health_bar.center_y = 770
+
+        self.death_list = None
+
+        self.scene = None
+
+    def setup(self):
+        # Set up the Cameras
+        self.camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
+        self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
+
+        # Map Setup
+        map_name_boss_level = files("robot_rumble.assets").joinpath("Boss_Level.json")
+        layer_options_boss_level = {
+            "Platforms": {
+                "use_spatial_hash": True,
+            },
+            "Floor": {
+                "use_spatial_hash": True,
+            },
+        }
+
+        # Read in the tiled boss level
+        self.tile_map_boss_level = arcade.load_tilemap(map_name_boss_level, BOSS_TILE_SCALING, layer_options_boss_level)
+        self.platform_list_boss = self.tile_map_boss_level.sprite_lists["Platforms"]
+        self.wall_list_boss_level = self.tile_map_boss_level.sprite_lists["Floor"]
+        self.foreground_boss_level = self.tile_map_boss_level.sprite_lists["Foreground"]
+
+        self.scene = arcade.Scene.from_tilemap(self.tile_map_boss_level)
+
+        # Player Setup
+        self.player_sprite = player.Player()
+        self.player_sprite.center_x = 100
+        self.player_sprite.center_y = 300
+        self.scene.add_sprite("Player", self.player_sprite)
+        self.player_sprite.health = 20
+        self.player_sprite.is_active = True
+
+        # HP Setup
+        self.scene.add_sprite("hp", self.player_health_bar)
+        self.player_hp[0] = 1
+        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
+
+        # If player selects gunner
+        self.player_bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("player_bullet_list")
+
+        # Set up Boss
+        self.boss_list = arcade.SpriteList()
+        self.boss_bullet_list = arcade.SpriteList()
+        self.boss_bullet_list_circle = arcade.SpriteList()
+        self.scene.add_sprite_list("boss_list")
+        self.scene.add_sprite_list("boss_bullet_list_circle")
+        self.scene.add_sprite_list("boss_bullet_list")
+
+        self.boss = Boss()
+        self.boss.center_x = const.SCREEN_WIDTH // 2
+        self.boss.center_y = const.SCREEN_HEIGHT // 2 + 200
+        self.scene.add_sprite("Boss", self.boss)
+        self.boss_list.append(self.boss)
+
+        # Boss Bullet Ring
+        for i in range(0, 360, 60):
+            x = BossProjectile(100, const.BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0, i)
+            y = BossProjectile(100, const.BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y, 0, 0, i + 30)
+            self.boss_bullet_list_circle.append(x)
+            self.boss_bullet_list_circle.append(y)
+            self.scene.add_sprite("name", x)
+            self.scene.add_sprite("name", y)
+
+        self.death_list = arcade.SpriteList()
+        self.scene.add_sprite_list("death_list")
+
+        self.physics_engine_boss = arcade.PhysicsEnginePlatformer(
+            self.boss,
+            gravity_constant=GRAVITY,
+            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+        )
+
+        self.physics_engine_boss_player = arcade.PhysicsEnginePlatformer(
+            self.player_sprite,
+            gravity_constant=GRAVITY,
+            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+        )
+
+    def on_draw(self):
+        self.clear()
+        # Activate the game camera
+        self.camera.use()
+        # Draw our Scene
+        self.scene.draw(filter=gl.NEAREST)
+        # Activate the GUI camera before drawing GUI elements
+        self.gui_camera.use()
+        self.boss.drawing()
+
 
 
 class LevelOne(arcade.View):
@@ -103,7 +256,7 @@ class LevelOne(arcade.View):
         """Set up the game here. Call this function to restart the game."""
 
         # Set up the Cameras
-        self.camera = arcade.Camera(const.SCREEN_WIDTH,const.SCREEN_HEIGHT)
+        self.camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
         self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
         self.level_map_setup()
