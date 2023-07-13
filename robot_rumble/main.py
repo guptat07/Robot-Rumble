@@ -7,7 +7,7 @@ import arcade
 import arcade.gui
 import robot_rumble.Characters.player as player
 from robot_rumble.Characters.death import Explosion, Player_Death
-from robot_rumble.Characters.boss import Boss as Boss
+from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
 from robot_rumble.Characters.projectiles import BossProjectile, PlayerBullet, DroneBullet
 from robot_rumble.Characters.drone import Drone as Drone
 from arcade import gl
@@ -286,19 +286,26 @@ class MyGame(arcade.Window):
         # Set up Boss
         #TODO: MOVE!
         self.boss_list = arcade.SpriteList()
-        self.boss_bullet_list = arcade.SpriteList()
-        self.boss_bullet_list_circle = arcade.SpriteList()
         self.scene_boss_one.add_sprite_list("boss_list")
-        self.scene_boss_one.add_sprite_list("boss_bullet_list_circle")
-        self.scene_boss_one.add_sprite_list("boss_bullet_list")
 
-        self.boss = Boss()
-        self.boss.center_x = constants.SCREEN_WIDTH // 2
-        self.boss.center_y = constants.SCREEN_HEIGHT // 2 + 200
+        self.boss = BossOne(self.player_sprite)
         self.scene_boss_one.add_sprite("Boss", self.boss)
         self.boss_list.append(self.boss)
 
+        i = 1
+        for projectile_sprite_list in self.boss.sprit_list():
+            self.scene_boss_one.add_sprite_list("boss_projectile_"+str(i),sprite_list=projectile_sprite_list)
+            i += 1
+
+        '''
+        self.boss_bullet_list_circle = arcade.SpriteList()
+        self.boss_bullet_list = arcade.SpriteList()
+        self.scene_boss_one.add_sprite_list("boss_bullet_list_circle")
+        self.scene_boss_one.add_sprite_list("boss_bullet_list")
+        '''
         # Boss Bullet Ring
+
+        '''
         for i in range(0, 360, 60):
             x = BossProjectile(100, BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0, i)
             y = BossProjectile(100, BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y, 0, 0, i + 30)
@@ -306,6 +313,7 @@ class MyGame(arcade.Window):
             self.boss_bullet_list_circle.append(y)
             self.scene_boss_one.add_sprite("name", x)
             self.scene_boss_one.add_sprite("name", y)
+        '''
 
         # make the drone
         self.drone_list = arcade.SpriteList()
@@ -719,7 +727,7 @@ class MyGame(arcade.Window):
             else:
                 self.boss.character_face_direction = RIGHT_FACING
 
-            self.boss.update()
+            self.boss.update(delta_time)
             self.physics_engine_boss.update()
             self.boss_list.update_animation()
 
