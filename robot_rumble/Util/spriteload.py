@@ -16,3 +16,10 @@ def load_spritesheet(path, name, number_of_frames,width, height):
         texture = arcade.load_texture(files(path).joinpath(name), x=i * width, y=0, width=width, height=height)
         spritesheet.append(texture)
     return spritesheet
+def load_spritesheet_nocount(path, name, number_of_frames,width, height):
+    #only difference is that this one doesn't put a counter as the first element-> [texture,texture,texture] rather than [1,texture,texture,texture]
+    spritesheet = []
+    for i in range(number_of_frames):
+        texture = arcade.load_texture(files(path).joinpath(name), x=i * width, y=0, width=width, height=height)
+        spritesheet.append(texture)
+    return spritesheet
