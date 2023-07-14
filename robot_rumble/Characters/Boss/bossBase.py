@@ -38,6 +38,10 @@ class BossBase(Entity):
 
         #logic variables
         self.current_state = 0
+        #see if this is needed
+        self.boss_form_swap_timer = 0
+        self.boss_form_pos_timer = [0, 0]
+        self.boss_first_form = True
 
         self.center_x = constants.SCREEN_WIDTH // 2
         self.center_y = constants.SCREEN_HEIGHT // 2 + 200
@@ -54,9 +58,7 @@ class BossBase(Entity):
     def boss_logic(self, delta_time):
         pass
     def update(self, delta_time):
-        print(self.target.center_x)
-        print(self.target.center_y)
-        self.boss_logic(delta_time)
+        #self.boss_logic(delta_time)
         # don't overheal or get to negative health
         if self.health >= 80:
             self.health = 80
@@ -84,7 +86,7 @@ class BossBase(Entity):
     def reset_boss(self):
         pass
 
-    def sprite_lists(self):
-        return self.sprite_lists
+    def return_sprite_lists(self):
+        return self.sprite_lists_weapon
 
 

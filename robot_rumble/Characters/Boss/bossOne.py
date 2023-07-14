@@ -1,5 +1,7 @@
 import random
 import arcade
+from arcade import gl
+
 from robot_rumble.Characters.Boss.bossBase import BossBase
 from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Util import constants
@@ -22,12 +24,13 @@ class BossOne(BossBase):
         self.sprite_lists_weapon.append(self.boss_bullet_list_circle)
         self.sprite_lists_weapon.append(self.boss_bullet_list)
 
-        # Used for flipping between image sequences
+        # Used for flipping between image sequences + logic
         self.cur_texture = 0
         self.start_jump = -1
         self.teleport = [False,-1] #true means we have teleported
         self.damaged = -1
         self.damaged_bool = True
+        self.homing_attack_timer = 0
 
 
         #Load textures
@@ -45,6 +48,9 @@ class BossOne(BossBase):
         self.damaged_l.append(self.teleport_l[5])
 
         self.texture = self.jump_l[4]
+
+        #first boss ring
+        self.ranged_attack()
 
 
     def boss_logic(self, delta_time):
@@ -205,7 +211,6 @@ class BossOne(BossBase):
         if self.change_x == 0 and self.change_y == 0:
             if self.cur_time_frame >= 1/4:
                 if self.character_face_direction == constants.LEFT_FACING:
-                    print(self.idle_l[0])
                     self.texture = self.idle_l[self.idle_l[0]]
                     if self.idle_l[0] >= len(self.idle_l) - 1:
                         self.idle_l[0] = 1
@@ -233,6 +238,7 @@ class BossOne(BossBase):
                 self.cur_time_frame = 0
 
         #running left animation
+        #running left animation
         if self.change_x < 0:
             if self.cur_time_frame >= 8/60:
                 self.texture = self.running_l[self.running_l[0]]
@@ -244,10 +250,88 @@ class BossOne(BossBase):
 
     def update(self, delta_time):
         super().update(delta_time)
+        #fix
+        self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
+        self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
+
+        # rebuild bullets if going into first form
+        if self.boss_form_swap_timer >= constants.FORM_TIMER:
+            self.boss_first_form = not self.boss_first_form
+            self.boss_form_swap_timer = 0
+            if self.boss_first_form:
+                self.ranged_attack()
+
+        if self.boss_first_form:
+            self.change_x = 0
+
+            if self.damaged != -1:
+                self.boss_logic(delta_time)
+                return
+
+            # teleport and wait
+            if self.boss_form_pos_timer[0] == 0:
+                self.teleport = [False, 1]
+                self.boss_form_pos_timer[0] = 1
+
+            if self.boss_form_pos_timer[1] > 3 / 20 and self.boss_form_pos_timer[0] == 1:
+                posx, boss_pos_y = constants.BOSS_PATH[random.randint(0, 2)]
+                self.center_x = posx
+                self.center_y = boss_pos_y
+                self.teleport = [True, 3]
+                self.boss_form_pos_timer = [2, 0]
+
+            if self.boss_form_pos_timer[1] > 3 and self.boss_form_pos_timer[0] == 2:
+                self.boss_form_pos_timer[0] = 0
+
+            # bullet ring
+            for bullet in self.boss_bullet_list_circle:
+                bullet.pathing(self.center_x, self.center_y, delta_time)
+
+            # spawn homing bullets
+            self.homing_attack_timer = self.homing_attack_timer + delta_time
+            for bullet in self.boss_bullet_list:
+                bullet.homing(delta_time)
+
+            if self.homing_attack_timer >= 1:
+                x = BossProjectile(100, 0, self.center_x, self.center_y, self.target.center_x,
+                                   self.target.center_y, 0)
+                self.boss_bullet_list.append(x)
+                self.homing_attack_timer = 0
+
+        else:
+            self.boss_logic(delta_time)
+            # todo stupid clear shit figure it out memory leak
+            for bullet in self.boss_bullet_list_circle:
+                bullet.remove_from_sprite_lists()
+            for bullet in self.boss_bullet_list_circle:
+                bullet.remove_from_sprite_lists()
+            for bullet in self.boss_bullet_list_circle:
+                bullet.remove_from_sprite_lists()
+            for bullet in self.boss_bullet_list_circle:
+                bullet.remove_from_sprite_lists()
+            self.boss_bullet_list_circle.clear()
+            for bullet in self.boss_bullet_list:
+                bullet.homing(delta_time)
+
+        if self.center_x > self.target.center_x:
+            self.character_face_direction = constants.LEFT_FACING
+        else:
+            self.character_face_direction = constants.RIGHT_FACING
+
+    def drawing(self):
+        super().drawing()
+        #print(len(self.boss_bullet_list))
+
 
     def ranged_attack(self):
         for i in range(0, 360, 60):
-            x = BossProjectile(100, constants.BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0, i)
-            y = BossProjectile(100, constants.BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y, 0, 0, i + 30)
+            x = BossProjectile(100, constants.BULLET_RADIUS, self.center_x, self.center_y, 0, 0, i)
+            y = BossProjectile(100, constants.BULLET_RADIUS + 100, self.center_x, self.center_y, 0, 0, i + 30)
             self.boss_bullet_list_circle.append(x)
             self.boss_bullet_list_circle.append(y)
+
+    def return_bullet_list(self):
+        return self.boss_bullet_list
+
+    def return_bullet_list_circle(self):
+        return self.boss_bullet_list_circle
