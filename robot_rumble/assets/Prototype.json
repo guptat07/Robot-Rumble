@@ -132,19 +132,37 @@
          "name":"Horizontal Moving Platform",
          "objects":[
                 {
-                 "gid":450,
+                 "gid":1170,
                  "height":16,
-                 "id":5,
+                 "id":47,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"change_x",
+                         "type":"int",
+                         "value":2
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":224,
+                 "y":288
+                }, 
+                {
+                 "gid":1171,
+                 "height":16,
+                 "id":48,
                  "name":"",
                  "properties":[
                         {
                          "name":"boundary_left",
-                         "type":"float",
+                         "type":"int",
                          "value":800
                         }, 
                         {
                          "name":"boundary_right",
-                         "type":"float",
+                         "type":"int",
                          "value":1200
                         }, 
                         {
@@ -156,8 +174,36 @@
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":239.474747474748,
-                 "y":288.30303030303
+                 "x":240,
+                 "y":288
+                }, 
+                {
+                 "gid":1172,
+                 "height":16,
+                 "id":49,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"boundary_left",
+                         "type":"int",
+                         "value":800
+                        }, 
+                        {
+                         "name":"boundary_right",
+                         "type":"int",
+                         "value":1200
+                        }, 
+                        {
+                         "name":"change_x",
+                         "type":"int",
+                         "value":2
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":256,
+                 "y":288
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -197,7 +243,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":46,
+ "nextobjectid":51,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
@@ -206,6 +252,10 @@
         {
          "firstgid":1,
          "source":"Platforms.tsx"
+        }, 
+        {
+         "firstgid":741,
+         "source":"..\/..\/..\/..\/..\/..\/RobotRumble\/platform.tsx"
         }],
  "tilewidth":16,
  "type":"map",

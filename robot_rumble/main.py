@@ -246,6 +246,10 @@ class MyGame(arcade.Window):
         # Read in the tiled map level
         self.tile_map_level = arcade.load_tilemap(map_name_level, TILE_SCALING, layer_options_level)
         self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
+        moving_platforms = self.tile_map_level.sprite_lists[LAYER_NAME_MOVING_PLATFORMS]
+        for platform in moving_platforms:
+            platform.boundary_left = platform.center_x - 200
+            platform.boundary_right = platform.center_x + 100
 
         # Read in the tiled boss level
         self.tile_map_boss_level = arcade.load_tilemap(map_name_boss_level, BOSS_TILE_SCALING, layer_options_boss_level)
@@ -575,9 +579,6 @@ class MyGame(arcade.Window):
             self.physics_engine_level.update()
             self.scene_level_one.get_sprite_list("Player").update_animation()
 
-            # Moving Platform
-            self.scene_level_one.update([LAYER_NAME_MOVING_PLATFORMS])
-
             # Position the camera
             self.center_camera_to_player()
             self.center_camera_to_health()
@@ -632,7 +633,7 @@ class MyGame(arcade.Window):
                 bullet.update()
 
             for bullet in self.bullet_list:
-                platform_hit_list = arcade.check_for_collision_with_list(bullet, self.platform_list_boss)
+                platform_hit_list = arcade.check_for_collision_with_list(bullet, self.platform_list_level)
                 if len(platform_hit_list) > 0:
                     bullet.remove_from_sprite_lists()
 
@@ -825,11 +826,11 @@ class MyGame(arcade.Window):
 
     def on_click_start(self, event):
         # temp line for scene to be second boss
-        self.scene_type = scene_boss_two
+        # self.scene_type = scene_boss_two
 
         self.setup()
         # removed this so that the scene is always the second boss scene
-        # self.scene_type = SCENE_GAME
+        self.scene_type = SCENE_GAME
         self.manager.disable()
 
     def on_click_quit(self, event):
