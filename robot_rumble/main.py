@@ -396,6 +396,7 @@ class MyGame(arcade.Window):
 
             # Draw our Scene
             self.boss_bullet_list.draw(filter=gl.NEAREST)
+            print(len(self.boss_bullet_list))
             self.scene_boss_one.draw(filter=gl.NEAREST)
 
 
