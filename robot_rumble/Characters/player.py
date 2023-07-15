@@ -33,6 +33,7 @@ class Player(arcade.Sprite):
         # Tracking the various states, which helps us smooth animations
         self.is_jumping = False
         self.is_attacking = False
+        self.is_active = True
 
         # Load idle textures by iterating through each sprite in the sheet and adding them to the correct list
         self.idle_r = [1]

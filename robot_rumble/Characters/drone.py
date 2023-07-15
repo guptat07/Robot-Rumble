@@ -13,6 +13,7 @@ class Drone(Entity):
         # Default to face-right
         self.cur_time_frame = 0
         self.character_face_direction = constants.RIGHT_FACING
+        self.is_active = True
 
         # Used for flipping between image sequences
         self.cur_texture = 0
@@ -87,6 +88,27 @@ class Drone(Entity):
         self.shooting.texture = self.shoot[1]
         self.shooting.visible = False
         self.texture = self.look[1]
+
+        self.explode_time = 0
+        self.bomb_r = [1]
+        self.bomb_l = [1]
+
+        self.scale = constants.CHARACTER_SCALING
+
+        for i in range(7):
+            texture_l = arcade.load_texture(
+                files("robot_rumble.assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
+                x=i * 64, y=0, width=64, height=64, hit_box_algorithm="Simple")
+            texture_r = arcade.load_texture(
+                files("robot_rumble.assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
+                x=i * 64, y=0, width=64, height=64, flipped_horizontally=True, hit_box_algorithm="Simple")
+            self.bomb_r.append(texture_r)
+            self.bomb_l.append(texture_l)
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.bomb = self.bomb_r
+        else:
+            self.bomb = self.bomb_r
+        self.texture = self.bomb[1]
 
     def update(self):
         self.center_x += self.change_x

@@ -283,7 +283,6 @@ class MyGame(arcade.Window):
         self.scene_boss_one.add_sprite("Player", self.player_sprite)
         self.scene_boss_two.add_sprite("Player", self.player_sprite)
         self.player_sprite.health = 20
-        self.player_sprite.is_active = True
 
         # health bar to both
         self.scene_level_one.add_sprite("hp", self.player_health_bar)
@@ -668,11 +667,11 @@ class MyGame(arcade.Window):
                     self.boss.health -= 1
                     if self.boss.health <= 0:
                         death = Player_Death()
-                        death.scale = 3
+                        death.scale = self.boss.scale
                         death.center_x = self.boss.center_x
                         death.center_y = self.boss.center_y
                         # This line was removed because the current player doesn't have direction
-                        # death.face_direction(self.player_sprite.character_face_direction)
+                        death.face_direction(self.boss.character_face_direction)
                         #self.scene_level_one.add_sprite("Death", death)
                         self.scene_boss_one.add_sprite("Death", death)
                         self.death_list.append(death)
@@ -680,11 +679,11 @@ class MyGame(arcade.Window):
                         self.boss.is_active = False
                         self.boss.change_x = 0
                         self.boss.change_y = 0
-
+                        """
                         if death.die(delta_time):
                             death.remove_from_sprite_lists()
                             self.scene_type = SCENE_MENU
-                            self.manager.enable()
+                            self.manager.enable()"""
 
 
 
@@ -785,9 +784,10 @@ class MyGame(arcade.Window):
             else:
                 self.boss.character_face_direction = RIGHT_FACING
 
-            self.boss.update()
-            self.physics_engine_boss.update()
-            self.boss_list.update_animation()
+            if self.boss.is_active:
+                self.boss.update()
+                self.physics_engine_boss.update()
+                self.boss_list.update_animation()
 
         if self.scene_type == scene_boss_two:
             self.physics_engine_boss.update()
@@ -842,9 +842,10 @@ class MyGame(arcade.Window):
             death.center_x = self.player_sprite.center_x
             death.center_y = self.player_sprite.center_y
             # This line was removed because the current player doesn't have direction
-            # death.face_direction(self.player_sprite.character_face_direction)
+            death.face_direction(self.player_sprite.character_face_direction)
             self.scene_level_one.add_sprite("Death", death)
             self.scene_boss_one.add_sprite("Death", death)
+            death.scale = self.player_sprite.scale
             self.death_list.append(death)
             self.player_sprite.kill()
             self.player_sprite.is_active = False
