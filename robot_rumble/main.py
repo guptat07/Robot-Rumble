@@ -7,7 +7,7 @@ import arcade
 import arcade.gui
 import robot_rumble.Characters.player as player
 from robot_rumble.Characters.death import Explosion, Player_Death
-from robot_rumble.Characters.boss import Boss as Boss
+from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
 from robot_rumble.Characters.projectiles import BossProjectile, PlayerBullet, DroneBullet, Sword
 from robot_rumble.Characters.drone import Drone as Drone
 from arcade import gl
@@ -115,11 +115,9 @@ class MyGame(arcade.Window):
         # Variable for the boss sprite
         self.boss = None
         self.boss_list = None
-        self.boss_timer = 0
         self.boss_form_swap_timer = 0
         self.boss_form_pos_timer = [0, 0]
         self.boss_pos_y = 0
-        self.boss_first_form = True
         self.boss_center_x = 0
         self.boss_center_y = 0
         self.boss_hit_time = 0
@@ -243,6 +241,9 @@ class MyGame(arcade.Window):
                 "use_spatial_hash": True,
             },
         }
+
+
+
         # Read in the tiled map level
         self.tile_map_level = arcade.load_tilemap(map_name_level, TILE_SCALING, layer_options_level)
         self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
@@ -300,26 +301,26 @@ class MyGame(arcade.Window):
         # Set up Boss
         #TODO: MOVE!
         self.boss_list = arcade.SpriteList()
-        self.boss_bullet_list = arcade.SpriteList()
-        self.boss_bullet_list_circle = arcade.SpriteList()
         self.scene_boss_one.add_sprite_list("boss_list")
-        self.scene_boss_one.add_sprite_list("boss_bullet_list_circle")
-        self.scene_boss_one.add_sprite_list("boss_bullet_list")
 
-        self.boss = Boss()
-        self.boss.center_x = constants.SCREEN_WIDTH // 2
-        self.boss.center_y = constants.SCREEN_HEIGHT // 2 + 200
+        self.boss = BossOne(self.player_sprite)
         self.scene_boss_one.add_sprite("Boss", self.boss)
         self.boss_list.append(self.boss)
 
-        # Boss Bullet Ring
-        for i in range(0, 360, 60):
-            x = BossProjectile(100, BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0, i)
-            y = BossProjectile(100, BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y, 0, 0, i + 30)
-            self.boss_bullet_list_circle.append(x)
-            self.boss_bullet_list_circle.append(y)
-            self.scene_boss_one.add_sprite("name", x)
-            self.scene_boss_one.add_sprite("name", y)
+        #define boss_bullet_list for now before i make a class to handle it
+        self.boss_bullet_list = self.boss.return_bullet_list()
+        self.boss_bullet_list_circle = self.boss.return_bullet_list_circle()
+
+
+        self.scene_boss_one.add_sprite_list("boss_bullet_list",sprite_list=self.boss_bullet_list)
+        self.scene_boss_one.add_sprite_list("boss_bullet_list_circle",sprite_list=self.boss_bullet_list_circle)
+
+        '''
+        i = 1
+        for projectile_sprite_list in self.boss.return_sprite_lists():
+            self.scene_boss_one.add_sprite_list("boss_projectile_"+str(i),sprite_list=projectile_sprite_list)
+            i += 1
+        '''
 
         # make the drone
         self.drone_list = arcade.SpriteList()
@@ -411,13 +412,25 @@ class MyGame(arcade.Window):
             self.gui_camera.use()
 
         elif self.scene_type == scene_boss_one:
+
+            '''
+            for bullet in self.boss_bullet_list:
+                self.scene_boss_one.add_sprite("boss_bullet_list", bullet)
+
+            for bullet in self.boss_bullet_list_circle:
+                self.scene_boss_one.add_sprite("boss_bullet_list_circle", bullet)
+                '''
             # Activate the game camera
             self.camera.use()
-            # Draw our Scene
-            self.scene_boss_one.draw(filter=gl.NEAREST)
             # Activate the GUI camera before drawing GUI elements
             self.gui_camera.use()
             self.boss.drawing()
+
+
+            # Draw our Scene
+            self.boss_bullet_list.draw(filter=gl.NEAREST)
+            print(len(self.boss_bullet_list))
+            self.scene_boss_one.draw(filter=gl.NEAREST)
 
         elif self.scene_type == scene_boss_two:
             # Activate the game camera
@@ -428,6 +441,7 @@ class MyGame(arcade.Window):
             self.gui_camera.use()
             # removed for now
             # self.boss.drawing()
+
 
 #TODO:MOVE ALL INTO PLAYER CLASS
     def update_player_speed(self):
@@ -474,7 +488,8 @@ class MyGame(arcade.Window):
             elif self.scene_type == scene_boss_one:
                 #shoot bullet boss
                 if key == arcade.key.I:
-                    self.boss_timer = 2
+                    pass
+                    #this used to turn the timer for boss shooting, possibly can be a difficulty we turn up
                 if key == arcade.key.P: #disabled state
                     self.boss.damaged = 0
                 if key == arcade.key.O:#heal
@@ -646,11 +661,10 @@ class MyGame(arcade.Window):
         if self.scene_type == scene_boss_one:
 
             boss_collision = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
-
             self.boss_hit_time += delta_time
             if self.boss_hit_time > 1:
                 for boss_hit in boss_collision:
-                    print("hithithit")
+                    #print("hithithit")
                     self.player_sprite.health -= 1
                     self.hit()
                 self.boss_hit_time = 0
@@ -706,83 +720,6 @@ class MyGame(arcade.Window):
                 bull.remove_from_sprite_lists()
                 self.hit()
                 self.player_sprite.health = self.player_sprite.health - 1
-
-            self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
-            self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
-
-            # rebuild bullets if going into first form
-            if self.boss_form_swap_timer >= FORM_TIMER:
-                self.boss_first_form = not self.boss_first_form
-                self.boss_form_swap_timer = 0
-                if self.boss_first_form:
-                    for i in range(0, 360, 60):
-                        x = BossProjectile(100, BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0,
-                                       i)
-                        y = BossProjectile(100, BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y,
-                                       0, 0,
-                                       i + 30)
-                        self.boss_bullet_list_circle.append(x)
-                        self.boss_bullet_list_circle.append(y)
-                        self.scene_boss_one.add_sprite("name", x)
-                        self.scene_boss_one.add_sprite("name", y)
-
-            if self.boss_first_form:
-                self.boss.change_x = 0
-
-                if self.boss.damaged != -1:
-                    self.boss.boss_logic(delta_time)
-                    return
-
-                # teleport and wait
-                if self.boss_form_pos_timer[0] == 0:
-                    self.boss.teleport = [False, 1]
-                    self.boss_form_pos_timer[0] = 1
-
-                if self.boss_form_pos_timer[1] > 3 / 20 and self.boss_form_pos_timer[0] == 1:
-                    posx, self.boss_pos_y = constants.BOSS_PATH[random.randint(0, 2)]
-                    self.boss.center_x = posx
-                    self.boss.center_y = self.boss_pos_y
-                    self.boss.teleport = [True, 3]
-                    self.boss_form_pos_timer = [2, 0]
-
-                if self.boss_form_pos_timer[1] > 3 and self.boss_form_pos_timer[0] == 2:
-                    self.boss_form_pos_timer[0] = 0
-
-                # bullet ring
-                for bullet in self.boss_bullet_list_circle:
-                    bullet.pathing(self.boss.center_x, self.boss.center_y, delta_time)
-
-                # spawn homing bullets
-                self.boss_timer = self.boss_timer + delta_time
-                for bullet in self.boss_bullet_list:
-                    bullet.homing(delta_time)
-
-                if self.boss_timer >= 1:
-                    x = BossProjectile(100, 0, self.boss.center_x, self.boss.center_y, self.player_sprite.center_x,
-                                   self.player_sprite.center_y, 0)
-                    self.boss_bullet_list.append(x)
-                    self.scene_boss_one.add_sprite("bull", x)
-                    self.boss_timer = 0
-
-            else:
-                self.boss.boss_logic(delta_time)
-                #todo stupid clear shit figure it out memory leak
-                for bullet in self.boss_bullet_list_circle:
-                    bullet.remove_from_sprite_lists()
-                for bullet in self.boss_bullet_list_circle:
-                    bullet.remove_from_sprite_lists()
-                for bullet in self.boss_bullet_list_circle:
-                    bullet.remove_from_sprite_lists()
-                for bullet in self.boss_bullet_list_circle:
-                    bullet.remove_from_sprite_lists()
-                self.boss_bullet_list_circle.clear()
-                for bullet in self.boss_bullet_list:
-                    bullet.homing(delta_time)
-
-            if self.boss.center_x > self.player_sprite.center_x:
-                self.boss.character_face_direction = LEFT_FACING
-            else:
-                self.boss.character_face_direction = RIGHT_FACING
 
             if self.boss.is_active:
                 self.boss.update()
