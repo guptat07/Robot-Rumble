@@ -17,14 +17,18 @@ class Entity(arcade.Sprite):
     def setup(self):
         pass
 
+    def update(self):
+        pass
+
+    def update_animation(self, delta_time: float = 1 / 60):
+        pass
     def on_key_press(self, key, modifiers=0):
         pass
 
     def on_key_release(self, key, modifiers=0):
         pass
 
-    def update(self):
-        pass
+
 
 
 
