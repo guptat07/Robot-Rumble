@@ -392,7 +392,7 @@ class MyGame(arcade.Window):
             physics_engine_sword = arcade.PhysicsEnginePlatformer(
                 sword,
                 gravity_constant=GRAVITY,
-                walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+                walls=[self.wall_list_boss_level, self.foreground_boss_level],
             )
             self.physics_engine_sword_list.append(physics_engine_sword)
 
@@ -722,7 +722,7 @@ class MyGame(arcade.Window):
                 self.player_sprite.health = self.player_sprite.health - 1
 
             if self.boss.is_active:
-                self.boss.update()
+                self.boss.update(delta_time)
                 self.physics_engine_boss.update()
                 self.boss_list.update_animation()
 
@@ -747,7 +747,7 @@ class MyGame(arcade.Window):
                 physics_engine_sword = arcade.PhysicsEnginePlatformer(
                     sword,
                     gravity_constant=GRAVITY,
-                    walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+                    walls=[self.wall_list_boss_level, self.foreground_boss_level],
                 )
                 self.physics_engine_sword_list.append(physics_engine_sword)
                 self.sword_list.append(sword)
@@ -763,11 +763,11 @@ class MyGame(arcade.Window):
 
     def on_click_start(self, event):
         # temp line for scene to be second boss
-        # self.scene_type = scene_boss_two
+        self.scene_type = scene_boss_two
 
         self.setup()
         # removed this so that the scene is always the second boss scene
-        self.scene_type = SCENE_GAME
+        # self.scene_type = SCENE_GAME
         self.manager.disable()
 
     def on_click_quit(self, event):
