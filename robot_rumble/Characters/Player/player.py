@@ -1,12 +1,12 @@
 import arcade
 from importlib.resources import files
 
+from robot_rumble.Util import constants
+
 # Character scaling constant
 CHARACTER_SCALING = 2
 
 # Constants tracking player character orientation
-RIGHT_FACING = 0
-LEFT_FACING = 1
 
 # Health constant
 PLAYER_HEALTH = 5
@@ -22,7 +22,7 @@ class Player(arcade.Sprite):
 
         # Default to right
         self.cur_time_frame = 0
-        self.character_face_direction = RIGHT_FACING
+        self.character_face_direction = constants.RIGHT_FACING
 
         # Set health
         self.health = PLAYER_HEALTH
@@ -146,10 +146,10 @@ class Player(arcade.Sprite):
         #     self.top = constants.SCREEN_HEIGHT - 1
 
         # Regardless of animation, determine if character is facing left or right
-        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
-            self.character_face_direction = LEFT_FACING
-        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
-            self.character_face_direction = RIGHT_FACING
+        if self.change_x < 0 and self.character_face_direction == constants.RIGHT_FACING:
+            self.character_face_direction = constants.LEFT_FACING
+        elif self.change_x > 0 and self.character_face_direction == constants.LEFT_FACING:
+            self.character_face_direction = constants.RIGHT_FACING
 
         # Should work regardless of framerate
         self.cur_time_frame += delta_time
@@ -162,7 +162,7 @@ class Player(arcade.Sprite):
             # Update the tracker for future jumps
             self.is_jumping = False
             # Animation depending on whether facing left or right and moving or still
-            if self.character_face_direction == RIGHT_FACING:
+            if self.character_face_direction == constants.RIGHT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
                         self.texture = self.idle_attack_r[self.idle_attack_r[0]]
@@ -173,7 +173,7 @@ class Player(arcade.Sprite):
                         self.texture = self.running_attack_r[self.running_attack_r[0]]
                     else:
                         self.texture = self.running_r[self.running_r[0]]
-            elif self.character_face_direction == LEFT_FACING:
+            elif self.character_face_direction == constants.LEFT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
                         self.texture = self.idle_attack_l[self.idle_attack_l[0]]
@@ -190,7 +190,7 @@ class Player(arcade.Sprite):
         if self.change_x == 0 and self.change_y == 0:
             # If the player is standing still and pressing the attack button, play the attack animation
             if self.is_attacking:
-                if self.character_face_direction == RIGHT_FACING:
+                if self.character_face_direction == constants.RIGHT_FACING:
                     # Designed this way to maintain consistency with other, multi-frame animation code
                     self.texture = self.idle_attack_r[self.idle_attack_r[0]]
                     self.cur_time_frame = 0
@@ -200,7 +200,7 @@ class Player(arcade.Sprite):
             # Having the idle animation loop every .33 seconds
             if self.cur_time_frame >= 1 / 3:
                 # Load the correct idle animation based on most recent direction faced
-                if self.character_face_direction == RIGHT_FACING:
+                if self.character_face_direction == constants.RIGHT_FACING:
                     # Basically, on startup, index 0 should hold a value of 1.
                     # So the first time we enter this branch, self.texture gets set to self.idle_r[1], which is the first animation frame.
                     # Then we either increment the value in the first index or loop it back around to a value of 1.
@@ -221,7 +221,7 @@ class Player(arcade.Sprite):
             return
 
         # Moving to the right
-        elif self.change_x > 0 and self.character_face_direction == RIGHT_FACING:
+        elif self.change_x > 0 and self.character_face_direction == constants.RIGHT_FACING:
             # Check to see if the player is jumping (while moving right)
             if self.change_y != 0:
                 self.is_jumping = True
@@ -269,7 +269,7 @@ class Player(arcade.Sprite):
             return
 
         # Moving to the left
-        elif self.change_x < 0 and self.character_face_direction == LEFT_FACING:
+        elif self.change_x < 0 and self.character_face_direction == constants.LEFT_FACING:
             # Check to see if the player is jumping (while moving left)
             if self.change_y != 0:
                 self.is_jumping = True
@@ -317,7 +317,7 @@ class Player(arcade.Sprite):
         # Jumping in place
         elif self.change_y != 0 and self.change_x == 0:
             self.is_jumping = True
-            if self.character_face_direction == RIGHT_FACING:
+            if self.character_face_direction == constants.RIGHT_FACING:
                 if self.is_attacking:
                     self.texture = self.jumping_attack_r[self.jumping_attack_r[0]]
                     if self.change_y > 0:
@@ -363,3 +363,13 @@ class Player(arcade.Sprite):
                         self.jumping_l[0] = 1
                         self.texture = self.jumping_l[4]
             return
+
+        def update_player_speed(self):
+            self.player_sprite.change_x = 0
+
+            # Using the key pressed variables lets us create more responsive x-axis movement
+            if self.left_pressed and not self.right_pressed:
+                self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
+            elif self.right_pressed and not self.left_pressed:
+                self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
+

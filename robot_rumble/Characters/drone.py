@@ -6,21 +6,24 @@ from importlib.resources import files
 
 
 class Drone(Entity):
-    def __init__(self):
+    def __init__(self, x, y, direction):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
-        self.cur_time_frame = 0
-        self.character_face_direction = constants.RIGHT_FACING
 
         # Used for flipping between image sequences
         self.cur_texture = 0
+        self.cur_time_frame = 0
 
         # Time to bob the other direction (up/down)
         self.bob = 0
         self.move_up = True
         self.limit_drone = 1
+
+        #set center x and y and direction
+        self.character_face_direction = direction
+        self.center_y = y
+        self.center_x = x
 
         # Shot animation time, determine if it's shooting, and time between shots
         self.shoot_animate = 0
@@ -30,7 +33,7 @@ class Drone(Entity):
         self.scale = constants.CHARACTER_SCALING
 
         # Need a variable to track the center of the drone's path
-        self.start_y = 0
+        self.start_y = y
 
         # Load textures
         self.look_r = [1]

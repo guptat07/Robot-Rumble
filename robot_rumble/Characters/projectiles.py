@@ -16,7 +16,7 @@ class BossProjectile(Entity):
         self.timer = 0
         self.radius = radius
         self.angle = math.radians(init_angle)
-        self.omega = constants.BULLET_SPEED  # angular velocity
+        self.omega = constants.BULLET_SPEED_ROTATION  # angular velocity
         self.center_x = x + radius * math.cos(math.radians(init_angle))
         self.center_y = y + radius * math.cos(math.radians(init_angle))
         self.diff_x = destx - self.center_x
@@ -49,8 +49,8 @@ class BossProjectile(Entity):
         # print("angle:", angle)
         # self.angle = math.degrees(angle)
 
-        self.center_x = self.center_x + math.cos(angle) * constants.BULLET_SPEED
-        self.center_y = self.center_y + math.sin(angle) * constants.BULLET_SPEED
+        self.center_x = self.center_x + math.cos(angle) * constants.BULLET_SPEED_ROTATION
+        self.center_y = self.center_y + math.sin(angle) * constants.BULLET_SPEED_ROTATION
         # self.center_x = constants.SCREEN_WIDTH // 2
         # self.center_y = constants.SCREEN_HEIGHT // 2
         # print("x", self.center_x)

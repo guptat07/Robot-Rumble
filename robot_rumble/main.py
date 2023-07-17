@@ -2,13 +2,12 @@
 Platformer Game
 """
 
-import random
 import arcade
 import arcade.gui
-import robot_rumble.Characters.player as player
+import robot_rumble.Characters.Player.player as player
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
-from robot_rumble.Characters.projectiles import BossProjectile, PlayerBullet, DroneBullet
+from robot_rumble.Characters.projectiles import PlayerBullet, DroneBullet
 from robot_rumble.Characters.drone import Drone as Drone
 from arcade import gl
 import robot_rumble.Util.constants as constants
@@ -312,13 +311,9 @@ class MyGame(arcade.Window):
         self.drone_list = arcade.SpriteList()
         self.scene_level_one.add_sprite_list("drone_list")
 
-        drone_positions = [[150, 605, RIGHT_FACING], [1600, 730, LEFT_FACING], [1800, 220, LEFT_FACING]]
-        for x, y, direction in drone_positions:
-            drone = Drone()
-            drone.center_x = x
-            drone.center_y = y
-            drone.start_y = drone.center_y
-            drone.face_direction(direction)
+        drone_positions_level_one = [[150, 605, RIGHT_FACING], [1600, 730, LEFT_FACING], [1800, 220, LEFT_FACING]]
+        for x, y, direction in drone_positions_level_one:
+            drone = Drone(x, y, direction)
             drone.update()
             self.scene_level_one.add_sprite("Drone", drone)
             self.scene_level_one.add_sprite("Thrusters", drone.thrusters)
@@ -396,20 +391,10 @@ class MyGame(arcade.Window):
 
             # Draw our Scene
             self.boss_bullet_list.draw(filter=gl.NEAREST)
-            print(len(self.boss_bullet_list))
             self.scene_boss_one.draw(filter=gl.NEAREST)
 
 
 #TODO:MOVE ALL INTO PLAYER CLASS
-    def update_player_speed(self):
-        self.player_sprite.change_x = 0
-
-        # Using the key pressed variables lets us create more responsive x-axis movement
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
-
 
             #TODO:move into player
 

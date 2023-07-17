@@ -9,7 +9,7 @@ from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.drone import Drone
 from robot_rumble.Characters.projectiles import DroneBullet, PlayerBullet, BossProjectile
 from arcade import gl
-import robot_rumble.Characters.player as player
+import robot_rumble.Characters.Player.player as player
 
 TILE_SCALING = 4
 SPRITE_PIXEL_SIZE = 32
