@@ -6,9 +6,6 @@ class Entity(arcade.Sprite):
     def __init__(self):
         super().__init__()
 
-        # Default to facing right
-        self.facing_direction = constants.LEFT_FACING
-
         # Used for image sequences
         self.cur_texture = 0
         self.scale = 1
