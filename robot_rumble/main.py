@@ -4,7 +4,7 @@ Platformer Game
 
 import arcade
 import arcade.gui
-import robot_rumble.Characters.Player.player as player
+import robot_rumble.Characters.Player.playerBase as player
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
 from robot_rumble.Characters.projectiles import PlayerBullet, DroneBullet
@@ -152,7 +152,7 @@ class MyGame(arcade.Window):
         self.player_hp = [1]
 
         for i in range(21):
-            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0,
+            texture = arcade.load_texture(files("robot_rumble.assets.ui").joinpath("health_bar.png"), x=i * 61, y=0,
                                           width=61, height=19)
             self.player_hp.append(texture)
 
@@ -260,7 +260,7 @@ class MyGame(arcade.Window):
         self.scene_level_one.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
 
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = player.Player()
+        self.player_sprite = player.PlayerBase()
         if self.scene_type == scene_boss_one:
             self.player_sprite.center_x = 100
             self.player_sprite.center_y = 300
@@ -419,8 +419,8 @@ class MyGame(arcade.Window):
                         bullet.center_x = self.player_sprite.center_x + 20
                     else:
                         bullet.texture = arcade.load_texture(
-                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                                "bullet[32height32wide].png"),
+                            files("robot_rumble.assets.gunner_assets").joinpath(
+                                "player_projectile.png"),
                             x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
                         bullet.center_x = self.player_sprite.center_x - 20
                     bullet.center_y = self.player_sprite.center_y - 7
@@ -440,7 +440,7 @@ class MyGame(arcade.Window):
                     else:
                         self.boss.health = self.boss.health + 10
                 if key == arcade.key.UP or key == arcade.key.W:
-                    if self.physics_engine_level.can_jump():
+                    if self.physics_engine_boss_player.can_jump():
                         self.player_sprite.change_y = PLAYER_JUMP_SPEED
                 elif key == arcade.key.LEFT or key == arcade.key.A:
                     self.left_pressed = True
@@ -456,8 +456,8 @@ class MyGame(arcade.Window):
                         bullet.center_x = self.player_sprite.center_x + 30
                     else:
                         bullet.texture = arcade.load_texture(
-                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                                "bullet[32height32wide].png"),
+                            files("robot_rumble.assets.gunner_assets").joinpath(
+                                "player_projectile.png"),
                             x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
                         bullet.center_x = self.player_sprite.center_x - 30
                     bullet.center_y = self.player_sprite.center_y - 20
@@ -658,6 +658,16 @@ class MyGame(arcade.Window):
         self.setup()
         self.scene_type = SCENE_GAME
         self.manager.disable()
+
+    def update_player_speed(self):
+        self.player_sprite.change_x = 0
+
+        # Using the key pressed variables lets us create more responsive x-axis movement
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -constants.MOVE_SPEED * 5
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = constants.MOVE_SPEED * 5
+
 
     def on_click_quit(self, event):
         arcade.exit()

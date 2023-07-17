@@ -75,8 +75,8 @@ class PlayerBullet(Entity):
         self.scale = 2
 
         self.bullet = arcade.load_texture(
-            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                "bullet[32height32wide].png"),
+            files("robot_rumble.assets.gunner_assets").joinpath(
+                "player_projectile.png"),
             x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
         self.texture = self.bullet
 
@@ -102,9 +102,9 @@ class DroneBullet(Entity):
         # Used for flipping between image sequences
         self.cur_texture = 0
 
-        self.scale = constants.CHARACTER_SCALING
+        self.scale = constants.ENEMY_SCALING
 
-        self.bullet = arcade.load_texture(files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1bullet.png"),
+        self.bullet = arcade.load_texture(files("robot_rumble.assets.enemies").joinpath("enemy1bullet.png"),
                                           x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
         self.texture = self.bullet
 

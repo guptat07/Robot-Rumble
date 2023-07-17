@@ -34,10 +34,10 @@ class BossOne(BossBase):
 
 
         #Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "idle1.png", 2, 32, 32)
-        self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "run1.png", 8, 32, 32)
-        self.jump_r, self.jump_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "jump1.png", 7, 32, 32)
-        self.teleport_r, self.teleport_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "teleport.png", 6, 32, 32)
+        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
+        self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run1.png", 8, 32, 32)
+        self.jump_r, self.jump_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "jump1.png", 7, 32, 32)
+        self.teleport_r, self.teleport_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "teleport.png", 6, 32, 32)
 
         self.damaged_r = []
         self.damaged_l = []
