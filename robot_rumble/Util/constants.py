@@ -26,6 +26,8 @@ BOSS_PATH = [[530,530], [145,700], [915,700]]
 
 # Boss Two Constants
 SWORD_SPAWN_TIME = 1
+BOSS2_JUMP_SPEED = 15
+BOSS2_MOVE_SPEED = 1.5
 
 
 #Drone constants

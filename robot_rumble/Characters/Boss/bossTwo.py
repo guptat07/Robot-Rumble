@@ -16,7 +16,7 @@ class BossTwo(BossBase):
         self.once_jump = True
 
         # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "idle1.png", 2, 32, 32)
+        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "idle2.png", 5, 32, 32)
         self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2run-Sheet[32height32wide].png", 8, 32, 32)
         self.jumping_r, self.jumping_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2jump-Sheet[48height32wide].png", 7, 32, 48)
         self.damaged_r, self.damaged_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2damage-Sheet[32height32wide].png", 6, 32, 32)
@@ -30,17 +30,21 @@ class BossTwo(BossBase):
         self.is_jumping = False
         self.is_attacking = False
 
-        self.texture = self.jumping_l[4]
+        self.texture = self.idle_r[1]
 
     def boss_logic(self, delta_time):
         if self.target.center_x < self.center_x + 10 and self.target.center_x > self.center_x - 10:
             self.change_x = 0
         elif self.target.center_x < self.center_x:
-            self.change_x = -constants.MOVE_SPEED
+            self.change_x = -constants.BOSS2_MOVE_SPEED
         elif self.target.center_x > self.center_x:
-            self.change_x = constants.MOVE_SPEED
+            self.change_x = constants.BOSS2_MOVE_SPEED
         else:
             self.change_x = 0
+        if self.target.center_y > self.center_y and not self.is_jumping:
+            if self.center_x > 370 and self.center_x < 430 and self.center_y < 200 and self.facing_direction == constants.LEFT_FACING:
+                self.change_y = constants.BOSS2_JUMP_SPEED
+                self.is_jumping = True
     def update_animation(self, delta_time):
 
         # Regardless of animation, determine if character is facing left or right

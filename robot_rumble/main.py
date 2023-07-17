@@ -89,6 +89,11 @@ class MyGame(arcade.Window):
         self.wall_list_boss_level = None
         self.tile_map_boss_level = None
 
+        # Our TileMap Boss Object
+        self.platform_list_boss2 = None
+        self.wall_list_boss2_level = None
+        self.tile_map_boss2_level = None
+
         # Our Scene Object
         self.scene_type = SCENE_MENU
         self.scene_level_one = None
@@ -123,6 +128,7 @@ class MyGame(arcade.Window):
         self.boss_center_x = 0
         self.boss_center_y = 0
         self.boss_hit_time = 0
+        self.wall_timer = 0
 
         # Variable for the boss bullet
         self.boss_bullet_list = None
@@ -225,6 +231,7 @@ class MyGame(arcade.Window):
         #TODO: move map stuff into either a class or function
         map_name_level = files("robot_rumble.assets").joinpath("Prototype.json")
         map_name_boss_level = files("robot_rumble.assets").joinpath("Boss_Level.json")
+        map_name_boss2_level = files("robot_rumble.assets").joinpath("Boss2_Level.json")
 
         # Layer specific options are defined based on Layer names in a dictionary
         # Doing this will make the SpriteList for the platforms layer
@@ -264,12 +271,18 @@ class MyGame(arcade.Window):
         self.wall_list_boss_level = self.tile_map_boss_level.sprite_lists["Floor"]
         self.foreground_boss_level = self.tile_map_boss_level.sprite_lists["Foreground"]
 
+        # Read in the tiled boss2 level
+        self.tile_map_boss2_level = arcade.load_tilemap(map_name_boss2_level, BOSS_TILE_SCALING, layer_options_boss_level)
+        self.platform_list_boss2 = self.tile_map_boss2_level.sprite_lists["Platforms"]
+        self.wall_list_boss2_level = self.tile_map_boss2_level.sprite_lists["Floor"]
+        self.foreground_boss2_level = self.tile_map_boss2_level.sprite_lists["Foreground"]
+
         # Initialize Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
 
         self.scene_level_one = arcade.Scene.from_tilemap(self.tile_map_level)
         self.scene_boss_one = arcade.Scene.from_tilemap(self.tile_map_boss_level)
-        self.scene_boss_two = arcade.Scene.from_tilemap(self.tile_map_boss_level)
+        self.scene_boss_two = arcade.Scene.from_tilemap(self.tile_map_boss2_level)
 
         # Add Player Spritelist before "Foreground" layer. This will make the foreground
         # be drawn after the player, making it appear to be in front of the Player.
@@ -406,7 +419,13 @@ class MyGame(arcade.Window):
         self.physics_engine_boss2 = arcade.PhysicsEnginePlatformer(
             self.boss2,
             gravity_constant=GRAVITY,
-            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+            walls=[self.wall_list_boss2_level, self.platform_list_boss2, self.foreground_boss2_level],
+        )
+
+        self.physics_engine_boss2_player = arcade.PhysicsEnginePlatformer(
+            self.player_sprite,
+            gravity_constant=GRAVITY,
+            walls=[self.wall_list_boss2_level, self.platform_list_boss2, self.foreground_boss2_level],
         )
 
         # for sword in self.sword_list:
@@ -545,7 +564,7 @@ class MyGame(arcade.Window):
 
             elif self.scene_type == scene_boss_two:
                 if key == arcade.key.UP or key == arcade.key.W:
-                    if self.physics_engine_boss_player.can_jump():
+                    if self.physics_engine_boss2_player.can_jump():
                         self.player_sprite.change_y = PLAYER_JUMP_SPEED
                 elif key == arcade.key.LEFT or key == arcade.key.A:
                     self.left_pressed = True
@@ -568,6 +587,9 @@ class MyGame(arcade.Window):
                     bullet.center_y = self.player_sprite.center_y - 7
                     self.scene_boss_two.add_sprite("player_bullet_list", bullet)
                     self.player_bullet_list.append(bullet)
+                elif key == arcade.key.P:
+                    print("X: ",self.player_sprite.center_x)
+                    print("Y: ", self.player_sprite.center_y)
 
 
 #TODO: move this into the player class
@@ -726,7 +748,6 @@ class MyGame(arcade.Window):
             self.physics_engine_boss_player.update()
             self.scene_boss_one.get_sprite_list("Player").update_animation()
 
-            platform_hit_list = arcade.check_for_collision_with_list(self.boss, self.platform_list_boss)
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
             for bullet in bullet_collisions:
@@ -748,7 +769,7 @@ class MyGame(arcade.Window):
                 self.boss_list.update_animation()
 
         if self.scene_type == scene_boss_two:
-            self.physics_engine_boss_player.update()
+            self.physics_engine_boss2_player.update()
             for physics_engine_sword in self.physics_engine_sword_list:
                 physics_engine_sword.update()
             self.scene_boss_one.get_sprite_list("Player").update_animation()
@@ -784,7 +805,7 @@ class MyGame(arcade.Window):
 
                 # Check for collisions with the floor
                 for sword in self.sword_list:
-                    wall_hit_list = arcade.check_for_collision_with_list(sword, self.wall_list_boss_level)
+                    wall_hit_list = arcade.check_for_collision_with_lists(sword, [self.wall_list_boss2_level, self.platform_list_boss2])
                     if len(wall_hit_list) > 0:
                         index = self.sword_list.index(sword)
                         sword.remove_from_sprite_lists()
