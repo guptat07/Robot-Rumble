@@ -12,8 +12,6 @@ class BossOne(BossBase):
         # Set up parent class
         super().__init__(target)
 
-        self.is_active = True
-
         # Default to face-right
         self.cur_time_frame = 0
         self.boss_logic_timer = 0

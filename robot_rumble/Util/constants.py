@@ -24,6 +24,9 @@ FORM_TIMER = 10
 BOSS_STUN_TIME = 3
 BOSS_PATH = [[530,530], [145,700], [915,700]]
 
+# Boss Two Constants
+SWORD_SPAWN_TIME = 1
+
 
 #Drone constants
 DRONE_MOVEMENT_SPEED = 0.25

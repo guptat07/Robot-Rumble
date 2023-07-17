@@ -1,156 +1,53 @@
+import random
 import arcade
-from importlib.resources import files
+from arcade import gl
 
-# Character scaling constant
-CHARACTER_SCALING = 2
+from robot_rumble.Characters.Boss.bossBase import BossBase
+from robot_rumble.Characters.projectiles import BossProjectile
+from robot_rumble.Util import constants
+from robot_rumble.Util.spriteload import load_spritesheet_pair
+class BossTwo(BossBase):
+    def __init__(self, target):
 
-# Constants tracking player character orientation
-RIGHT_FACING = 0
-LEFT_FACING = 1
+        # Set up parent class
+        super().__init__(target)
 
-# Health constant
-PLAYER_HEALTH = 20
+        self.boss_logic_timer = 0
+        self.once_jump = True
 
-
-class Player(arcade.Sprite):
-    """ Player Class """
-
-    def __init__(self):
-
-        # Set up parent class (call arcade.Sprite())
-        super().__init__()
-
-        # Default to right
-        self.cur_time_frame = 0
-        self.character_face_direction = RIGHT_FACING
-
-        # Set health
-        self.health = PLAYER_HEALTH
-
-        # Used for flipping between image sequences
-        self.scale = CHARACTER_SCALING
+        # Load textures
+        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "idle1.png", 2, 32, 32)
+        self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2run-Sheet[32height32wide].png", 8, 32, 32)
+        self.jumping_r, self.jumping_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2jump-Sheet[48height32wide].png", 7, 32, 48)
+        self.damaged_r, self.damaged_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2damage-Sheet[32height32wide].png", 6, 32, 32)
+        self.dash_r, self.dash_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2dash-Sheet[32height32wide].png", 7, 32, 32)
+        self.slash_r, self.slash_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2attack1-Sheet[32height64wide].png", 22, 64, 32)
+        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2jumpattack-Sheet[48height48wide].png", 7, 48, 48)
+        self.secondslash = 8
+        self.thirdslash = 14
 
         # Tracking the various states, which helps us smooth animations
         self.is_jumping = False
         self.is_attacking = False
-        self.is_active = True
 
-        # Load idle textures by iterating through each sprite in the sheet and adding them to the correct list
-        self.idle_r = [1]
-        self.idle_l = [1]
-        for i in range(2):
-            texture_idle_r = arcade.load_texture(
-                 files("robot_rumble.assets").joinpath("robot1_idle.png"), x=i*32, y=0, width=32, height=32, hit_box_algorithm="Simple"
-            )
-            texture_idle_l = arcade.load_texture(
-                files("robot_rumble.assets").joinpath("robot1_idle.png"), x=i*32, y=0, width=32, height=32, hit_box_algorithm="Simple",
-                flipped_horizontally=True
-            )
-            self.idle_r.append(texture_idle_r)
-            self.idle_l.append(texture_idle_l)
+        self.texture = self.jumping_l[4]
 
-            # Load idle attack textures
-            self.idle_attack_r = [1]
-            self.idle_attack_l = [1]
-            texture_idle_attack_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1runattack-Sheet[32height32wide].png"), x=32, y=0, width=32, height=32,
-                hit_box_algorithm="Simple"
-            )
-            texture_idle_attack_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath(
-                    "robo1runattack-Sheet[32height32wide].png"), x=32, y=0, width=32, height=32,
-                hit_box_algorithm="Simple", flipped_horizontally=True
-            )
-            self.idle_attack_r.append(texture_idle_attack_r)
-            self.idle_attack_l.append(texture_idle_attack_l)
-
-        # Load running textures by iterating through each sprite in the sheet and adding them to the correct list
-        self.running_r = [1]
-        self.running_l = [1]
-        for i in range(8):
-            texture_running_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1run-Sheet[32height32wide].png"), x=i*32, y=0, width=32, height=32,
-                hit_box_algorithm="Simple"
-            )
-            texture_running_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1run-Sheet[32height32wide].png"), x=i*32, y=0, width=32, height=32,
-                hit_box_algorithm="Simple", flipped_horizontally=True
-            )
-            self.running_r.append(texture_running_r)
-            self.running_l.append(texture_running_l)
-
-        # Load running attack textures by iterating through each sprite in the sheet and adding them to the correct list
-        self.running_attack_r = [1]
-        self.running_attack_l = [1]
-        for i in range(8):
-            texture_running_attack_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1runattack-Sheet[32height32wide].png"), x=i * 32, y=0, width=32, height=32,
-                hit_box_algorithm="Simple"
-            )
-            texture_running_attack_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1runattack-Sheet[32height32wide].png"), x=i * 32, y=0, width=32, height=32,
-                hit_box_algorithm="Simple", flipped_horizontally=True
-            )
-            self.running_attack_r.append(texture_running_attack_r)
-            self.running_attack_l.append(texture_running_attack_l)
-
-        # Load jumping textures by iterating through each sprite in the sheet and adding them to the correct list
-        self.jumping_r = [1]
-        self.jumping_l = [1]
-        for i in range(7):
-            # For whatever reason, this sprite is 32x48—this is why the y parameter is 16 (48-16=32)
-            texture_jumping_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1jump-Sheet[48height32wide].png"), x=i * 32, y=16, width=32, height=32,
-                hit_box_algorithm="Simple"
-            )
-            texture_jumping_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1jump-Sheet[48height32wide].png"), x=i * 32, y=16, width=32, height=32,
-                hit_box_algorithm="Simple", flipped_horizontally=True
-            )
-            self.jumping_r.append(texture_jumping_r)
-            self.jumping_l.append(texture_jumping_l)
-
-            # Load jumping attack textures by iterating through each sprite in the sheet and adding them to the correct list
-            self.jumping_attack_r = [1]
-            self.jumping_attack_l = [1]
-            for i in range(7):
-                # For whatever reason, this sprite is 32x48—this is why the y parameter is 16 (48-16=32)
-                texture_jumping_attack_r = arcade.load_texture(
-                    files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath(
-                   "robo1jumpattack-Sheet[48height32wide].png"), x=i * 32, y=16, width=32,
-                    height=32,
-                    hit_box_algorithm="Simple"
-                )
-                texture_jumping_attack_l = arcade.load_texture(
-                    files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath(
-                   "robo1jumpattack-Sheet[48height32wide].png"), x=i * 32, y=16, width=32,
-                    height=32,
-                    hit_box_algorithm="Simple", flipped_horizontally=True
-                )
-                self.jumping_attack_r.append(texture_jumping_attack_r)
-                self.jumping_attack_l.append(texture_jumping_attack_l)
-
-        # Set an initial texture. Required for the code to run.
-        self.texture = self.idle_r[1]
-        self.hit_box = self.texture.hit_box_points
-
+    def boss_logic(self, delta_time):
+        if self.target.center_x < self.center_x + 10 and self.target.center_x > self.center_x - 10:
+            self.change_x = 0
+        elif self.target.center_x < self.center_x:
+            self.change_x = -constants.MOVE_SPEED
+        elif self.target.center_x > self.center_x:
+            self.change_x = constants.MOVE_SPEED
+        else:
+            self.change_x = 0
     def update_animation(self, delta_time):
-        # # Check for out-of-bounds
-        # if self.left < 0:
-        #     self.left = 0
-        # elif self.right > constants.SCREEN_WIDTH - 1:
-        #     self.right = constants.SCREEN_WIDTH - 1
-        #
-        # if self.bottom < 0:
-        #     self.bottom = 0
-        # elif self.top > constants.SCREEN_HEIGHT - 1:
-        #     self.top = constants.SCREEN_HEIGHT - 1
 
         # Regardless of animation, determine if character is facing left or right
-        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
-            self.character_face_direction = LEFT_FACING
-        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
-            self.character_face_direction = RIGHT_FACING
+        if self.change_x < 0 and self.character_face_direction == constants.RIGHT_FACING:
+            self.character_face_direction = constants.LEFT_FACING
+        elif self.change_x > 0 and self.character_face_direction == constants.LEFT_FACING:
+            self.character_face_direction = constants.RIGHT_FACING
 
         # Should work regardless of framerate
         self.cur_time_frame += delta_time
@@ -163,7 +60,7 @@ class Player(arcade.Sprite):
             # Update the tracker for future jumps
             self.is_jumping = False
             # Animation depending on whether facing left or right and moving or still
-            if self.character_face_direction == RIGHT_FACING:
+            if self.character_face_direction == constants.RIGHT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
                         self.texture = self.idle_attack_r[self.idle_attack_r[0]]
@@ -174,7 +71,7 @@ class Player(arcade.Sprite):
                         self.texture = self.running_attack_r[self.running_attack_r[0]]
                     else:
                         self.texture = self.running_r[self.running_r[0]]
-            elif self.character_face_direction == LEFT_FACING:
+            elif self.character_face_direction == constants.LEFT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
                         self.texture = self.idle_attack_l[self.idle_attack_l[0]]
@@ -191,7 +88,7 @@ class Player(arcade.Sprite):
         if self.change_x == 0 and self.change_y == 0:
             # If the player is standing still and pressing the attack button, play the attack animation
             if self.is_attacking:
-                if self.character_face_direction == RIGHT_FACING:
+                if self.character_face_direction == constants.RIGHT_FACING:
                     # Designed this way to maintain consistency with other, multi-frame animation code
                     self.texture = self.idle_attack_r[self.idle_attack_r[0]]
                     self.cur_time_frame = 0
@@ -201,7 +98,7 @@ class Player(arcade.Sprite):
             # Having the idle animation loop every .33 seconds
             if self.cur_time_frame >= 1 / 3:
                 # Load the correct idle animation based on most recent direction faced
-                if self.character_face_direction == RIGHT_FACING:
+                if self.character_face_direction == constants.RIGHT_FACING:
                     # Basically, on startup, index 0 should hold a value of 1.
                     # So the first time we enter this branch, self.texture gets set to self.idle_r[1], which is the first animation frame.
                     # Then we either increment the value in the first index or loop it back around to a value of 1.
@@ -222,7 +119,7 @@ class Player(arcade.Sprite):
             return
 
         # Moving to the right
-        elif self.change_x > 0 and self.character_face_direction == RIGHT_FACING:
+        elif self.change_x > 0 and self.character_face_direction == constants.RIGHT_FACING:
             # Check to see if the player is jumping (while moving right)
             if self.change_y != 0:
                 self.is_jumping = True
@@ -270,7 +167,7 @@ class Player(arcade.Sprite):
             return
 
         # Moving to the left
-        elif self.change_x < 0 and self.character_face_direction == LEFT_FACING:
+        elif self.change_x < 0 and self.character_face_direction == constants.LEFT_FACING:
             # Check to see if the player is jumping (while moving left)
             if self.change_y != 0:
                 self.is_jumping = True
@@ -318,7 +215,7 @@ class Player(arcade.Sprite):
         # Jumping in place
         elif self.change_y != 0 and self.change_x == 0:
             self.is_jumping = True
-            if self.character_face_direction == RIGHT_FACING:
+            if self.character_face_direction == constants.RIGHT_FACING:
                 if self.is_attacking:
                     self.texture = self.jumping_attack_r[self.jumping_attack_r[0]]
                     if self.change_y > 0:
@@ -363,4 +260,9 @@ class Player(arcade.Sprite):
                     elif self.change_y < 0:
                         self.jumping_l[0] = 1
                         self.texture = self.jumping_l[4]
+            # everything here rn is tony's update animation
             return
+
+    def update(self, delta_time):
+        super().update(delta_time)
+        self.boss_logic(delta_time)

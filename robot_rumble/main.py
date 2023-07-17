@@ -8,6 +8,7 @@ import arcade.gui
 import robot_rumble.Characters.player as player
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
+from robot_rumble.Characters.Boss.bossTwo import BossTwo as BossTwo
 from robot_rumble.Characters.projectiles import BossProjectile, PlayerBullet, DroneBullet, Sword
 from robot_rumble.Characters.drone import Drone as Drone
 from arcade import gl
@@ -77,6 +78,7 @@ class MyGame(arcade.Window):
         self.foreground_boss_level = None
         self.physics_engine_boss_player = None
         self.physics_engine_boss = None
+        self.physics_engine_boss2 = None
         self.physics_engine_level = None
         self.physics_engine_sword_list = []
         self.platform_list_level = None
@@ -125,6 +127,10 @@ class MyGame(arcade.Window):
         # Variable for the boss bullet
         self.boss_bullet_list = None
         self.boss_bullet_list_circle = None
+
+        # Variable for boss two
+        self.boss2 = None
+        self.boss2_list = None
 
         # Our physics engine
         self.physics_engine = None
@@ -283,15 +289,15 @@ class MyGame(arcade.Window):
         self.scene_level_one.add_sprite("Player", self.player_sprite)
         self.scene_boss_one.add_sprite("Player", self.player_sprite)
         self.scene_boss_two.add_sprite("Player", self.player_sprite)
+
         self.player_sprite.health = 20
+        self.player_hp[0] = 1
+        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
 
         # health bar to both
         self.scene_level_one.add_sprite("hp", self.player_health_bar)
         self.scene_boss_one.add_sprite("hp", self.player_health_bar)
         self.scene_boss_two.add_sprite("hp", self.player_health_bar)
-
-        self.player_hp[0] = 1
-        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
 
         self.player_bullet_list = arcade.SpriteList()
         self.scene_level_one.add_sprite_list("player_bullet_list")
@@ -314,6 +320,15 @@ class MyGame(arcade.Window):
 
         self.scene_boss_one.add_sprite_list("boss_bullet_list",sprite_list=self.boss_bullet_list)
         self.scene_boss_one.add_sprite_list("boss_bullet_list_circle",sprite_list=self.boss_bullet_list_circle)
+
+        # Boss Two setup
+
+        self.boss2_list = arcade.SpriteList()
+        self.scene_boss_two.add_sprite_list("boss2_list")
+
+        self.boss2 = BossTwo(self.player_sprite)
+        self.scene_boss_two.add_sprite("Boss", self.boss2)
+        self.boss2_list.append(self.boss2)
 
         '''
         i = 1
@@ -342,11 +357,11 @@ class MyGame(arcade.Window):
         # make sword (testing)
         self.sword_list = arcade.SpriteList()
         self.scene_boss_two.add_sprite_list("Sword")
-        sword = Sword()
-        sword.center_x = 200
-        sword.center_y = 800
-        self.scene_boss_two.add_sprite("Sword", sword)
-        self.sword_list.append(sword)
+        # sword = Sword()
+        # sword.center_x = 200
+        # sword.center_y = 800
+        # self.scene_boss_two.add_sprite("Sword", sword)
+        # self.sword_list.append(sword)
 
         self.explosion_list = arcade.SpriteList()
         self.scene_level_one.add_sprite_list("explosion_list")
@@ -388,13 +403,19 @@ class MyGame(arcade.Window):
             walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
-        for sword in self.sword_list:
-            physics_engine_sword = arcade.PhysicsEnginePlatformer(
-                sword,
-                gravity_constant=GRAVITY,
-                walls=[self.wall_list_boss_level, self.foreground_boss_level],
-            )
-            self.physics_engine_sword_list.append(physics_engine_sword)
+        self.physics_engine_boss2 = arcade.PhysicsEnginePlatformer(
+            self.boss2,
+            gravity_constant=GRAVITY,
+            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+        )
+
+        # for sword in self.sword_list:
+        #     physics_engine_sword = arcade.PhysicsEnginePlatformer(
+        #         sword,
+        #         gravity_constant=GRAVITY,
+        #         walls=[self.wall_list_boss_level, self.foreground_boss_level],
+        #     )
+        #     self.physics_engine_sword_list.append(physics_engine_sword)
 
 
     def on_draw(self):
@@ -429,7 +450,7 @@ class MyGame(arcade.Window):
 
             # Draw our Scene
             self.boss_bullet_list.draw(filter=gl.NEAREST)
-            print(len(self.boss_bullet_list))
+            # print(len(self.boss_bullet_list))
             self.scene_boss_one.draw(filter=gl.NEAREST)
 
         elif self.scene_type == scene_boss_two:
@@ -656,7 +677,7 @@ class MyGame(arcade.Window):
                 bullet.remove_from_sprite_lists()
                 self.player_sprite.health -= 1
                 self.hit()
-                print(self.player_sprite.health)
+                # print(self.player_sprite.health)
 
         if self.scene_type == scene_boss_one:
 
@@ -727,7 +748,6 @@ class MyGame(arcade.Window):
                 self.boss_list.update_animation()
 
         if self.scene_type == scene_boss_two:
-            self.physics_engine_boss.update()
             self.physics_engine_boss_player.update()
             for physics_engine_sword in self.physics_engine_sword_list:
                 physics_engine_sword.update()
@@ -738,7 +758,7 @@ class MyGame(arcade.Window):
                 bullet.update()
 
             self.temp_sword_timer += delta_time
-            if self.temp_sword_timer > constants.BOSS_STUN_TIME:
+            if self.temp_sword_timer > constants.SWORD_SPAWN_TIME:
                 self.temp_sword_timer = 0
                 sword = Sword()
                 sword.center_x = self.player_sprite.center_x
@@ -747,11 +767,33 @@ class MyGame(arcade.Window):
                 physics_engine_sword = arcade.PhysicsEnginePlatformer(
                     sword,
                     gravity_constant=GRAVITY,
-                    walls=[self.wall_list_boss_level, self.foreground_boss_level],
                 )
                 self.physics_engine_sword_list.append(physics_engine_sword)
                 self.sword_list.append(sword)
 
+            if len(self.sword_list) > 0:
+                # Check for collisions with player
+                sword_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.sword_list)
+                for sword in sword_collisions:
+                    index = self.sword_list.index(sword)
+                    sword.remove_from_sprite_lists()
+                    del self.physics_engine_sword_list[index]
+                    # self.player_sprite.health -= 5
+                    # self.hit()
+                    # print(self.player_sprite.health)
+
+                # Check for collisions with the floor
+                for sword in self.sword_list:
+                    wall_hit_list = arcade.check_for_collision_with_list(sword, self.wall_list_boss_level)
+                    if len(wall_hit_list) > 0:
+                        index = self.sword_list.index(sword)
+                        sword.remove_from_sprite_lists()
+                        del self.physics_engine_sword_list[index]
+
+            if self.boss2.is_active:
+                self.boss2.update(delta_time)
+                self.physics_engine_boss2.update()
+                self.boss2_list.update_animation()
 
 
 
@@ -774,22 +816,27 @@ class MyGame(arcade.Window):
         arcade.exit()
 
     def hit(self):
-        if (self.player_sprite.health == 0):
+        print(self.player_sprite.health)
+        if (self.player_sprite.health <= 0):
             death = Player_Death()
             death.center_x = self.player_sprite.center_x
             death.center_y = self.player_sprite.center_y
             # This line was removed because the current player doesn't have direction
             death.face_direction(self.player_sprite.character_face_direction)
-            self.scene_level_one.add_sprite("Death", death)
-            self.scene_boss_one.add_sprite("Death", death)
+            if self.scene_type == SCENE_GAME:
+                self.scene_level_one.add_sprite("Death", death)
+            elif self.scene_type == scene_boss_one:
+                self.scene_boss_one.add_sprite("Death", death)
+            elif self.scene_type == scene_boss_two:
+                self.scene_boss_two.add_sprite("Death", death)
             death.scale = self.player_sprite.scale
             self.death_list.append(death)
             self.player_sprite.kill()
             self.player_sprite.is_active = False
             self.player_sprite.change_x = 0
             self.player_sprite.change_y = 0
-        if self.player_hp[0] < 21:
-            self.player_hp[0] = self.player_hp[0] + 1
+        if self.player_hp[0] < 21 and self.player_sprite.health >= 0:
+            self.player_hp[0] = 21 - self.player_sprite.health
             self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
 
 
