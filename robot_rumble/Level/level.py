@@ -4,6 +4,7 @@ from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.projectiles import PlayerBullet
 from importlib.resources import files
 from arcade import gl
+from robot_rumble.Level.pauseScreen import PauseScreen
 
 TILE_SCALING = 4
 SPRITE_PIXEL_SIZE = 32
@@ -89,6 +90,8 @@ class Level(arcade.View):
 
         self.scene = None
 
+        self.isPaused = False
+
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
@@ -128,7 +131,10 @@ class Level(arcade.View):
         pass
 
     def on_show_view(self):
-        self.setup()
+        if self.isPaused:
+            pass
+        else:
+            self.setup()
 
     def on_draw(self):
         """Render the screen."""
@@ -174,6 +180,10 @@ class Level(arcade.View):
                 bullet.center_y = self.player_sprite.center_y - 7
                 self.scene.add_sprite("player_bullet_list", bullet)
                 self.player_bullet_list.append(bullet)
+        if key == arcade.key.ESCAPE:
+            pause = PauseScreen(self)
+            self.window.show_view(pause)
+            self.isPaused = True
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""

@@ -4,72 +4,42 @@ from robot_rumble.Util import constants
 from robot_rumble.Characters.entities import Entity
 from importlib.resources import files
 
+from robot_rumble.Util.spriteload import load_spritesheet_pair
+
 
 class Drone(Entity):
-    def __init__(self):
+    def __init__(self, x, y, direction):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
-        self.cur_time_frame = 0
-        self.character_face_direction = constants.RIGHT_FACING
-        self.is_active = True
-
         # Used for flipping between image sequences
         self.cur_texture = 0
+        self.cur_time_frame = 0
 
         # Time to bob the other direction (up/down)
         self.bob = 0
         self.move_up = True
         self.limit_drone = 1
 
+        #set center x and y and direction
+        self.character_face_direction = direction
+        self.center_y = y
+        self.center_x = x
+
         # Shot animation time, determine if it's shooting, and time between shots
         self.shoot_animate = 0
         self.is_shooting = False
         self.time_to_shoot = 0
 
-        self.scale = constants.CHARACTER_SCALING
+        self.scale = constants.ENEMY_SCALING
 
         # Need a variable to track the center of the drone's path
-        self.start_y = 0
+        self.start_y = y
 
         # Load textures
-        self.look_r = [1]
-        self.look_l = [1]
-        self.shoot_r = [1]
-        self.shoot_l = [1]
-        self.fire_r = [1]
-        self.fire_l = [1]
-
-        for i in range(3):
-            texture_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
-                x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
-            texture_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1[32height32wide].png"),
-                x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
-            self.look_r.append(texture_r)
-            self.look_l.append(texture_l)
-
-        for i in range(6):
-            texture_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
-                x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
-            texture_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_attack_effect[32height32wide].png"),
-                x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
-            self.shoot_r.append(texture_r)
-            self.shoot_l.append(texture_l)
-
-        for i in range(2):
-            texture_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
-                x=i * 32, y=0, width=32, height=32, hit_box_algorithm="Simple")
-            texture_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1_flyingeffect[32height32wide].png"),
-                x=i * 32, y=0, width=32, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
-            self.fire_r.append(texture_r)
-            self.fire_l.append(texture_l)
+        self.look_l, self.look_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1.png", 3, 32, 32)
+        self.shoot_l, self.shoot_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1_attack_effect.png", 6, 32, 32)
+        self.fire_l, self.fire_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1_flying.png", 2, 32, 32)
 
         if self.character_face_direction == constants.RIGHT_FACING:
             self.look = self.look_r
@@ -82,8 +52,8 @@ class Drone(Entity):
 
         self.thrusters = arcade.Sprite()
         self.shooting = arcade.Sprite()
-        self.thrusters.scale = constants.CHARACTER_SCALING
-        self.shooting.scale = constants.CHARACTER_SCALING
+        self.thrusters.scale = constants.ENEMY_SCALING
+        self.shooting.scale = constants.ENEMY_SCALING
         self.thrusters.texture = self.fire[1]
         self.shooting.texture = self.shoot[1]
         self.shooting.visible = False

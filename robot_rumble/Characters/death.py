@@ -4,6 +4,8 @@ from robot_rumble.Util import constants
 from robot_rumble.Characters.entities import Entity
 from importlib.resources import files
 
+from robot_rumble.Util.spriteload import load_spritesheet_pair
+
 
 class Explosion(Entity):
     def __init__(self):
@@ -18,20 +20,9 @@ class Explosion(Entity):
         self.cur_texture = 0
 
         self.explode_time = 0
-        self.bomb_r = [1]
-        self.bomb_l = [1]
+        self.bomb_r, self.bomb_l = load_spritesheet_pair("robot_rumble.assets.enemies", "explode.png", 7, 64, 64)
 
-        self.scale = constants.CHARACTER_SCALING
-
-        for i in range(7):
-            texture_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
-                x=i * 64, y=0, width=64, height=64, hit_box_algorithm="Simple")
-            texture_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.other").joinpath("explode-Sheet[64height64wide].png"),
-                x=i * 64, y=0, width=64, height=64, flipped_horizontally=True, hit_box_algorithm="Simple")
-            self.bomb_r.append(texture_r)
-            self.bomb_l.append(texture_l)
+        self.scale = constants.ENEMY_SCALING
         if self.character_face_direction == constants.RIGHT_FACING:
             self.bomb = self.bomb_r
         else:
@@ -68,28 +59,22 @@ class Player_Death(Entity):
 
         # Used for flipping between image sequences
         self.cur_texture = 0
+        self.animation_finished = False
 
         self.death_time = 0
-        self.death_r = [1]
-        self.death_l = [1]
+        self.death_r, self.death_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "death1.png", 7, 64, 32)
 
-        self.scale = constants.CHARACTER_SCALING
+        self.scale = constants.ENEMY_SCALING
 
-        for i in range(7):
-            texture_r = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("robot1death-Sheet[32height64wide].png"),
-                x=i * 64, y=0, width=64, height=32, hit_box_algorithm="Simple")
-            texture_l = arcade.load_texture(
-                files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath("robot1death-Sheet[32height64wide].png"),
-                x=i * 64, y=0, width=64, height=32, flipped_horizontally=True, hit_box_algorithm="Simple")
-            self.death_r.append(texture_r)
-            self.death_l.append(texture_l)
         if self.character_face_direction == constants.RIGHT_FACING:
             self.death = self.death_r
         else:
             self.death = self.death_r
         self.texture = self.death[1]
 
+    def center(self,x,y):
+        self.center_x = x
+        self.center_y = y
     def face_direction(self, direction):
         self.character_face_direction = direction
         if self.character_face_direction == constants.RIGHT_FACING:
@@ -102,6 +87,7 @@ class Player_Death(Entity):
         self.death_time += delta_time
         if self.death[0] + 1 >= len(self.death):
             self.death[0] = 1
+            self.animation_finished = True #added finished, this actually kills the game
             return True
         elif self.death_time > constants.DRONE_TIMER / 2:
             self.texture = self.death[self.death[0]]

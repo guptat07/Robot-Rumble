@@ -77,18 +77,18 @@ class BossOne(Level):
         )
 
     def boss_setup(self):
+        self.boss = BossOne(self.player_sprite)
+        self.boss.center_x = const.SCREEN_WIDTH // 2
+        self.boss.center_y = const.SCREEN_HEIGHT // 2 + 200
+        self.scene.add_sprite("Boss", self.boss)
+        self.boss_list.append(self.boss)
+
         self.boss_list = arcade.SpriteList()
         self.boss_bullet_list = arcade.SpriteList()
         self.boss_bullet_list_circle = arcade.SpriteList()
         self.scene.add_sprite_list("boss_list")
         self.scene.add_sprite_list("boss_bullet_list_circle")
         self.scene.add_sprite_list("boss_bullet_list")
-
-        self.boss = BossOne(self.player_sprite)
-        self.boss.center_x = const.SCREEN_WIDTH // 2
-        self.boss.center_y = const.SCREEN_HEIGHT // 2 + 200
-        self.scene.add_sprite("Boss", self.boss)
-        self.boss_list.append(self.boss)
 
         # Boss Bullet Ring
         for i in range(0, 360, 60):

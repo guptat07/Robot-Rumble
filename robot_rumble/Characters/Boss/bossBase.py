@@ -7,7 +7,7 @@ import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.entities import Entity
 
 
-class boss_health_bar(arcade.Sprite):
+class BossHealthBar(arcade.Sprite):
     def __init__(self):
         # Set up parent class
         super().__init__()
@@ -26,14 +26,14 @@ class BossBase(Entity):
         #we can maybe change the rate of damage for other bosses or the health, but it's kind of hard coded with the health bar
         self.health = 40
         #rest of healthbar creation and setup
-        self.hp_bar = boss_health_bar()
+        self.hp_bar = BossHealthBar()
         self.hp_bar.scale = 5
         self.hp_bar.center_x = constants.SCREEN_WIDTH // 2
         self.hp_bar.center_y = constants.SCREEN_HEIGHT // 2 + 380
 
         #other boss sprite stuff
         self.character_face_direction = constants.LEFT_FACING
-        self.scale = constants.CHARACTER_SCALING
+        self.scale = constants.ENEMY_SCALING
         self.sprite_lists_weapon = []
 
         #logic variables
@@ -95,3 +95,7 @@ class BossBase(Entity):
 
     def return_sprite_lists(self):
         return self.sprite_lists_weapon
+
+
+    def return_health_sprite(self):
+        return self.hp_bar
