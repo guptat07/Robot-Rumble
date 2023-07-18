@@ -1,29 +1,43 @@
-# Constants
+# Constants File
+
+#Game constants
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 810
 SCREEN_TITLE = "Platformer"
-CHARACTER_SCALING = 3
 TILE_SCALING = 3
 
-# Movement speed of player, in pixels per frame
-PLAYER_MOVEMENT_SPEED = 5
-MOVE_SPEED = 2
+#Level names
+SCENE_MENU = 'SCENE_MENU'
+SCENE_LEVEL_ONE = 'SCENE_LEVEL_ONE'
+SCENE_LEVEL_BOSS_ONE = 'scene_boss_one'
+
+
+#all character constants
+ENEMY_SCALING = 3
+PLAYER_SCALING = 2
 GRAVITY = 1
-PLAYER_JUMP_SPEED = 1
-JUMP_SPEED = 10
 RIGHT_FACING = 0
 LEFT_FACING = 1
 
-PLAYER_BULLET_MOVEMENT_SPEED = 0.4
+BOSS_STUN_TIME = 3
+
+# constants of player/boss gunner
+MOVE_SPEED = 2
+JUMP_SPEED = 10
 
 BULLET_SIZE = 2
-BULLET_SPEED = 8
 BULLET_RADIUS = 100
+PLAYER_BULLET_MOVEMENT_SPEED = 0.4
+
+BULLET_SPEED_ROTATION = 8
 FORM_TIMER = 10
 
-BOSS_STUN_TIME = 3
 BOSS_PATH = [[530,530], [145,700], [915,700]]
 
+#constants of player/boss sworder
+
+
+#constants of player/boss brawler
 
 #Drone constants
 DRONE_MOVEMENT_SPEED = 0.25
