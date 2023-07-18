@@ -109,6 +109,7 @@ class MyGame(arcade.Window):
         # Variable for sword sprite
         self.sword_list = None
         self.temp_sword_timer = 0
+        self.hits_on_player = 0
 
         # Variable for the bullet sprite list
         self.bullet_list = None
@@ -815,6 +816,30 @@ class MyGame(arcade.Window):
                 self.boss2.update(delta_time)
                 self.physics_engine_boss2.update()
                 self.boss2_list.update_animation()
+                if self.boss2.is_attacking:
+                    if (self.boss2.character_face_direction == constants.RIGHT_FACING and self.player_sprite.center_x > self.boss2.center_x)\
+                        or (self.boss2.character_face_direction == constants.LEFT_FACING and self.player_sprite.center_x < self.boss2.center_x):
+                        boss_hit_player = arcade.check_for_collision_with_list(self.player_sprite, self.boss2_list)
+                        if len(boss_hit_player) > 0:
+                            if (self.boss2.attack_r[0] < self.boss2.secondslash or self.boss2.attack_l[0] < self.boss2.secondslash)\
+                                and self.boss2.slash_can_hit[0]:
+                                self.hits_on_player += 1
+                                print(self.hits_on_player)
+                                self.boss2.slash_can_hit[0] = False
+                            elif ((self.boss2.attack_r[0] >= self.boss2.secondslash and self.boss2.attack_r[0] < self.boss2.thirdslash)\
+                                  or (self.boss2.attack_l[0] >= self.boss2.secondslash and self.boss2.attack_l[0] < self.boss2.thirdslash))\
+                                  and self.boss2.slash_can_hit[1]:
+                                self.hits_on_player += 1
+                                print(self.hits_on_player)
+                                self.boss2.slash_can_hit[1] = False
+                            elif (self.boss2.attack_r[0] >= self.boss2.thirdslash or self.boss2.attack_l[0] >= self.boss2.secondslash)\
+                                and self.boss2.slash_can_hit[2]:
+                                self.hits_on_player += 1
+                                print(self.hits_on_player)
+                                self.boss2.slash_can_hit[2] = False
+
+
+
 
 
 

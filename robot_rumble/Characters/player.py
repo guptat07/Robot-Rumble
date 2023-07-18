@@ -1,5 +1,6 @@
 import arcade
 from importlib.resources import files
+from robot_rumble.Characters.entities import Entity
 
 # Character scaling constant
 CHARACTER_SCALING = 2
@@ -12,7 +13,7 @@ LEFT_FACING = 1
 PLAYER_HEALTH = 20
 
 
-class Player(arcade.Sprite):
+class Player(Entity):
     """ Player Class """
 
     def __init__(self):
@@ -50,19 +51,19 @@ class Player(arcade.Sprite):
             self.idle_l.append(texture_idle_l)
 
             # Load idle attack textures
-            self.idle_attack_r = [1]
-            self.idle_attack_l = [1]
-            texture_idle_attack_r = arcade.load_texture(
+            self.attack_r = [1]
+            self.attack_l = [1]
+            texture_attack_r = arcade.load_texture(
                 files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath("robo1runattack-Sheet[32height32wide].png"), x=32, y=0, width=32, height=32,
                 hit_box_algorithm="Simple"
             )
-            texture_idle_attack_l = arcade.load_texture(
+            texture_attack_l = arcade.load_texture(
                 files("robot_rumble.assets.robot_series_base_pack.robot1.robo1").joinpath(
                     "robo1runattack-Sheet[32height32wide].png"), x=32, y=0, width=32, height=32,
                 hit_box_algorithm="Simple", flipped_horizontally=True
             )
-            self.idle_attack_r.append(texture_idle_attack_r)
-            self.idle_attack_l.append(texture_idle_attack_l)
+            self.attack_r.append(texture_attack_r)
+            self.attack_l.append(texture_attack_l)
 
         # Load running textures by iterating through each sprite in the sheet and adding them to the correct list
         self.running_r = [1]
@@ -135,29 +136,11 @@ class Player(arcade.Sprite):
         self.hit_box = self.texture.hit_box_points
 
     def update_animation(self, delta_time):
-        # # Check for out-of-bounds
-        # if self.left < 0:
-        #     self.left = 0
-        # elif self.right > constants.SCREEN_WIDTH - 1:
-        #     self.right = constants.SCREEN_WIDTH - 1
-        #
-        # if self.bottom < 0:
-        #     self.bottom = 0
-        # elif self.top > constants.SCREEN_HEIGHT - 1:
-        #     self.top = constants.SCREEN_HEIGHT - 1
-
-        # Regardless of animation, determine if character is facing left or right
-        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
-            self.character_face_direction = LEFT_FACING
-        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
-            self.character_face_direction = RIGHT_FACING
-
-        # Should work regardless of framerate
-        self.cur_time_frame += delta_time
+        super().update_animation(delta_time)
 
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
         # This condition must mean that the player WAS jumping but has landed
-        if self.change_y == 0 and self.is_jumping and\
+        if self.change_y == 0 and self.is_jumping and \
                 (self.texture == self.jumping_r[4] or self.texture == self.jumping_l[4]
                  or self.texture == self.jumping_attack_r[4] or self.texture == self.jumping_attack_l[4]):
             # Update the tracker for future jumps
@@ -166,7 +149,7 @@ class Player(arcade.Sprite):
             if self.character_face_direction == RIGHT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
-                        self.texture = self.idle_attack_r[self.idle_attack_r[0]]
+                        self.texture = self.attack_r[self.attack_r[0]]
                     else:
                         self.texture = self.idle_r[self.idle_r[0]]
                 else:
@@ -177,7 +160,7 @@ class Player(arcade.Sprite):
             elif self.character_face_direction == LEFT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
-                        self.texture = self.idle_attack_l[self.idle_attack_l[0]]
+                        self.texture = self.attack_l[self.attack_l[0]]
                     else:
                         self.texture = self.idle_l[self.idle_l[0]]
                 else:
@@ -186,41 +169,6 @@ class Player(arcade.Sprite):
                     else:
                         self.texture = self.running_l[self.running_l[0]]
             return
-
-        # Idle animation
-        if self.change_x == 0 and self.change_y == 0:
-            # If the player is standing still and pressing the attack button, play the attack animation
-            if self.is_attacking:
-                if self.character_face_direction == RIGHT_FACING:
-                    # Designed this way to maintain consistency with other, multi-frame animation code
-                    self.texture = self.idle_attack_r[self.idle_attack_r[0]]
-                    self.cur_time_frame = 0
-                else:
-                    self.texture = self.idle_attack_l[self.idle_attack_l[0]]
-                    self.cur_time_frame = 0
-            # Having the idle animation loop every .33 seconds
-            if self.cur_time_frame >= 1 / 3:
-                # Load the correct idle animation based on most recent direction faced
-                if self.character_face_direction == RIGHT_FACING:
-                    # Basically, on startup, index 0 should hold a value of 1.
-                    # So the first time we enter this branch, self.texture gets set to self.idle_r[1], which is the first animation frame.
-                    # Then we either increment the value in the first index or loop it back around to a value of 1.
-                    self.texture = self.idle_r[self.idle_r[0]]
-                    if self.idle_r[0] >= len(self.idle_r) - 1:
-                        self.idle_r[0] = 1
-                    else:
-                        self.idle_r[0] = self.idle_r[0] + 1
-                    self.cur_time_frame = 0
-                else:
-                    # Same idea as above branch, but with the list holding the left-facing textures.
-                    self.texture = self.idle_l[self.idle_l[0]]
-                    if self.idle_l[0] >= len(self.idle_l) - 1:
-                        self.idle_l[0] = 1
-                    else:
-                        self.idle_l[0] = self.idle_l[0] + 1
-                    self.cur_time_frame = 0
-            return
-
         # Moving to the right
         elif self.change_x > 0 and self.character_face_direction == RIGHT_FACING:
             # Check to see if the player is jumping (while moving right)
@@ -228,30 +176,18 @@ class Player(arcade.Sprite):
                 self.is_jumping = True
                 if self.is_attacking:
                     self.texture = self.jumping_attack_r[self.jumping_attack_r[0]]
-                else:
-                    self.texture = self.jumping_r[self.jumping_r[0]]
                 # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
                 if self.change_y > 0:
+                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
                     if self.is_attacking:
                         if self.jumping_attack_r[0] >= 3:
                             self.jumping_attack_r[0] = 3
                         else:
                             self.jumping_attack_r[0] = self.jumping_attack_r[0] + 1
-                    else:
-                        # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
-                        if self.jumping_r[0] >= 3:
-                            self.jumping_r[0] = 3
-                        else:
-                            self.jumping_r[0] = self.jumping_r[0] + 1
-                    self.cur_time_frame = 0
                 elif self.change_y < 0:
                     if self.is_attacking:
                         self.jumping_attack_r[0] = 1
                         self.texture = self.jumping_attack_r[4]
-                    else:
-                        self.jumping_r[0] = 1
-                        self.texture = self.jumping_r[4]
-
             # Have the running animation loop every .133 seconds
             elif self.cur_time_frame >= 8 / 60:
                 if self.is_attacking:
@@ -260,12 +196,6 @@ class Player(arcade.Sprite):
                         self.running_attack_r[0] = 1
                     else:
                         self.running_attack_r[0] = self.running_attack_r[0] + 1
-                else:
-                    self.texture = self.running_r[self.running_r[0]]
-                    if self.running_r[0] >= len(self.running_r) - 1:
-                        self.running_r[0] = 1
-                    else:
-                        self.running_r[0] = self.running_r[0] + 1
                 self.cur_time_frame = 0
             return
 
@@ -276,29 +206,19 @@ class Player(arcade.Sprite):
                 self.is_jumping = True
                 if self.is_attacking:
                     self.texture = self.jumping_attack_l[self.jumping_attack_l[0]]
-                else:
-                    self.texture = self.jumping_l[self.jumping_l[0]]
                 # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
                 if self.change_y > 0:
+                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
                     if self.is_attacking:
                         if self.jumping_attack_l[0] >= 3:
                             self.jumping_attack_l[0] = 3
                         else:
                             self.jumping_attack_l[0] = self.jumping_attack_l[0] + 1
-                    else:
-                        # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
-                        if self.jumping_l[0] >= 3:
-                            self.jumping_l[0] = 3
-                        else:
-                            self.jumping_l[0] = self.jumping_l[0] + 1
-                    self.cur_time_frame = 0
                 elif self.change_y < 0:
                     if self.is_attacking:
                         self.jumping_attack_l[0] = 1
                         self.texture = self.jumping_attack_l[4]
-                    else:
-                        self.jumping_l[0] = 1
-                        self.texture = self.jumping_l[4]
+            # Have the running animation loop every .133 seconds
             elif self.cur_time_frame >= 8 / 60:
                 if self.is_attacking:
                     self.texture = self.running_attack_l[self.running_attack_l[0]]
@@ -306,16 +226,10 @@ class Player(arcade.Sprite):
                         self.running_attack_l[0] = 1
                     else:
                         self.running_attack_l[0] = self.running_attack_l[0] + 1
-                else:
-                    self.texture = self.running_l[self.running_l[0]]
-                    if self.running_l[0] >= len(self.running_l) - 1:
-                        self.running_l[0] = 1
-                    else:
-                        self.running_l[0] = self.running_l[0] + 1
                 self.cur_time_frame = 0
             return
 
-        # Jumping in place
+            # Jumping in place
         elif self.change_y != 0 and self.change_x == 0:
             self.is_jumping = True
             if self.character_face_direction == RIGHT_FACING:
@@ -329,17 +243,6 @@ class Player(arcade.Sprite):
                     elif self.change_y < 0:
                         self.jumping_attack_r[0] = 1
                         self.texture = self.jumping_attack_r[4]
-                else:
-                    self.texture = self.jumping_r[self.jumping_r[0]]
-                    if self.change_y > 0:
-                        if self.jumping_r[0] >= 3:
-                            self.jumping_r[0] = 3
-                        else:
-                            self.jumping_r[0] = self.jumping_r[0] + 1
-                        self.cur_time_frame = 0
-                    elif self.change_y < 0:
-                        self.jumping_r[0] = 1
-                        self.texture = self.jumping_r[4]
             else:
                 if self.is_attacking:
                     self.texture = self.jumping_attack_l[self.jumping_attack_l[0]]
@@ -352,15 +255,4 @@ class Player(arcade.Sprite):
                     elif self.change_y < 0:
                         self.jumping_attack_l[0] = 1
                         self.texture = self.jumping_attack_l[4]
-                else:
-                    self.texture = self.jumping_l[self.jumping_l[0]]
-                    if self.change_y > 0:
-                        if self.jumping_l[0] >= 3:
-                            self.jumping_l[0] = 3
-                        else:
-                            self.jumping_l[0] = self.jumping_l[0] + 1
-                        self.cur_time_frame = 0
-                    elif self.change_y < 0:
-                        self.jumping_l[0] = 1
-                        self.texture = self.jumping_l[4]
             return
