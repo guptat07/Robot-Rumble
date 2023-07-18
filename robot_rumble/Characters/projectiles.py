@@ -16,7 +16,7 @@ class BossProjectile(Entity):
         self.timer = 0
         self.radius = radius
         self.angle = math.radians(init_angle)
-        self.omega = constants.BULLET_SPEED  # angular velocity
+        self.omega = constants.BULLET_SPEED_ROTATION  # angular velocity
         self.center_x = x + radius * math.cos(math.radians(init_angle))
         self.center_y = y + radius * math.cos(math.radians(init_angle))
         self.diff_x = destx - self.center_x
@@ -49,8 +49,8 @@ class BossProjectile(Entity):
         # print("angle:", angle)
         # self.angle = math.degrees(angle)
 
-        self.center_x = self.center_x + math.cos(angle) * constants.BULLET_SPEED
-        self.center_y = self.center_y + math.sin(angle) * constants.BULLET_SPEED
+        self.center_x = self.center_x + math.cos(angle) * constants.BULLET_SPEED_ROTATION
+        self.center_y = self.center_y + math.sin(angle) * constants.BULLET_SPEED_ROTATION
         # self.center_x = constants.SCREEN_WIDTH // 2
         # self.center_y = constants.SCREEN_HEIGHT // 2
         # print("x", self.center_x)
@@ -75,8 +75,8 @@ class PlayerBullet(Entity):
         self.scale = 2
 
         self.bullet = arcade.load_texture(
-            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                "bullet[32height32wide].png"),
+            files("robot_rumble.assets.gunner_assets").joinpath(
+                "player_projectile.png"),
             x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
         self.texture = self.bullet
 
@@ -102,9 +102,9 @@ class DroneBullet(Entity):
         # Used for flipping between image sequences
         self.cur_texture = 0
 
-        self.scale = constants.CHARACTER_SCALING
+        self.scale = constants.ENEMY_SCALING
 
-        self.bullet = arcade.load_texture(files("robot_rumble.assets.robot_series_base_pack.enemy1").joinpath("enemy1bullet.png"),
+        self.bullet = arcade.load_texture(files("robot_rumble.assets.enemies").joinpath("enemy1bullet.png"),
                                           x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
         self.texture = self.bullet
 
