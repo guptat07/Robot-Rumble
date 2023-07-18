@@ -77,7 +77,7 @@ class Entity(arcade.Sprite):
         # Idle animation
         if self.change_x == 0 and self.change_y == 0:
             # If the player is standing still and pressing the attack button, play the attack animation
-            if self.is_attacking and self.cur_time_frame >= 5 / 60:
+            if self.is_attacking and self.cur_time_frame >= 1 / 60:
                 if self.character_face_direction == constants.RIGHT_FACING:
                     # Designed this way to maintain consistency with other, multi-frame animation code
                     self.texture = self.attack_r[self.attack_r[0]]

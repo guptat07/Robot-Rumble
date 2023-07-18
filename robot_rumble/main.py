@@ -5,6 +5,7 @@ Platformer Game
 import arcade
 import arcade.gui
 import robot_rumble.Characters.Player.playerBase as player
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
 from robot_rumble.Characters.Boss.bossTwo import BossTwo as BossTwo
@@ -275,7 +276,7 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         if self.scene_type != constants.SCENE_LEVEL_BOSS_ONE:   #TODO: MAN, THIS REFRESHES EVERYTIME BEFORE
-            self.player_sprite = player.PlayerBase()
+            self.player_sprite = PlayerSwordster()
 
         #TODO: add all collisions into collision handle class, does the same thing as before just wrapped and reduced redudnant code
         self.collision_handle = CollisionHandle(self.player_sprite)
@@ -485,7 +486,7 @@ class MyGame(arcade.Window):
                     self.update_player_speed()
                 elif key == arcade.key.Q:
                     self.player_sprite.is_attacking = True
-                    bullet = PlayerBullet()
+                    '''bullet = PlayerBullet()
                     bullet.character_face_direction = self.player_sprite.character_face_direction
                     if bullet.character_face_direction == RIGHT_FACING:
                         bullet.center_x = self.player_sprite.center_x + 20
@@ -497,7 +498,7 @@ class MyGame(arcade.Window):
                         bullet.center_x = self.player_sprite.center_x - 20
                     bullet.center_y = self.player_sprite.center_y - 7
                     self.scene_level_one.add_sprite("player_bullet_list", bullet)
-                    self.player_bullet_list.append(bullet)
+                    self.player_bullet_list.append(bullet)'''
 
             elif self.scene_type == constants.SCENE_LEVEL_BOSS_ONE:
                 #shoot bullet boss
@@ -522,7 +523,7 @@ class MyGame(arcade.Window):
                     self.update_player_speed()
                 elif key == arcade.key.Q:
                     self.player_sprite.is_attacking = True
-                    bullet = PlayerBullet()
+                    '''bullet = PlayerBullet()
                     bullet.character_face_direction = self.player_sprite.character_face_direction
                     if bullet.character_face_direction == RIGHT_FACING:
                         bullet.center_x = self.player_sprite.center_x + 20
@@ -534,7 +535,7 @@ class MyGame(arcade.Window):
                         bullet.center_x = self.player_sprite.center_x - 20
                     bullet.center_y = self.player_sprite.center_y - 7
                     self.scene_boss_one.add_sprite("player_bullet_list", bullet)
-                    self.player_bullet_list.append(bullet)
+                    self.player_bullet_list.append(bullet)'''
 
             elif self.scene_type == constants.SCENE_LEVEL_BOSS_TWO:
                 if key == arcade.key.UP or key == arcade.key.W:
@@ -548,19 +549,19 @@ class MyGame(arcade.Window):
                     self.update_player_speed()
                 elif key == arcade.key.Q:
                     self.player_sprite.is_attacking = True
-                    bullet = PlayerBullet()
+                    '''bullet = PlayerBullet()
                     bullet.character_face_direction = self.player_sprite.character_face_direction
                     if bullet.character_face_direction == RIGHT_FACING:
                         bullet.center_x = self.player_sprite.center_x + 20
                     else:
                         bullet.texture = arcade.load_texture(
-                            files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                                "bullet[32height32wide].png"),
+                            files("robot_rumble.assets.gunner_assets").joinpath(
+                                "player_projectile.png"),
                             x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
                         bullet.center_x = self.player_sprite.center_x - 20
                     bullet.center_y = self.player_sprite.center_y - 7
                     self.scene_boss_two.add_sprite("player_bullet_list", bullet)
-                    self.player_bullet_list.append(bullet)
+                    self.player_bullet_list.append(bullet)'''
                 elif key == arcade.key.P:
                     print("X: ",self.player_sprite.center_x)
                     print("Y: ", self.player_sprite.center_y)
