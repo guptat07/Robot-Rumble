@@ -90,3 +90,7 @@ class BossBase(Entity):
         return self.sprite_lists_weapon
 
 
+    def return_health_sprite(self):
+        return self.hp_bar
+
+

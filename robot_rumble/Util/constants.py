@@ -6,6 +6,11 @@ SCREEN_HEIGHT = 810
 SCREEN_TITLE = "Platformer"
 TILE_SCALING = 3
 
+#Level names
+SCENE_MENU = 'SCENE_MENU'
+SCENE_LEVEL_ONE = 'SCENE_LEVEL_ONE'
+SCENE_LEVEL_BOSS_ONE = 'scene_boss_one'
+
 
 #all character constants
 ENEMY_SCALING = 3

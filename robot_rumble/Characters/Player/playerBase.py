@@ -1,9 +1,12 @@
 import arcade
 from importlib.resources import files
 
+from arcade import gl
+
+from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.entities import Entity
 from robot_rumble.Util import constants
-from robot_rumble.Util.spriteload import load_spritesheet_pair
+from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet
 
 
 class PlayerBase(Entity):
@@ -19,7 +22,10 @@ class PlayerBase(Entity):
         self.character_face_direction = constants.RIGHT_FACING
 
         # Set health
-        self.health = 20
+        self.health = 5
+        self.health_bar = PlayerHealthBar()
+        self.death = Player_Death()
+        self.is_alive = True
 
         # Used for flipping between image sequences
         self.scale = constants.PLAYER_SCALING
@@ -30,7 +36,7 @@ class PlayerBase(Entity):
 
         # Load textures
         self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
-        self.idle_attack_r, self.idle_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 2, 32, 32)
+        self.idle_attack_r, self.idle_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
         self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_unmasked.png", 8, 32, 32)
         self.running_attack_r, self.running_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
 
@@ -47,17 +53,6 @@ class PlayerBase(Entity):
         self.hit_box = self.texture.hit_box_points
 
     def update_animation(self, delta_time):
-        # # Check for out-of-bounds
-        # if self.left < 0:
-        #     self.left = 0
-        # elif self.right > constants.SCREEN_WIDTH - 1:
-        #     self.right = constants.SCREEN_WIDTH - 1
-        #
-        # if self.bottom < 0:
-        #     self.bottom = 0
-        # elif self.top > constants.SCREEN_HEIGHT - 1:
-        #     self.top = constants.SCREEN_HEIGHT - 1
-
         # Regardless of animation, determine if character is facing left or right
         if self.change_x < 0 and self.character_face_direction == constants.RIGHT_FACING:
             self.character_face_direction = constants.LEFT_FACING
@@ -78,7 +73,7 @@ class PlayerBase(Entity):
             if self.character_face_direction == constants.RIGHT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
-                        self.texture = self.idle_attack_r[self.idle_attack_r[0]]
+                        self.texture = self.idle_attack_r[8] #frame
                     else:
                         self.texture = self.idle_r[self.idle_r[0]]
                 else:
@@ -89,7 +84,7 @@ class PlayerBase(Entity):
             elif self.character_face_direction == constants.LEFT_FACING:
                 if self.change_x == 0:
                     if self.is_attacking:
-                        self.texture = self.idle_attack_l[self.idle_attack_l[0]]
+                        self.texture = self.idle_attack_l[8]
                     else:
                         self.texture = self.idle_l[self.idle_l[0]]
                 else:
@@ -105,10 +100,10 @@ class PlayerBase(Entity):
             if self.is_attacking:
                 if self.character_face_direction == constants.RIGHT_FACING:
                     # Designed this way to maintain consistency with other, multi-frame animation code
-                    self.texture = self.idle_attack_r[self.idle_attack_r[0]]
+                    self.texture = self.idle_attack_r[8]
                     self.cur_time_frame = 0
                 else:
-                    self.texture = self.idle_attack_l[self.idle_attack_l[0]]
+                    self.texture = self.idle_attack_l[8]
                     self.cur_time_frame = 0
             # Having the idle animation loop every .33 seconds
             if self.cur_time_frame >= 1 / 3:
@@ -277,12 +272,60 @@ class PlayerBase(Entity):
                         self.texture = self.jumping_l[4]
             return
 
-        def update_player_speed(self):
-            self.player_sprite.change_x = 0
+    def update(self,delta_time):
+        if self.health > 0:
+            self.update_animation(delta_time)
+            #self.update_player_speed() TODO: MOVE FROM MAIN INTO HERE
+        else:
+            if self.death.die(delta_time):
+                self.is_alive = False
 
-            # Using the key pressed variables lets us create more responsive x-axis movement
-            if self.left_pressed and not self.right_pressed:
-                self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
-            elif self.right_pressed and not self.left_pressed:
-                self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
 
+    def drawing(self): #TODO: ADD TO SPRITE LIST IN MAIN AND THEN REMOVE FROM LIST SO IT DOES IT ONCE
+        #self.health_bar.draw(filter=gl.NEAREST)
+        pass
+
+
+    def update_player_speed(self):
+        #this is currently not used, one in main is being used
+        #TODO: IMPLELEMENT WITH KEYPRESSES IN PLAYERCLASS
+        self.change_x = 0
+        # Using the key pressed variables lets us create more responsive x-axis movement
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
+
+    def hit(self):
+        #moved hit from main into player, player handles its own health now
+        self.health -= 1
+        if (self.health == 0):
+            self.death.center(self.center_x, self.center_y)
+            # This line was removed because the current player doesn't have direction
+            # death.face_direction(self.player_sprite.character_face_direction)
+            self.change_x = 0
+            self.change_y = 0
+            self.is_alive = False
+            self.kill()
+        if self.health_bar.hp_list[0] < 21:
+            self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
+            self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
+
+    def return_health_sprite(self):
+        return self.health_bar
+
+    def return_death_sprite(self):
+        return self.death
+
+
+class PlayerHealthBar(arcade.Sprite):
+    def __init__(self):
+        # Set up parent class
+        super().__init__()
+        # load spritesheet
+        self.hp_list = load_spritesheet("robot_rumble.assets.ui","health_bar.png",21,61,19)
+        self.texture = self.hp_list[self.hp_list[0]] #index 0 is the counter keeping track of which frame we are on
+
+        self.scale = 3
+        self.center_x = 100
+        self.center_y = 770
