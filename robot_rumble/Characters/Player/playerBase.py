@@ -38,7 +38,7 @@ class PlayerBase(Entity):
 
         # Load textures
         self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
-        self.idle_attack_r, self.idle_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
+        self.attack_r, self.attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
         self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_unmasked.png", 8, 32, 32)
         self.running_attack_r, self.running_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
 

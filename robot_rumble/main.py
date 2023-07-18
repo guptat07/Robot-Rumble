@@ -291,14 +291,8 @@ class MyGame(arcade.Window):
         self.scene_boss_one.add_sprite("Player", self.player_sprite)
         self.scene_boss_two.add_sprite("Player", self.player_sprite)
 
-        self.player_sprite.health = 20
-        self.player_hp[0] = 1
-        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
 
         # health bar to both
-        self.scene_level_one.add_sprite("hp", self.player_health_bar)
-        self.scene_boss_one.add_sprite("hp", self.player_health_bar)
-        self.scene_boss_two.add_sprite("hp", self.player_health_bar)
 
         self.player_bullet_list = arcade.SpriteList()
         self.scene_level_one.add_sprite_list("player_bullet_list")
@@ -461,7 +455,7 @@ class MyGame(arcade.Window):
             self.boss_bullet_list_circle.draw(filter=gl.NEAREST)
             self.scene_boss_one.draw(filter=gl.NEAREST)
 
-        elif self.scene_type == scene_boss_two:
+        elif self.scene_type == constants.SCENE_LEVEL_BOSS_TWO:
             # Activate the game camera
             self.camera.use()
             # Draw our Scene
@@ -542,7 +536,7 @@ class MyGame(arcade.Window):
                     self.scene_boss_one.add_sprite("player_bullet_list", bullet)
                     self.player_bullet_list.append(bullet)
 
-            elif self.scene_type == scene_boss_two:
+            elif self.scene_type == constants.SCENE_LEVEL_BOSS_TWO:
                 if key == arcade.key.UP or key == arcade.key.W:
                     if self.physics_engine_boss2_player.can_jump():
                         self.player_sprite.change_y = PLAYER_JUMP_SPEED
@@ -743,7 +737,7 @@ class MyGame(arcade.Window):
                 self.physics_engine_boss.update()
                 self.boss_list.update_animation()
 
-        if self.scene_type == scene_boss_two:
+        if self.scene_type == constants.SCENE_LEVEL_BOSS_TWO:
             self.physics_engine_boss2_player.update()
             for physics_engine_sword in self.physics_engine_sword_list:
                 physics_engine_sword.update()
@@ -825,7 +819,7 @@ class MyGame(arcade.Window):
 
     def on_click_start(self, event):
         # temp line for scene to be second boss
-        self.scene_type = scene_boss_two
+        self.scene_type = constants.SCENE_LEVEL_BOSS_TWO
 
         self.setup()
         # removed this so that the scene is always the second boss scene

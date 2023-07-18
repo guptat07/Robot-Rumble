@@ -130,7 +130,7 @@ class Sword(Entity):
         # Used for flipping between image sequences
         self.cur_texture = 0
 
-        self.scale = constants.CHARACTER_SCALING
+        self.scale = constants.ENEMY_SCALING
 
         self.sword = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("swords.png"),
                                           x=0, y=64, width=32, height=32, hit_box_algorithm="Simple")

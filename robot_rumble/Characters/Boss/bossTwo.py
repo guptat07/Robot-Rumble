@@ -16,13 +16,13 @@ class BossTwo(BossBase):
         self.once_jump = True
 
         # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.boss_assets", "idle2.png", 5, 32, 32)
-        self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2run-Sheet[32height32wide].png", 8, 32, 32)
-        self.jumping_r, self.jumping_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2jump-Sheet[48height32wide].png", 7, 32, 48)
-        self.damaged_r, self.damaged_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2damage-Sheet[32height32wide].png", 6, 32, 32)
-        self.dash_r, self.dash_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2dash-Sheet[32height32wide].png", 7, 32, 32)
-        self.attack_r, self.attack_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robot2attack1-Sheet[32height64wide].png", 22, 64, 32)
-        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair("robot_rumble.assets.robot_series_base_pack.robot2.robo2masked", "robo2jumpattack-Sheet[48height48wide].png", 7, 48, 48)
+        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "idle2.png", 5, 32, 32)
+        self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "run_masked.png", 8, 32, 32)
+        self.jumping_r, self.jumping_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "jump_masked.png", 7, 32, 48)
+        self.damaged_r, self.damaged_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "damaged_masked.png", 6, 32, 32)
+        self.dash_r, self.dash_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "dash_masked.png", 7, 32, 32)
+        self.attack_r, self.attack_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "attack_masked.png", 22, 64, 32)
+        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "jump_attack_masked.png", 7, 48, 48)
         self.secondslash = 8
         self.thirdslash = 14
 
@@ -38,16 +38,16 @@ class BossTwo(BossBase):
 
     def boss_logic(self, delta_time):
         # attack when close enough
-        if self.target.center_x < self.center_x + 24*constants.CHARACTER_SCALING and self.target.center_x > self.center_x - 24*constants.CHARACTER_SCALING\
+        if self.target.center_x < self.center_x + 24*constants.ENEMY_SCALING and self.target.center_x > self.center_x - 24*constants.ENEMY_SCALING\
                 and self.target.center_y < self.center_y + 50 and self.target.center_y > self.center_y - 50:
             if not self.is_attacking:
                 self.slash_can_hit = [True, True, True]
                 # need to adjust the sprite centering due to the difference in sprite size
                 if self.change_x != 0:
                     if self.character_face_direction == constants.RIGHT_FACING:
-                        self.center_x += 16*constants.CHARACTER_SCALING
+                        self.center_x += 16*constants.ENEMY_SCALING
                     else:
-                        self.center_x -= 16*constants.CHARACTER_SCALING
+                        self.center_x -= 16*constants.ENEMY_SCALING
             self.change_x = 0
             self.is_attacking = True
         # otherwise move
