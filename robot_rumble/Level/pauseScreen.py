@@ -1,5 +1,7 @@
 import arcade
 from arcade.gui import UIManager
+import robot_rumble.Util.constants as const
+from importlib.resources import files
 
 
 class PauseScreen(arcade.View):
@@ -12,7 +14,7 @@ class PauseScreen(arcade.View):
         self.manager.enable()
 
         # Set background color
-        arcade.set_background_color(arcade.color.BLACK)
+        self.background = arcade.load_texture(files("robot_rumble.assets").joinpath("black_screen.jpeg"))
 
         # Create a vertical BoxGroup to align buttons
         self.v_box = arcade.gui.UIBoxLayout()
@@ -42,8 +44,10 @@ class PauseScreen(arcade.View):
         )
 
     def on_draw(self):
+        arcade.draw_lrwh_rectangle_textured(0, 0,
+                                            const.SCREEN_WIDTH, const.SCREEN_HEIGHT,
+                                            texture=self.background, alpha=2)
         self.manager.draw()
-
 
     def on_click_resume(self, event):
         self.manager.disable()
@@ -51,6 +55,3 @@ class PauseScreen(arcade.View):
 
     def on_click_quit(self, event):
         arcade.exit()
-
-
-
