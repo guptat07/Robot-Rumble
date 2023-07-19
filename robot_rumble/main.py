@@ -276,6 +276,7 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         if self.scene_type != constants.SCENE_LEVEL_BOSS_ONE:   #TODO: MAN, THIS REFRESHES EVERYTIME BEFORE
+            # self.player_sprite = player.PlayerBase()
             self.player_sprite = PlayerSwordster()
 
         #TODO: add all collisions into collision handle class, does the same thing as before just wrapped and reduced redudnant code
@@ -742,7 +743,7 @@ class MyGame(arcade.Window):
             self.physics_engine_boss2_player.update()
             for physics_engine_sword in self.physics_engine_sword_list:
                 physics_engine_sword.update()
-            self.scene_boss_one.get_sprite_list("Player").update_animation()
+            self.player_sprite.update(delta_time)
 
             for bullet in self.player_bullet_list:
                 bullet.move()
@@ -790,18 +791,17 @@ class MyGame(arcade.Window):
                         or (self.boss2.character_face_direction == constants.LEFT_FACING and self.player_sprite.center_x < self.boss2.center_x):
                         boss_hit_player = arcade.check_for_collision_with_list(self.player_sprite, self.boss2_list)
                         if len(boss_hit_player) > 0:
-                            if (self.boss2.attack_r[0] < self.boss2.secondslash or self.boss2.attack_l[0] < self.boss2.secondslash)\
+                            if (self.boss2.attack[0] < self.boss2.secondslash)\
                                 and self.boss2.slash_can_hit[0]:
                                 self.hits_on_player += 1
                                 print(self.hits_on_player)
                                 self.boss2.slash_can_hit[0] = False
-                            elif ((self.boss2.attack_r[0] >= self.boss2.secondslash and self.boss2.attack_r[0] < self.boss2.thirdslash)\
-                                  or (self.boss2.attack_l[0] >= self.boss2.secondslash and self.boss2.attack_l[0] < self.boss2.thirdslash))\
+                            elif ((self.boss2.attack[0] >= self.boss2.secondslash and self.boss2.attack[0] < self.boss2.thirdslash))\
                                   and self.boss2.slash_can_hit[1]:
                                 self.hits_on_player += 1
                                 print(self.hits_on_player)
                                 self.boss2.slash_can_hit[1] = False
-                            elif (self.boss2.attack_r[0] >= self.boss2.thirdslash or self.boss2.attack_l[0] >= self.boss2.secondslash)\
+                            elif (self.boss2.attack[0] >= self.boss2.thirdslash)\
                                 and self.boss2.slash_can_hit[2]:
                                 self.hits_on_player += 1
                                 print(self.hits_on_player)
