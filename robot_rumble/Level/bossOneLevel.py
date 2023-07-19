@@ -3,7 +3,7 @@ import sys
 
 import arcade
 
-from robot_rumble.Characters import player
+from robot_rumble.Characters.Player.playerBase import PlayerBase
 from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Level.level import Level
@@ -134,7 +134,7 @@ class BossOne(Level):
         self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
 
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = player.Player()
+        self.player_sprite = PlayerBase()
         self.player_sprite.center_x = 100
         self.player_sprite.center_y = 300
         self.scene.add_sprite("Player", self.player_sprite)

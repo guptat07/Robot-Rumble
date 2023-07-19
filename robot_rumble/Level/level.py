@@ -69,7 +69,7 @@ class Level(arcade.View):
         self.player_hp = [1]
 
         for i in range(21):
-            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0,
+            texture = arcade.load_texture(files("robot_rumble.assets.ui").joinpath("health_bar.png"), x=i * 61, y=0,
                                           width=61, height=19)
             self.player_hp.append(texture)
 
