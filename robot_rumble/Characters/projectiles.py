@@ -117,3 +117,22 @@ class DroneBullet(Entity):
     def update(self):
         self.center_x += self.change_x
         self.center_y += self.change_y
+
+class Sword(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = constants.RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = constants.ENEMY_SCALING
+
+        self.sword = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("swords.png"),
+                                          x=0, y=64, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.sword
+        self.angle += 135

@@ -10,6 +10,7 @@ TILE_SCALING = 3
 SCENE_MENU = 'SCENE_MENU'
 SCENE_LEVEL_ONE = 'SCENE_LEVEL_ONE'
 SCENE_LEVEL_BOSS_ONE = 'scene_boss_one'
+SCENE_LEVEL_BOSS_TWO = 'scene_boss_two'
 
 
 #all character constants
@@ -35,9 +36,12 @@ FORM_TIMER = 10
 BOSS_PATH = [[530,530], [145,700], [915,700]]
 
 #constants of player/boss sworder
-
+SWORD_SPAWN_TIME = 1
+BOSS2_JUMP_SPEED = 10
+BOSS2_MOVE_SPEED = 1.5
 
 #constants of player/boss brawler
+
 
 #Drone constants
 DRONE_MOVEMENT_SPEED = 0.25
