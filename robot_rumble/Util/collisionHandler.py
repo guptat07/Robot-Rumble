@@ -17,7 +17,6 @@ class CollisionHandle():
         if self.invuln_frames_timer > 1:
             for self_hit in enemy_collision:
                 # print("hithithit")
-                self.player.health -= 1
                 self.player.hit()
             self.invuln_frames_timer = 0
         enemy_collision.clear()

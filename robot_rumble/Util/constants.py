@@ -3,14 +3,22 @@
 #Game constants
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 810
-SCREEN_TITLE = "Platformer"
-TILE_SCALING = 3
+SCREEN_TITLE = "Robot Rumble"
+TILE_SCALING = 4 #maybe it's 4
+SPRITE_PIXEL_SIZE = 32
+GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
 
 #Level names
 SCENE_MENU = 'SCENE_MENU'
 SCENE_LEVEL_ONE = 'SCENE_LEVEL_ONE'
 SCENE_LEVEL_BOSS_ONE = 'scene_boss_one'
 SCENE_LEVEL_BOSS_TWO = 'scene_boss_two'
+
+#Layers
+LAYER_NAME_FOREGROUND = "Foreground"
+LAYER_NAME_BACKGROUND = "Background"
+LAYER_NAME_PLATFORMS = "Platforms"
+LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
 
 
 #all character constants
@@ -24,6 +32,7 @@ BOSS_STUN_TIME = 3
 
 # constants of player/boss gunner
 MOVE_SPEED = 2
+MOVE_SPEED_PLAYER = 10
 JUMP_SPEED = 10
 
 BULLET_SIZE = 2

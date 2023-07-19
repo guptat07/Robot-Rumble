@@ -3,6 +3,8 @@ import arcade
 from robot_rumble.Level.controlScreen import ControlScreen
 from arcade.gui import UIManager
 
+from robot_rumble.Level.levelOne import LevelOne
+
 
 class TitleScreen(arcade.View):
     def __init__(self, window: arcade.Window):
@@ -46,9 +48,16 @@ class TitleScreen(arcade.View):
         self.manager.draw()
 
     def on_click_start(self, event):
+        '''
         self.manager.disable()
         control_screen = ControlScreen(self.window)
         self.window.show_view(control_screen)
+        '''
+
+        self.manager.disable()
+        level_one = LevelOne(self.window)
+        level_one.setup()
+        self.window.show_view(level_one)
 
     def on_click_quit(self, event):
         arcade.exit()

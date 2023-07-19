@@ -3,7 +3,7 @@ import sys
 
 import arcade
 
-from robot_rumble.Characters import player
+from robot_rumble.Characters.Player.playerBase import PlayerBase
 from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Level.level import Level
@@ -134,7 +134,7 @@ class BossOne(Level):
         self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
 
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = player.Player()
+        self.player_sprite = PlayerBase()
         self.player_sprite.center_x = 100
         self.player_sprite.center_y = 300
         self.scene.add_sprite("Player", self.player_sprite)
@@ -151,6 +151,7 @@ class BossOne(Level):
         self.scene.add_sprite_list("player_bullet_list")
 
     def on_update(self, delta_time):
+        '''
         boss_collision = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
         self.boss_hit_time += delta_time
         if self.boss_hit_time > 1:
@@ -160,6 +161,7 @@ class BossOne(Level):
             self.boss_hit_time = 0
 
         boss_collision.clear()
+        '''
 
         for bullet in self.player_bullet_list:
             bullet.move()
