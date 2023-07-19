@@ -23,6 +23,7 @@ LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
 
 
 #all character constants
+PLAYER_BULLET_LIFE_TIME = 3
 ENEMY_SCALING = 3
 PLAYER_SCALING = 2
 GRAVITY = 1

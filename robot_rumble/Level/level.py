@@ -22,7 +22,7 @@ class Level(arcade.View):
 
         # Variable that holds the player sprite
         self.player_sprite = None
-        self.collision_handle = None
+        self.collision_handle_list = None
 
         # Variable for the drone sprite list
         self.drone_list = None
@@ -132,19 +132,8 @@ class Level(arcade.View):
                 self.update_player_speed()
 
             elif key == arcade.key.Q:
-                self.player_sprite.is_attacking = True
-                bullet = PlayerBullet()
-                bullet.character_face_direction = self.player_sprite.character_face_direction
-                if bullet.character_face_direction == constants.RIGHT_FACING:
-                    bullet.center_x = self.player_sprite.center_x + 20
-                else:
-                    bullet.texture = arcade.load_texture(
-                        files("robot_rumble.assets.gunner_assets").joinpath(
-                            "player_projectile.png"),
-                        x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
-                    bullet.center_x = self.player_sprite.center_x - 20
-                bullet.center_y = self.player_sprite.center_y - 7
-                self.scene.add_sprite("player_bullet_list", bullet)
+                bullet = self.player_sprite.spawn_attack()
+                self.scene.add_sprite("player_attack", bullet)
                 self.player_bullet_list.append(bullet)
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
