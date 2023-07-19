@@ -165,8 +165,6 @@ class MyGame(arcade.Window):
         self.player_bullet_list = None
 
 
-        self.camera_sprites = arcade.Camera(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
-        self.camera_gui = arcade.Camera(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
 
         # --- Menu
         # a UIManager to handle the UI.
@@ -447,8 +445,6 @@ class MyGame(arcade.Window):
             # Activate the GUI camera before drawing GUI elements
             self.gui_camera.use()
             self.boss.drawing()
-            #this is redudnant for now
-            self.player_sprite.drawing()
 
 
             # Draw our Scene
@@ -850,3 +846,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    pass

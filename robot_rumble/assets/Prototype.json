@@ -255,7 +255,7 @@
         }, 
         {
          "firstgid":741,
-         "source":"..\/..\/..\/..\/..\/..\/RobotRumble\/platform.tsx"
+         "source":"Platforms.tsx"
         }],
  "tilewidth":16,
  "type":"map",

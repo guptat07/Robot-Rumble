@@ -1,3 +1,5 @@
+import sys
+
 import arcade
 import robot_rumble.Util.constants as const
 from robot_rumble.Characters.death import Player_Death
@@ -5,17 +7,8 @@ from robot_rumble.Characters.projectiles import PlayerBullet
 from importlib.resources import files
 from arcade import gl
 from robot_rumble.Level.pauseScreen import PauseScreen
-
-TILE_SCALING = 4
-SPRITE_PIXEL_SIZE = 32
-GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
-
-# Constants used to track if the player is facing left or right
-RIGHT_FACING = 0
-LEFT_FACING = 1
-
-# Movement speed of player, in pixels per frame
-PLAYER_MOVEMENT_SPEED = 10
+from robot_rumble.Util import constants
+from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class Level(arcade.View):
@@ -29,6 +22,7 @@ class Level(arcade.View):
 
         # Variable that holds the player sprite
         self.player_sprite = None
+        self.collision_handle_list = None
 
         # Variable for the drone sprite list
         self.drone_list = None
@@ -48,45 +42,16 @@ class Level(arcade.View):
         # A Camera that can be used to draw GUI elements
         self.gui_camera = None
 
-        self.end_of_map = 0
-        self.top_of_map = 0
-
-        self.view_bottom = 0
-        self.view_left = 0
-
         # Screen center
         self.screen_center_x = 0
         self.screen_center_y = 0
 
-        self.cur_time_frame = 0
-
-        # Used for flipping between image sequences
-        self.cur_texture = 0
-        self.start_jump = -1
 
         self.player_bullet_list = None
-        # load hp
-        self.player_hp = [1]
 
-        for i in range(21):
-            texture = arcade.load_texture(files("robot_rumble.assets").joinpath("health_bar.png"), x=i * 61, y=0,
-                                          width=61, height=19)
-            self.player_hp.append(texture)
-
-        self.player_health_bar = arcade.Sprite()
-        self.player_health_bar.scale = 3
-        self.player_health_bar.texture = self.player_hp[1]
-        self.player_health_bar.center_x = 100
-        self.player_health_bar.center_y = 770
-
-        self.camera_sprites = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
-        self.camera_gui = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
         self.right_pressed = None
         self.left_pressed = None
-
-        self.PLAYER_START_X = 50
-        self.PLAYER_START_Y = 1000
 
         self.scene = None
 
@@ -100,8 +65,11 @@ class Level(arcade.View):
         self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
         self.level_map_setup()
-
         self.level_player_setup()
+
+        self.scene.add_sprite("Player_Health", self.player_sprite.return_health_sprite())
+        self.scene.add_sprite("Player_Death", self.player_sprite.return_death_sprite())
+
 
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
@@ -112,9 +80,6 @@ class Level(arcade.View):
         self.bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("bullet_list")
 
-        # Calculate the right edge of the my_map in pixels
-        self.top_of_map = self.tile_map_level.height * GRID_PIXEL_SIZE
-        self.end_of_map = self.tile_map_level.width * GRID_PIXEL_SIZE
 
         # --- Other stuff
         # Set the background color
@@ -125,38 +90,39 @@ class Level(arcade.View):
         pass
 
     def level_player_setup(self):
-        pass
+        self.scene.add_sprite("Player", self.player_sprite)
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
 
     def level_map_setup(self):
         pass
 
-    def on_show_view(self):
-        if self.isPaused:
-            pass
-        else:
-            self.setup()
 
     def on_draw(self):
         """Render the screen."""
         self.clear()
         # Activate the game camera
-        self.camera.use()
         # Draw our Scene
+        self.camera.use()
         self.scene.draw(filter=gl.NEAREST)
-        # Activate the GUI camera before drawing GUI elements
         self.gui_camera.use()
 
     def update_player_speed(self):
         self.player_sprite.change_x = 0
         # Using the key pressed variables lets us create more responsive x-axis movement
         if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_x = -constants.MOVE_SPEED_PLAYER
         elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_x = constants.MOVE_SPEED_PLAYER
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
-        if self.player_sprite.is_active:
+        if self.player_sprite.is_alive:
+
+            if key == arcade.key.UP or key == arcade.key.W:
+                if self.physics_engine_level.can_jump():
+                    self.player_sprite.change_y = constants.JUMP_SPEED
+
             if key == arcade.key.LEFT or key == arcade.key.A:
                 self.left_pressed = True
                 self.update_player_speed()
@@ -166,19 +132,8 @@ class Level(arcade.View):
                 self.update_player_speed()
 
             elif key == arcade.key.Q:
-                self.player_sprite.is_attacking = True
-                bullet = PlayerBullet()
-                bullet.character_face_direction = self.player_sprite.character_face_direction
-                if bullet.character_face_direction == RIGHT_FACING:
-                    bullet.center_x = self.player_sprite.center_x + 20
-                else:
-                    bullet.texture = arcade.load_texture(
-                        files("robot_rumble.assets.robot_series_base_pack.robot1.robo1masked").joinpath(
-                            "bullet[32height32wide].png"),
-                        x=0, y=0, width=32, height=32, hit_box_algorithm="Simple", flipped_horizontally=True)
-                    bullet.center_x = self.player_sprite.center_x - 20
-                bullet.center_y = self.player_sprite.center_y - 7
-                self.scene.add_sprite("player_bullet_list", bullet)
+                bullet = self.player_sprite.spawn_attack()
+                self.scene.add_sprite("player_attack", bullet)
                 self.player_bullet_list.append(bullet)
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
@@ -210,31 +165,28 @@ class Level(arcade.View):
         if self.screen_center_y > 550:
             self.screen_center_y = 490
         player_centered = self.screen_center_x, self.screen_center_y
+        self.camera.move_to(player_centered)
 
-        if self.player_sprite.is_active:
-            self.camera.move_to(player_centered)
 
     def center_camera_to_health(self):
-        self.player_health_bar.center_x = self.screen_center_x + const.SCREEN_WIDTH - (
-                const.SCREEN_WIDTH * 9 // 10)
-        self.player_health_bar.center_y = self.screen_center_y + const.SCREEN_HEIGHT - (
-                const.SCREEN_HEIGHT // 20)
+        self.player_sprite.health_bar.center_x = self.screen_center_x + constants.SCREEN_WIDTH - (
+                    constants.SCREEN_WIDTH * 9 // 10)
+        self.player_sprite.health_bar.center_y = self.screen_center_y + constants.SCREEN_HEIGHT - (
+                    constants.SCREEN_HEIGHT // 20)
+    def on_update(self, delta_time, use_camera=True):
+        #death check to menu
+        if self.player_sprite.death.animation_finished:
+            #titleScreen = TitleScreen(self.window, self.player_sprite)
+            #self.window.show_view(titleScreen)
+            sys.exit(0)
 
-    def on_update(self, delta_time):
-        pass
+        # Position the camera
+        if use_camera:
+            self.center_camera_to_player()
+            self.center_camera_to_health()
+        self.player_sprite.update(delta_time)
 
-    def hit(self):
-        if self.player_sprite.health == 0:
-            death = Player_Death()
-            death.center_x = self.player_sprite.center_x
-            death.center_y = self.player_sprite.center_y
-            self.scene.add_sprite("Death", death)
-            self.death_list.append(death)
-            self.player_sprite.kill()
-            self.player_sprite.is_active = False
-            self.player_sprite.change_x = 0
-            self.player_sprite.change_y = 0
-
-        if self.player_hp[0] < 21:
-            self.player_hp[0] = self.player_hp[0] + 1
-            self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
+    def on_fall(self):
+        self.player_sprite.hit()
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
