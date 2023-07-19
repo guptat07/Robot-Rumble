@@ -49,14 +49,14 @@ class PlayerBase(Entity):
         self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked.png", 7, 32, 32)
         self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
 
-        self.idle = [1, self.idle_r]
-        self.running = [1, self.running_r]
-        self.jumping = [1, self.jumping_r]
-        self.damaged = [1, self.damaged_r]
-        self.dash = [1, self.dash_r]
-        self.attack = [1, self.attack_r]
-        self.running_attack = [1, self.running_attack_r]
-        self.jumping_attack = [1, self.jumping_attack_r]
+        self.idle = [0, self.idle_r]
+        self.running = [0, self.running_r]
+        self.jumping = [0, self.jumping_r]
+        self.damaged = [0, self.damaged_r]
+        self.dash = [0, self.dash_r]
+        self.attack = [0, self.attack_r]
+        self.running_attack = [0, self.running_attack_r]
+        self.jumping_attack = [0, self.jumping_attack_r]
 
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[1]
@@ -72,50 +72,13 @@ class PlayerBase(Entity):
             self.running_attack[1] = self.running_attack_r
             self.jumping_attack[1] = self.jumping_attack_r
 
-        # Should work regardless of framerate
-        self.cur_time_frame += delta_time
-
-        # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
-        # This condition must mean that the player WAS jumping but has landed
-        if self.change_y == 0 and self.is_jumping and \
-                (self.texture == self.jumping[1][4]
-                 or self.texture == self.jumping_attack[1][4]):
-            # Update the tracker for future jumps
-            self.is_jumping = False
-            # Animation depending on whether facing left or right and moving or still
-            if self.change_x == 0:
-                if self.is_attacking:
-                    self.texture = self.attack[1][self.attack[0]]
-                else:
-                    self.texture = self.idle[1][self.idle[0]]
-            else:
-                if self.is_attacking:
-                    self.texture = self.running_attack[1][self.running_attack[0]]
-                else:
-                    self.texture = self.running[1][self.running[0]]
-            return
-
         # Moving
-        else:
-            # Check to see if the player is jumping (while moving right)
-            if self.change_y != 0:
-                self.is_jumping = True
-                if self.is_attacking:
-                    self.texture = self.jumping_attack[1][self.jumping_attack[0]]
-                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
-                if self.change_y > 0:
-                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
-                    if self.is_attacking:
-                        if self.jumping_attack[0] >= 3:
-                            self.jumping_attack[0] = 3
-                        else:
-                            self.jumping_attack[0] = self.jumping_attack[0] + 1
-                elif self.change_y < 0:
-                    if self.is_attacking:
-                        self.jumping_attack[0] = 1
-                        self.texture = self.jumping_attack[1][4]
+        if self.change_x != 0 or self.change_y != 0:
+
+            # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
+
             # Have the running animation loop every .133 seconds
-            elif self.cur_time_frame >= 8 / 60:
+            if self.cur_time_frame >= 1 / 60 and self.change_y == 0:
                 if self.is_attacking:
                     self.texture = self.running_attack[1][self.running_attack[0]]
                     if self.running_attack[0] >= len(self.running_attack[1]) - 1:
@@ -127,7 +90,6 @@ class PlayerBase(Entity):
 
     def update(self,delta_time):
         if self.health > 0:
-            pass
             self.update_animation(delta_time)
             #self.update_player_speed() TODO: MOVE FROM MAIN INTO HERE
         else:

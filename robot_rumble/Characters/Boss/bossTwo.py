@@ -18,7 +18,7 @@ class BossTwo(BossBase):
         # Load textures
         self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 5, 32, 32)
         self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "run_masked.png", 8, 32, 32)
-        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_masked.png", 7, 32, 48)
+        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_masked.png", 7, 32, 32)
         self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "damaged_masked.png", 6, 32, 32)
         self.dash_r, self.dash_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "dash_masked.png", 7, 32, 32)
         self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_masked.png", 22, 64, 32)
@@ -26,13 +26,13 @@ class BossTwo(BossBase):
         self.secondslash = 8
         self.thirdslash = 14
 
-        self.idle = [1, self.idle_r]
-        self.running = [1, self.running_r]
-        self.jumping = [1, self.jumping_r]
-        self.damaged = [1, self.damaged_r]
-        self.dash = [1, self.dash_r]
-        self.attack = [1, self.attack_r]
-        self.jumping_attack = [1, self.jumping_attack_r]
+        self.idle = [0, self.idle_r]
+        self.running = [0, self.running_r]
+        self.jumping = [0, self.jumping_r]
+        self.damaged = [0, self.damaged_r]
+        self.dash = [0, self.dash_r]
+        self.attack = [0, self.attack_r]
+        self.jumping_attack = [0, self.jumping_attack_r]
 
         # Tracking the various states, which helps us smooth animations
         self.is_jumping = False
@@ -45,6 +45,7 @@ class BossTwo(BossBase):
         self.center_y = 120
 
     def boss_logic(self, delta_time):
+        self.is_attacking = False
         # attack when close enough
         if self.target.center_x < self.center_x + 24*constants.ENEMY_SCALING and self.target.center_x > self.center_x - 24*constants.ENEMY_SCALING\
                 and self.target.center_y < self.center_y + 50 and self.target.center_y > self.center_y - 50:
@@ -68,7 +69,6 @@ class BossTwo(BossBase):
 
         # checks if the boss needs to jump
         if self.change_x != 0 and not self.is_jumping:
-            print("im not jumping")
             if (self.center_x > 468 and self.center_x < 530 and self.character_face_direction == constants.LEFT_FACING)\
                     or (self.center_x > 315 and self.center_x < 383 and self.character_face_direction == constants.RIGHT_FACING)\
                     or (self.center_x > 866 and self.center_x < 876 and self.center_y < 160 and self.character_face_direction == constants.RIGHT_FACING)\
@@ -107,7 +107,7 @@ class BossTwo(BossBase):
             return
 
         # Moving
-        else:
+        elif self.change_x != 0 and self.change_y != 0:
             # Check to see if the player is jumping (while moving right)
             if self.change_y != 0:
                 self.is_jumping = True

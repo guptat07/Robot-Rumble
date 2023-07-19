@@ -69,9 +69,10 @@ class Entity(arcade.Sprite):
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
         # This condition must mean that the player WAS jumping but has landed
         if self.change_y == 0 and self.is_jumping and \
-                (self.texture == self.jumping[1][4]):
+                (self.texture == self.jumping[1][3]):
             # Update the tracker for future jumps
             self.is_jumping = False
+            self.jumping[0] = 0
             # Animation depending on whether facing left or right and moving or still
             if self.change_x == 0:
                 if self.is_attacking:
@@ -85,13 +86,12 @@ class Entity(arcade.Sprite):
 
         # Idle animation
         if self.change_x == 0 and self.change_y == 0:
-            self.is_jumping = False
             # If the player is standing still and pressing the attack button, play the attack animation
             if self.is_attacking and self.cur_time_frame >= 1 / 60:
                 # Designed this way to maintain consistency with other, multi-frame animation code
                 self.texture = self.attack[1][self.attack[0]]
                 if self.attack[0] >= len(self.attack[1]) - 1:
-                    self.attack[0] = 1
+                    self.attack[0] = 0
                     self.is_attacking = False
                 else:
                     self.attack[0] += 1
@@ -104,7 +104,7 @@ class Entity(arcade.Sprite):
                 # Then we either increment the value in the first index or loop it back around to a value of 1.
                 self.texture = self.idle[1][self.idle[0]]
                 if self.idle[0] >= len(self.idle[1]) - 1:
-                    self.idle[0] = 1
+                    self.idle[0] = 0
                 else:
                     self.idle[0] = self.idle[0] + 1
                 self.cur_time_frame = 0
@@ -113,7 +113,7 @@ class Entity(arcade.Sprite):
         # Moving
         else:
             # Check to see if the player is jumping
-            if self.change_y != 0:
+            if self.change_y != 0 and not self.is_attacking:
                 self.is_jumping = True
                 self.texture = self.jumping[1][self.jumping[0]]
                 # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
@@ -121,18 +121,18 @@ class Entity(arcade.Sprite):
                     # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
                     if self.jumping[0] >= 3:
                         self.jumping[0] = 3
-                    else:
+                    elif self.cur_time_frame > 10 / 60:
                         self.jumping[0] = self.jumping[0] + 1
-                    self.cur_time_frame = 0
+                        self.cur_time_frame = 0
                 elif self.change_y < 0:
-                    self.jumping[0] = 1
-                    self.texture = self.jumping[1][4]
+                    self.texture = self.jumping[1][3]
+                    self.jumping[0] = 3
+
             # Have the running animation loop every .133 seconds
-            elif self.cur_time_frame >= 8 / 60:
-                self.is_jumping = False
+            elif self.cur_time_frame >= 8 / 60 and not self.is_attacking:
                 self.texture = self.running[1][self.running[0]]
                 if self.running[0] >= len(self.running[1]) - 1:
-                    self.running[0] = 1
+                    self.running[0] = 0
                 else:
                     self.running[0] = self.running[0] + 1
                 self.cur_time_frame = 0
