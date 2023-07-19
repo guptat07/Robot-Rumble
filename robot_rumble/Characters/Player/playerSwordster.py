@@ -24,9 +24,9 @@ class PlayerSwordster(PlayerBase):
 
         # Load jumping textures by iterating through each sprite in the sheet and adding them to the correct list
         self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_unmasked.png",
-                                                               7, 32, 48)
+                                                               7, 32, 32)
         self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets",
-                                                                             "jump_attack_unmasked.png", 7, 48, 48)
+                                                                             "jump_attack_unmasked.png", 7, 48, 32)
 
         self.idle = [0, self.idle_r]
         self.running = [0, self.running_r]
