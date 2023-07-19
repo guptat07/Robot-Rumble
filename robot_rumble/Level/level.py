@@ -1,3 +1,5 @@
+import sys
+
 import arcade
 import robot_rumble.Util.constants as const
 from robot_rumble.Characters.death import Player_Death
@@ -40,9 +42,6 @@ class Level(arcade.View):
         # A Camera that can be used to draw GUI elements
         self.gui_camera = None
 
-        self.end_of_map = 0
-        self.top_of_map = 0
-
         # Screen center
         self.screen_center_x = 0
         self.screen_center_y = 0
@@ -50,8 +49,6 @@ class Level(arcade.View):
 
         self.player_bullet_list = None
 
-        self.camera_sprites = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
-        self.camera_gui = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
         self.right_pressed = None
         self.left_pressed = None
@@ -68,6 +65,10 @@ class Level(arcade.View):
         self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
 
         self.level_map_setup()
+        self.level_player_setup()
+
+        self.scene.add_sprite("Player_Health", self.player_sprite.return_health_sprite())
+        self.scene.add_sprite("Player_Death", self.player_sprite.return_death_sprite())
 
 
         self.explosion_list = arcade.SpriteList()
@@ -79,9 +80,6 @@ class Level(arcade.View):
         self.bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("bullet_list")
 
-        # Calculate the right edge of the my_map in pixels
-        self.top_of_map = self.tile_map_level.height * constants.GRID_PIXEL_SIZE
-        self.end_of_map = self.tile_map_level.width * constants.GRID_PIXEL_SIZE
 
         # --- Other stuff
         # Set the background color
@@ -92,7 +90,9 @@ class Level(arcade.View):
         pass
 
     def level_player_setup(self):
-        pass
+        self.scene.add_sprite("Player", self.player_sprite)
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
 
     def level_map_setup(self):
         pass
@@ -102,10 +102,9 @@ class Level(arcade.View):
         """Render the screen."""
         self.clear()
         # Activate the game camera
-        self.camera.use()
         # Draw our Scene
+        self.camera.use()
         self.scene.draw(filter=gl.NEAREST)
-        # Activate the GUI camera before drawing GUI elements
         self.gui_camera.use()
 
     def update_player_speed(self):
@@ -177,6 +176,7 @@ class Level(arcade.View):
         if self.screen_center_y > 550:
             self.screen_center_y = 490
         player_centered = self.screen_center_x, self.screen_center_y
+        self.camera.move_to(player_centered)
 
 
     def center_camera_to_health(self):
@@ -184,5 +184,20 @@ class Level(arcade.View):
                     constants.SCREEN_WIDTH * 9 // 10)
         self.player_sprite.health_bar.center_y = self.screen_center_y + constants.SCREEN_HEIGHT - (
                     constants.SCREEN_HEIGHT // 20)
-    def on_update(self, delta_time):
-        pass
+    def on_update(self, delta_time, use_camera=True):
+        #death check to menu
+        if self.player_sprite.death.animation_finished:
+            #titleScreen = TitleScreen(self.window, self.player_sprite)
+            #self.window.show_view(titleScreen)
+            sys.exit(0)
+
+        # Position the camera
+        if use_camera:
+            self.center_camera_to_player()
+            self.center_camera_to_health()
+        self.player_sprite.update(delta_time)
+
+    def on_fall(self):
+        self.player_sprite.hit()
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y

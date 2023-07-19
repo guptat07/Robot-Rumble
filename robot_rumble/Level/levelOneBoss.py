@@ -3,6 +3,7 @@ import sys
 
 import arcade
 
+from robot_rumble.Characters.Boss.bossOne import BossOne
 from robot_rumble.Characters.Player.playerBase import PlayerBase
 from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.projectiles import BossProjectile
@@ -10,32 +11,17 @@ from robot_rumble.Level.level import Level
 import robot_rumble.Util.constants as const
 from importlib.resources import files
 
-TILE_SCALING = 4
-SPRITE_PIXEL_SIZE = 32
-GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
-
-PLAYER_MOVEMENT_SPEED = 10
-MOVE_SPEED = 2
-GRAVITY = 1
-PLAYER_JUMP_SPEED = 20
-RIGHT_FACING = 0
-LEFT_FACING = 1
-
-BOSS_TILE_SCALING = 2.8
-BOSS_JUMP_SPEED = 1
-
-LAYER_NAME_FOREGROUND = "Foreground"
-LAYER_NAME_BACKGROUND = "Background"
-LAYER_NAME_PLATFORMS = "Platforms"
-LAYER_NAME_MOVING_PLATFORMS = "Horizontal Moving Platform"
+from robot_rumble.Util import constants
 
 
-class BossOne(Level):
-    def __init__(self, window: arcade.Window):
+class LevelOneBoss(Level):
+    def __init__(self, window: arcade.Window, player):
         super().__init__(window)
+
+        self.player_sprite = player
+
         # Boss Level Physics Engine
         self.foreground_boss_level = None
-        self.physics_engine_boss_player = None
         self.physics_engine_boss = None
 
         # Boss Level Tile Map
@@ -59,29 +45,27 @@ class BossOne(Level):
         self.boss_bullet_list = None
         self.boss_bullet_list_circle = None
 
+
+        self.PLAYER_START_X = 100
+        self.PLAYER_START_Y = 300
+
     def setup(self):
         super().setup()
-
         self.boss_setup()
 
         self.physics_engine_boss = arcade.PhysicsEnginePlatformer(
             self.boss,
-            gravity_constant=GRAVITY,
+            gravity_constant=constants.GRAVITY,
             walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
-        self.physics_engine_boss_player = arcade.PhysicsEnginePlatformer(
+        self.physics_engine_level = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
-            gravity_constant=GRAVITY,
+            gravity_constant=constants.GRAVITY,
             walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
     def boss_setup(self):
-        self.boss = BossOne(self.player_sprite)
-        self.boss.center_x = const.SCREEN_WIDTH // 2
-        self.boss.center_y = const.SCREEN_HEIGHT // 2 + 200
-        self.scene.add_sprite("Boss", self.boss)
-        self.boss_list.append(self.boss)
 
         self.boss_list = arcade.SpriteList()
         self.boss_bullet_list = arcade.SpriteList()
@@ -89,6 +73,14 @@ class BossOne(Level):
         self.scene.add_sprite_list("boss_list")
         self.scene.add_sprite_list("boss_bullet_list_circle")
         self.scene.add_sprite_list("boss_bullet_list")
+
+        self.boss = BossOne(self.player_sprite)
+        self.boss.center_x = const.SCREEN_WIDTH // 2
+        self.boss.center_y = const.SCREEN_HEIGHT // 2 + 200
+        self.scene.add_sprite("Boss", self.boss)
+        self.boss_list.append(self.boss)
+
+
 
         # Boss Bullet Ring
         for i in range(0, 360, 60):
@@ -116,7 +108,7 @@ class BossOne(Level):
         }
 
         # Read in the tiled map level
-        self.tile_map_level = arcade.load_tilemap(map_name_level, BOSS_TILE_SCALING, layer_options_level)
+        self.tile_map_level = arcade.load_tilemap(map_name_level, constants.BOSS_TILE_SCALING, layer_options_level)
         self.platform_list_boss = self.tile_map_level.sprite_lists["Platforms"]
         self.wall_list_boss_level = self.tile_map_level.sprite_lists["Floor"]
         self.foreground_boss_level = self.tile_map_level.sprite_lists["Foreground"]
@@ -126,25 +118,9 @@ class BossOne(Level):
         self.scene = arcade.Scene.from_tilemap(self.tile_map_level)
 
     def level_player_setup(self):
-        # Add Player Spritelist before "Foreground" layer. This will make the foreground
-        # be drawn after the player, making it appear to be in front of the Player.
-        # Setting before using scene.add_sprite allows us to define where the SpriteList
-        # will be in the draw order. If we just use add_sprite, it will be appended to the
-        # end of the order.
-        self.scene.add_sprite_list_after("Player", LAYER_NAME_FOREGROUND)
-
-        # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = PlayerBase()
-        self.player_sprite.center_x = 100
-        self.player_sprite.center_y = 300
-        self.scene.add_sprite("Player", self.player_sprite)
-        self.player_sprite.health = 20
-        self.player_sprite.is_active = True
-
-        # Set up player health and health bar
-        self.scene.add_sprite("hp", self.player_health_bar)
-        self.player_hp[0] = 1
-        self.player_health_bar.texture = self.player_hp[self.player_hp[0]]
+        super().level_player_setup()
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
 
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()
@@ -162,6 +138,7 @@ class BossOne(Level):
 
         boss_collision.clear()
         '''
+        super().on_update(delta_time,False)
 
         for bullet in self.player_bullet_list:
             bullet.move()
@@ -188,24 +165,20 @@ class BossOne(Level):
                         sys.exit(0)
 
         self.physics_engine_boss.update()
-        self.physics_engine_boss_player.update()
-        self.scene.get_sprite_list("Player").update_animation()
+        self.physics_engine_level.update() #TODO: MOVE UP INTO LEVEL
 
-        platform_hit_list = arcade.check_for_collision_with_list(self.boss, self.platform_list_boss)
         bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
         for bullet in bullet_collisions:
             bullet.remove_from_sprite_lists()
-            self.hit()
-            self.player_sprite.health = self.player_sprite.health - 1
+            self.player_sprite.hit()
 
         bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite,
                                                                         self.boss_bullet_list_circle)
 
         for bull in bullet_collisions_circle:
             bull.remove_from_sprite_lists()
-            self.hit()
-            self.player_sprite.health = self.player_sprite.health - 1
+            self.player_sprite.hit()
 
         self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
         self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
@@ -280,11 +253,11 @@ class BossOne(Level):
                 bullet.homing(delta_time)
 
         if self.boss.center_x > self.player_sprite.center_x:
-            self.boss.character_face_direction = LEFT_FACING
+            self.boss.character_face_direction = constants.LEFT_FACING
         else:
-            self.boss.character_face_direction = RIGHT_FACING
+            self.boss.character_face_direction = constants.RIGHT_FACING
 
-        self.boss.update()
+        self.boss.update(delta_time)
         self.physics_engine_boss.update()
         self.boss_list.update_animation()
 
@@ -295,10 +268,6 @@ class BossOne(Level):
 
     def on_key_press(self, key, modifiers):
         super().on_key_press(key, modifiers)
-        if self.player_sprite.is_active:
-            if key == arcade.key.UP or key == arcade.key.W:
-                if self.physics_engine_boss_player.can_jump():
-                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
 
     def on_draw(self):
         super().on_draw()

@@ -6,7 +6,7 @@ from robot_rumble.Characters.drone import Drone
 from robot_rumble.Characters.projectiles import DroneBullet
 from robot_rumble.Level.level import Level
 from importlib.resources import files
-from robot_rumble.Level.levelOneBoss import BossOne
+from robot_rumble.Level.levelOneBoss import LevelOneBoss
 
 
 class LevelOne(Level):
@@ -21,7 +21,6 @@ class LevelOne(Level):
     def setup(self):
 
         super().setup()
-        self.level_player_setup()
         #self.collision_handle = CollisionHandle(self.player_sprite)
 
         self.level_enemy_setup()
@@ -57,9 +56,7 @@ class LevelOne(Level):
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = PlayerBase()
-        self.player_sprite.center_x = self.PLAYER_START_X
-        self.player_sprite.center_y = self.PLAYER_START_Y
-        self.scene.add_sprite("Player", self.player_sprite)
+        super().level_player_setup()
         #self.scene.add_sprite_list_after("Player", constants.LAYER_NAME_FOREGROUND)
 
 
@@ -95,19 +92,15 @@ class LevelOne(Level):
         """Movement and game logic"""
         # Read the user's inputs to run appropriate animations
         # Move the player with the physics engine
+        super().on_update(delta_time)
         self.physics_engine_level.update()
-        self.player_sprite.update(delta_time)
 
         # Moving Platform
         self.scene.update([constants.LAYER_NAME_MOVING_PLATFORMS])
 
-        # Position the camera
-        self.center_camera_to_player()
-        self.center_camera_to_health()
-
         # Did the player fall off the map?
-        if self.player_sprite.center_y < -100: #TODO: CHANGE THIS TO HIT OR SOMETHING AND RESET
-            self.setup()
+        if self.player_sprite.center_y < -100:
+            self.on_fall()
 
         for bullet in self.player_bullet_list:
             bullet.move()
@@ -150,12 +143,12 @@ class LevelOne(Level):
         bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.bullet_list)
         for bullet in bullet_collisions:
             bullet.remove_from_sprite_lists()
-            self.player_sprite.health -= 1
-            self.hit()
+            self.player_sprite.hit()
 
         if self.player_sprite.center_x <= 0:
-            #boss_one = BossOne(self.window)
-            #self.window.show_view(boss_one)
+            level_one_boss = LevelOneBoss(self.window, self.player_sprite)
+            level_one_boss.setup()
+            self.window.show_view(level_one_boss)
             pass
 
     def on_key_press(self, key, modifiers):
