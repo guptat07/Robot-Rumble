@@ -6,6 +6,7 @@ from arcade import gl
 
 from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.entities import Entity
+from robot_rumble.Characters.projectiles import PlayerBullet
 from robot_rumble.Util import constants
 from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet, load_spritesheet_pair_nocount
 
@@ -126,6 +127,12 @@ class PlayerBase(Entity):
         if self.health_bar.hp_list[0] < 21:
             self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
             self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
+
+    def spawn_attack(self): #this implementation should be done in its own way per characyter
+        self.is_attacking = True
+        bullet = PlayerBullet(self.center_x, self.center_y, self.character_face_direction)
+        return bullet
+
 
     def return_health_sprite(self):
         return self.health_bar

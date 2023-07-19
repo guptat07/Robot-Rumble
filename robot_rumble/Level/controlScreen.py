@@ -54,6 +54,7 @@ class ControlScreen(arcade.View):
     def on_click_start(self, event):
         self.manager.disable()
         level_one = LevelOne(self.window)
+        level_one.setup()
         self.window.show_view(level_one)
 
     def on_click_quit(self, event):

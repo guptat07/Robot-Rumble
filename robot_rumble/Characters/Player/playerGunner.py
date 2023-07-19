@@ -9,6 +9,9 @@ class PlayerGunner(PlayerBase):
     def setup(self):
         pass
 
+    def update(self):
+        super().update()
+
     def update_animation(self, delta_time: float = 1 / 60):
         super().update_animation(delta_time)
 
