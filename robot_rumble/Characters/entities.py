@@ -38,6 +38,7 @@ class Entity(arcade.Sprite):
         self.is_attacking = False
         self.is_dashing = False
         self.is_damaged = False
+        self.is_blocking = False
 
     def setup(self):
             pass

@@ -23,6 +23,8 @@ class BossTwo(BossBase):
         self.dash_r, self.dash_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "dash_masked.png", 7, 32, 32)
         self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_masked.png", 22, 64, 32)
         self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_attack_masked.png", 7, 48, 32)
+        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "damaged_masked.png", 6, 32, 32)
+
         self.secondslash = 8
         self.thirdslash = 14
 
@@ -130,4 +132,4 @@ class BossTwo(BossBase):
         if self.is_attacking:
             self.change_x = 0
         super().update(delta_time)
-        self.boss_logic(delta_time)
+        # self.boss_logic(delta_time)

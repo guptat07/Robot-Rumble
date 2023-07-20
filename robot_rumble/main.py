@@ -292,6 +292,7 @@ class MyGame(arcade.Window):
         self.scene_boss_two.add_sprite("Player", self.player_sprite)
 
 
+
         # health bar to both
 
         self.player_bullet_list = arcade.SpriteList()
@@ -562,6 +563,9 @@ class MyGame(arcade.Window):
                 elif key == arcade.key.P:
                     print("X: ",self.player_sprite.center_x)
                     print("Y: ", self.player_sprite.center_y)
+                elif key == arcade.key.S:
+                    self.player_sprite.is_blocking = True
+                    self.scene_boss_two.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
 
 
 #TODO: move this into the player class
@@ -574,7 +578,7 @@ class MyGame(arcade.Window):
             self.right_pressed = False
             self.update_player_speed()
 
-        if key == arcade.key.Q:
+        elif key == arcade.key.Q:
             # only use this line for the gunner
             # self.player_sprite.is_attacking = False
             pass
