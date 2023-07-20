@@ -27,6 +27,12 @@ class PlayerBase(Entity):
         self.scale = constants.PLAYER_SCALING
 
         # Tracking the various states, which helps us smooth animations
+        self.sparkle_r, self.sparkle_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "sparkle.png", 13, 32, 32)
+        self.sparkle = [0, self.sparkle_r]
+
+        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "flashing.png", 2, 32, 32)
+        self.blocking = [0, self.blocking_r]
+
         self.is_jumping = False
         self.is_attacking = False
         self.left_pressed = False
@@ -36,15 +42,46 @@ class PlayerBase(Entity):
         # weapons
         self.weapons_list = []
 
+        self.sparkle_sprite = arcade.Sprite()
+        self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
+        self.sparkle_sprite.center_x = self.center_x
+        self.sparkle_sprite.center_y = self.center_y
+        self.sparkle_sprite.scale = self.scale
+
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
         # Regardless of animation, determine if character is facing left or right
         if self.change_x < 0:
             self.running_attack[1] = self.running_attack_l
             self.jumping_attack[1] = self.jumping_attack_l
+            self.blocking[1] = self.blocking_l
         elif self.change_x > 0:
             self.running_attack[1] = self.running_attack_r
             self.jumping_attack[1] = self.jumping_attack_r
+            self.blocking[1] = self.blocking_r
+
+        if self.is_blocking == True:
+            self.change_x = 0
+            self.texture = self.blocking[1][self.blocking[0]]
+            self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
+            if self.sparkle[0] == 0:
+                self.change_y = 0
+            if self.cur_time_frame >= 3 / 60:
+                if self.sparkle[0] >= len(self.sparkle[1]) - 1:
+                    self.sparkle[0] = 0
+                    self.is_blocking = False
+                else:
+                    self.sparkle[0] += 1
+            if self.cur_time_frame >= 5 / 60:
+                if self.blocking[0] >= len(self.blocking[1]) - 1:
+                    self.blocking[0] = 0
+                else:
+                    self.blocking[0] += 1
+                self.cur_time_frame = 0
+            return
+        else:
+            self.blocking[0] = 0
+            self.sparkle[0] = 0
 
         # Moving
         if self.change_x != 0 or self.change_y != 0:
@@ -52,19 +89,23 @@ class PlayerBase(Entity):
             # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
 
             # Have the running animation loop every .133 seconds
-            if self.cur_time_frame >= 1 / 60 and self.change_y == 0:
-                if self.is_attacking:
-                    self.texture = self.running_attack[1][self.running_attack[0]]
-                    if self.running_attack[0] >= len(self.running_attack[1]) - 1:
-                        self.running_attack[0] = 1
-                    else:
-                        self.running_attack[0] = self.running_attack[0] + 1
+            if self.cur_time_frame >= 1 / 60 and self.change_y == 0 and self.is_attacking:
+                self.texture = self.running_attack[1][self.running_attack[0]]
+                if self.running_attack[0] >= len(self.running_attack[1]) - 1:
+                    self.running_attack[0] = 1
+                else:
+                    self.running_attack[0] = self.running_attack[0] + 1
                 self.cur_time_frame = 0
             return
 
     def update(self,delta_time):
         if self.health > 0:
             self.update_animation(delta_time)
+            self.sparkle_sprite.center_x = self.center_x
+            self.sparkle_sprite.center_y = self.center_y
+            if not self.is_blocking:
+                self.sparkle_sprite.remove_from_sprite_lists()
+            # re-add when using driver / remove when using main
             self.update_player_speed()
             for weapon in self.weapons_list:
                 weapon.update(delta_time)
