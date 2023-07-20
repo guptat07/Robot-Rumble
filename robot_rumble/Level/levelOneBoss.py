@@ -141,8 +141,7 @@ class LevelOneBoss(Level):
         super().on_update(delta_time,False)
 
         for bullet in self.player_bullet_list:
-            bullet.move()
-            bullet.update()
+            bullet.update(delta_time)
             boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
             # teleport here
             for collision in boss_collision:

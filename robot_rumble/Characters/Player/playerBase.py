@@ -66,7 +66,8 @@ class PlayerBase(Entity):
         if self.health > 0:
             self.update_animation(delta_time)
             self.update_player_speed()
-            #self.update_player_speed() TODO: MOVE FROM MAIN INTO HERE
+            for weapon in self.weapons_list:
+                weapon.update(delta_time)
         else:
             if self.death.die(delta_time):
                 self.is_alive = False

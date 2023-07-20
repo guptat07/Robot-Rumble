@@ -80,13 +80,13 @@ class PlayerBullet(Entity):
             self.center_x = x - 20
         self.center_y = y - 7
 
-    def move(self):
+    def update(self, delta_time):
+
         if self.character_face_direction == constants.RIGHT_FACING:
             self.change_x += constants.PLAYER_BULLET_MOVEMENT_SPEED
         else:
             self.change_x += -constants.PLAYER_BULLET_MOVEMENT_SPEED
 
-    def update(self, delta_time):
         self.kill_timer += delta_time
         self.center_x += self.change_x
         self.center_y += self.change_y

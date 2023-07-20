@@ -8,7 +8,6 @@ from importlib.resources import files
 from arcade import gl
 from robot_rumble.Level.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
-from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class Level(arcade.View):
@@ -22,7 +21,8 @@ class Level(arcade.View):
 
         # Variable that holds the player sprite
         self.player_sprite = None
-        self.collision_handle_list = None
+        self.collision_handle = None
+        self.collision_handle_list = []
 
         # Variable for the drone sprite list
         self.drone_list = None

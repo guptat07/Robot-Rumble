@@ -8,6 +8,7 @@ from robot_rumble.Characters.projectiles import DroneBullet
 from robot_rumble.Level.level import Level
 from importlib.resources import files
 from robot_rumble.Level.levelOneBoss import LevelOneBoss
+from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class LevelOne(Level):
@@ -22,7 +23,7 @@ class LevelOne(Level):
     def setup(self):
 
         super().setup()
-        #self.collision_handle = CollisionHandle(self.player_sprite)
+        self.collision_handle = CollisionHandle(self.player_sprite)
 
         self.level_enemy_setup()
         # Create the 'physics engine'
@@ -104,7 +105,6 @@ class LevelOne(Level):
             self.on_fall()
 
         for bullet in self.player_bullet_list:
-            bullet.move()
             bullet.update(delta_time)
             drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
             for collision in drone_collisions_with_player_bullet:
