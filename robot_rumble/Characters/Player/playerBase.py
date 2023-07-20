@@ -24,7 +24,7 @@ class PlayerBase(Entity):
         self.character_face_direction = constants.RIGHT_FACING
 
         # Set health
-        self.health = 20
+        self.health = 1 # TODO CHANGE IT
         self.health_bar = PlayerHealthBar()
         self.death = Player_Death()
         self.is_alive = True
