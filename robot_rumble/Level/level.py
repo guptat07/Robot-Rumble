@@ -102,6 +102,10 @@ class Level(arcade.View):
         self.scene.draw(filter=gl.NEAREST)
         self.gui_camera.use()
 
+        if self.player_sprite.is_alive is False:
+            arcade.draw_lrtb_rectangle_filled(0, 0,
+                                              constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT,
+                                              color=arcade.color.BLACK)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -114,6 +118,7 @@ class Level(arcade.View):
                 bullet = self.player_sprite.spawn_attack()
                 self.scene.add_sprite("player_attack", bullet)
                 self.player_bullet_list.append(bullet)
+
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
             self.window.show_view(pause)
@@ -121,7 +126,7 @@ class Level(arcade.View):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
-        self.player_sprite.on_key_release(key,modifiers)
+        self.player_sprite.on_key_release(key, modifiers)
         if key == arcade.key.Q:
             self.player_sprite.is_attacking = False
 
@@ -155,10 +160,10 @@ class Level(arcade.View):
         if use_camera:
             self.center_camera_to_player()
             self.center_camera_to_health()
+
         self.player_sprite.update(delta_time)
 
     def on_fall(self):
         self.player_sprite.hit()
         self.player_sprite.center_x = self.PLAYER_START_X
         self.player_sprite.center_y = self.PLAYER_START_Y
-
