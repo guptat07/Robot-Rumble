@@ -8,7 +8,7 @@ from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.entities import Entity
 from robot_rumble.Characters.projectiles import PlayerBullet
 from robot_rumble.Util import constants
-from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet
+from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet, load_spritesheet_pair_nocount
 
 
 class PlayerBase(Entity):
@@ -38,17 +38,26 @@ class PlayerBase(Entity):
         self.is_active = True
 
         # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
-        self.attack_r, self.attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
-        self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_unmasked.png", 8, 32, 32)
-        self.running_attack_r, self.running_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
+        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
+        self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
+        self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "run_unmasked.png", 8, 32, 32)
+        self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
 
         #oad running attack textures by iterating through each sprite in the sheet and adding them to the correct list
 
 
         # Load jumping textures by iterating through each sprite in the sheet and adding them to the correct list
-        self.jumping_r, self.jumping_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "jump_unmasked.png", 7, 32, 32)
-        self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
+        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked.png", 7, 32, 32)
+        self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
+
+        self.idle = [0, self.idle_r]
+        self.running = [0, self.running_r]
+        self.jumping = [0, self.jumping_r]
+        self.damaged = [0, self.damaged_r]
+        self.dash = [0, self.dash_r]
+        self.attack = [0, self.attack_r]
+        self.running_attack = [0, self.running_attack_r]
+        self.jumping_attack = [0, self.jumping_attack_r]
 
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[1]
@@ -57,132 +66,27 @@ class PlayerBase(Entity):
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
         # Regardless of animation, determine if character is facing left or right
-        if self.change_x < 0 and self.character_face_direction == constants.RIGHT_FACING:
-            self.character_face_direction = constants.LEFT_FACING
-        elif self.change_x > 0 and self.character_face_direction == constants.LEFT_FACING:
-            self.character_face_direction = constants.RIGHT_FACING
+        if self.change_x < 0:
+            self.running_attack[1] = self.running_attack_l
+            self.jumping_attack[1] = self.jumping_attack_l
+        elif self.change_x > 0:
+            self.running_attack[1] = self.running_attack_r
+            self.jumping_attack[1] = self.jumping_attack_r
 
-        # Should work regardless of framerate
-        self.cur_time_frame += delta_time
+        # Moving
+        if self.change_x != 0 or self.change_y != 0:
 
-        # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
-        # This condition must mean that the player WAS jumping but has landed
-        if self.change_y == 0 and self.is_jumping and \
-                (self.texture == self.jumping_r[4] or self.texture == self.jumping_l[4]
-                 or self.texture == self.jumping_attack_r[4] or self.texture == self.jumping_attack_l[4]):
-            # Update the tracker for future jumps
-            self.is_jumping = False
-            # Animation depending on whether facing left or right and moving or still
-            if self.character_face_direction == constants.RIGHT_FACING:
-                if self.change_x == 0:
-                    if self.is_attacking:
-                        self.texture = self.attack_r[self.attack_r[0]]
-                    else:
-                        self.texture = self.idle_r[self.idle_r[0]]
-                else:
-                    if self.is_attacking:
-                        self.texture = self.running_attack_r[self.running_attack_r[0]]
-                    else:
-                        self.texture = self.running_r[self.running_r[0]]
-            elif self.character_face_direction == constants.LEFT_FACING:
-                if self.change_x == 0:
-                    if self.is_attacking:
-                        self.texture = self.attack_l[self.attack_l[0]]
-                    else:
-                        self.texture = self.idle_l[self.idle_l[0]]
-                else:
-                    if self.is_attacking:
-                        self.texture = self.running_attack_l[self.running_attack_l[0]]
-                    else:
-                        self.texture = self.running_l[self.running_l[0]]
-            return
+            # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
 
-        # Moving to the right
-        elif self.change_x > 0 and self.character_face_direction == constants.RIGHT_FACING:
-            # Check to see if the player is jumping (while moving right)
-            if self.change_y != 0:
-                self.is_jumping = True
-                if self.is_attacking:
-                    self.texture = self.jumping_attack_r[self.jumping_attack_r[0]]
-                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
-                if self.change_y > 0:
-                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
-                    if self.is_attacking:
-                        if self.jumping_attack_r[0] >= 3:
-                            self.jumping_attack_r[0] = 3
-                        else:
-                            self.jumping_attack_r[0] = self.jumping_attack_r[0] + 1
-                elif self.change_y < 0:
-                    if self.is_attacking:
-                        self.jumping_attack_r[0] = 1
-                        self.texture = self.jumping_attack_r[4]
             # Have the running animation loop every .133 seconds
-            elif self.cur_time_frame >= 8 / 60:
+            if self.cur_time_frame >= 1 / 60 and self.change_y == 0:
                 if self.is_attacking:
-                    self.texture = self.running_attack_r[self.running_attack_r[0]]
-                    if self.running_attack_r[0] >= len(self.running_attack_r) - 1:
-                        self.running_attack_r[0] = 1
+                    self.texture = self.running_attack[1][self.running_attack[0]]
+                    if self.running_attack[0] >= len(self.running_attack[1]) - 1:
+                        self.running_attack[0] = 1
                     else:
-                        self.running_attack_r[0] = self.running_attack_r[0] + 1
+                        self.running_attack[0] = self.running_attack[0] + 1
                 self.cur_time_frame = 0
-            return
-
-        # Moving to the left
-        elif self.change_x < 0 and self.character_face_direction == constants.LEFT_FACING:
-            # Check to see if the player is jumping (while moving left)
-            if self.change_y != 0:
-                self.is_jumping = True
-                if self.is_attacking:
-                    self.texture = self.jumping_attack_l[self.jumping_attack_l[0]]
-                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
-                if self.change_y > 0:
-                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
-                    if self.is_attacking:
-                        if self.jumping_attack_l[0] >= 3:
-                            self.jumping_attack_l[0] = 3
-                        else:
-                            self.jumping_attack_l[0] = self.jumping_attack_l[0] + 1
-                elif self.change_y < 0:
-                    if self.is_attacking:
-                        self.jumping_attack_l[0] = 1
-                        self.texture = self.jumping_attack_l[4]
-            # Have the running animation loop every .133 seconds
-            elif self.cur_time_frame >= 8 / 60:
-                if self.is_attacking:
-                    self.texture = self.running_attack_l[self.running_attack_l[0]]
-                    if self.running_attack_l[0] >= len(self.running_attack_l) - 1:
-                        self.running_attack_l[0] = 1
-                    else:
-                        self.running_attack_l[0] = self.running_attack_l[0] + 1
-                self.cur_time_frame = 0
-            return
-
-            # Jumping in place
-        elif self.change_y != 0 and self.change_x == 0:
-            self.is_jumping = True
-            if self.character_face_direction == constants.RIGHT_FACING:
-                if self.is_attacking:
-                    self.texture = self.jumping_attack_r[self.jumping_attack_r[0]]
-                    if self.change_y > 0:
-                        if self.jumping_attack_r[0] >= 3:
-                            self.jumping_attack_r[0] = 3
-                        else:
-                            self.jumping_attack_r[0] = self.jumping_attack_r[0] + 1
-                    elif self.change_y < 0:
-                        self.jumping_attack_r[0] = 1
-                        self.texture = self.jumping_attack_r[4]
-            else:
-                if self.is_attacking:
-                    self.texture = self.jumping_attack_l[self.jumping_attack_l[0]]
-                    if self.change_y > 0:
-                        if self.jumping_attack_l[0] >= 3:
-                            self.jumping_attack_l[0] = 3
-                        else:
-                            self.jumping_attack_l[0] = self.jumping_attack_l[0] + 1
-                        self.cur_time_frame = 0
-                    elif self.change_y < 0:
-                        self.jumping_attack_l[0] = 1
-                        self.texture = self.jumping_attack_l[4]
             return
 
     def update(self,delta_time):
