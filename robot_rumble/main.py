@@ -582,10 +582,6 @@ class MyGame(arcade.Window):
             # only use this line for the gunner
             self.player_sprite.is_attacking = False
             pass
-        elif key == arcade.key.S:
-            self.player_sprite.is_blocking = False
-            for sparkle in self.scene_boss_two.get_sprite_list("Sparkle"):
-                sparkle.remove_from_sprite_lists()
 
     def center_camera_to_player(self):
         self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
