@@ -102,17 +102,6 @@ class PlayerBase(Entity):
         #self.health_bar.draw(filter=gl.NEAREST)
         pass
 
-
-    def update_player_speed(self):
-        #this is currently not used, one in main is being used
-        #TODO: IMPLELEMENT WITH KEYPRESSES IN PLAYERCLASS
-        self.change_x = 0
-        # Using the key pressed variables lets us create more responsive x-axis movement
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
-
     def hit(self):
         #moved hit from main into player, player handles its own health now
         self.health -= 1
