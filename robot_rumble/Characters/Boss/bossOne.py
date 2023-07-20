@@ -13,7 +13,6 @@ class BossOne(BossBase):
         super().__init__(target)
 
         # Default to face-right
-        self.cur_time_frame = 0
         self.boss_logic_timer = 0
         self.boss_logic_countdown = random.randint(1, 3)
         self.once_jump = True
@@ -143,9 +142,6 @@ class BossOne(BossBase):
                     self.once_jump = False
 
     def update_animation(self, delta_time):
-        #frames per second -> 60
-        self.cur_time_frame += delta_time
-
 
         #damaged animation
         if self.damaged != -1:

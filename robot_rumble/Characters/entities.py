@@ -7,6 +7,7 @@ class Entity(arcade.Sprite):
         super().__init__()
 
         # Used for image sequences
+        self.cur_time_frame = 0
         self.cur_texture = 0
         self.scale = 1
         self.character_face_direction = constants.RIGHT_FACING

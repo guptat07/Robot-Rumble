@@ -13,7 +13,6 @@ class Explosion(Entity):
         super().__init__()
 
         # Default to face-right
-        self.cur_time_frame = 0
         self.character_face_direction = constants.RIGHT_FACING
 
         # Used for flipping between image sequences
@@ -54,7 +53,6 @@ class Player_Death(Entity):
         super().__init__()
 
         # Default to face-right
-        self.cur_time_frame = 0
         self.character_face_direction = constants.RIGHT_FACING
 
         # Used for flipping between image sequences
