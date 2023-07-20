@@ -1,6 +1,7 @@
 import arcade
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.Player.playerBase import PlayerBase
+from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.death import Explosion
 from robot_rumble.Characters.drone import Drone
 from robot_rumble.Characters.projectiles import DroneBullet
@@ -55,7 +56,7 @@ class LevelOne(Level):
         # end of the order.
 
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = PlayerBase()
+        self.player_sprite = PlayerGunner()
         super().level_player_setup()
         #self.scene.add_sprite_list_after("Player", constants.LAYER_NAME_FOREGROUND)
 

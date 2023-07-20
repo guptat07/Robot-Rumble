@@ -45,8 +45,6 @@ class BossBase(Entity):
 
         self.center_x = constants.SCREEN_WIDTH // 2
         self.center_y = constants.SCREEN_HEIGHT // 2 + 200
-
-        self.cur_time_frame = 0
         self.is_active = True
 
 
