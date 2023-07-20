@@ -15,10 +15,10 @@ class PlayerBase(Entity):
     """ Player Class """
 
     def __init__(self):
-        #CALL SUPER INNIT AFTER LOADING TEXTURES
+        # CALL SUPER INNIT AFTER LOADING TEXTURES
         super().__init__()
         # Set health
-        self.health = 20
+        self.health = 10
         self.health_bar = PlayerHealthBar()
         self.death = Player_Death()
         self.is_alive = True
@@ -98,7 +98,7 @@ class PlayerBase(Entity):
                 self.cur_time_frame = 0
             return
 
-    def update(self,delta_time):
+    def update(self, delta_time):
         if self.health > 0:
             self.update_animation(delta_time)
             self.sparkle_sprite.center_x = self.center_x
@@ -113,36 +113,34 @@ class PlayerBase(Entity):
             if self.death.die(delta_time):
                 self.is_alive = False
 
-
-    def drawing(self): #TODO: ADD TO SPRITE LIST IN MAIN AND THEN REMOVE FROM LIST SO IT DOES IT ONCE
-        #self.health_bar.draw(filter=gl.NEAREST)
+    def drawing(self):  # TODO: ADD TO SPRITE LIST IN MAIN AND THEN REMOVE FROM LIST SO IT DOES IT ONCE
         pass
 
     def update_player_speed(self):
-        #this is currently not used, one in main is being used
+        # this is currently not used, one in main is being used
         self.change_x = 0
         # Using the key pressed variables lets us create more responsive x-axis movement
         if self.left_pressed and not self.right_pressed:
-            self.change_x = -self.PLAYER_MOVEMENT_SPEED #DEFINE THIS IN SUBCLASSES
+            self.change_x = -self.PLAYER_MOVEMENT_SPEED  # DEFINE THIS IN SUBCLASSES
         elif self.right_pressed and not self.left_pressed:
             self.change_x = self.PLAYER_MOVEMENT_SPEED
 
     def hit(self):
-        #moved hit from main into player, player handles its own health now
+        # moved hit from main into player, player handles its own health now
         self.health -= 1
-        if (self.health == 0):
+        if self.health == 0:
+            self.is_alive = False
             self.death.center(self.center_x, self.center_y)
             # This line was removed because the current player doesn't have direction
             # death.face_direction(self.player_sprite.character_face_direction)
             self.change_x = 0
             self.change_y = 0
-            self.is_alive = False
             self.kill()
         if self.health_bar.hp_list[0] < 21:
             self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
             self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
 
-    def spawn_attack(self): #this implementation should be done in its own way per characyter
+    def spawn_attack(self):  # this implementation should be done in its own way per characyter
         pass
 
     def on_key_press(self, key, modifiers=0):
@@ -173,10 +171,9 @@ class PlayerHealthBar(arcade.Sprite):
         # Set up parent class
         super().__init__()
         # load spritesheet
-        self.hp_list = load_spritesheet("robot_rumble.assets.ui","health_bar.png",21,61,19)
-        self.texture = self.hp_list[self.hp_list[0]] #index 0 is the counter keeping track of which frame we are on
+        self.hp_list = load_spritesheet("robot_rumble.assets.ui", "health_bar.png", 21, 61, 19)
+        self.texture = self.hp_list[self.hp_list[0]]  # index 0 is the counter keeping track of which frame we are on
 
         self.scale = 3
         self.center_x = 100
         self.center_y = 770
-

@@ -18,7 +18,7 @@ class ControlScreen(arcade.View):
         self.manager.enable()
 
         # Create the buttons
-        start_button = arcade.gui.UIFlatButton(x=800, y=10, text="Next", width=200)
+        start_button = arcade.gui.UIFlatButton(x=(self.window.width / 2) - 100, y=10, text="Next", width=200)
         self.manager.add(start_button)
 
         start_button.on_click = self.on_click_start
@@ -27,7 +27,7 @@ class ControlScreen(arcade.View):
         self.clear()
         # Set background color
         arcade.draw_lrwh_rectangle_textured(0, 0,
-                                            const.SCREEN_WIDTH, const.SCREEN_HEIGHT,
+                                            self.window.width, self.window.height,
                                             self.background)
         self.manager.draw()
 

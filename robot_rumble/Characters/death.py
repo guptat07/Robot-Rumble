@@ -47,6 +47,7 @@ class Explosion(Entity):
             self.explode_time = 0
         return False
 
+
 class Player_Death(Entity):
     def __init__(self):
         # Setup parent class
@@ -70,9 +71,10 @@ class Player_Death(Entity):
             self.death = self.death_r
         self.texture = self.death[1]
 
-    def center(self,x,y):
+    def center(self, x, y):
         self.center_x = x
         self.center_y = y
+
     def face_direction(self, direction):
         self.character_face_direction = direction
         if self.character_face_direction == constants.RIGHT_FACING:
@@ -85,7 +87,7 @@ class Player_Death(Entity):
         self.death_time += delta_time
         if self.death[0] + 1 >= len(self.death):
             self.death[0] = 1
-            self.animation_finished = True #added finished, this actually kills the game
+            self.animation_finished = True  # added finished, this actually kills the game
             return True
         elif self.death_time > constants.DRONE_TIMER / 2:
             self.texture = self.death[self.death[0]]

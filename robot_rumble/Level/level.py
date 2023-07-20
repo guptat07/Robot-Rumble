@@ -55,12 +55,15 @@ class Level(arcade.View):
 
         self.isPaused = False
 
+        self.view_left = 0
+        self.view_bottom = 0
+
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
         # Set up the Cameras
-        self.camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
-        self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
+        self.camera = arcade.Camera(self.window.width, self.window.height)
+        self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
         self.level_map_setup()
         self.level_player_setup()
@@ -102,6 +105,10 @@ class Level(arcade.View):
         self.scene.draw(filter=gl.NEAREST)
         self.gui_camera.use()
 
+        if self.player_sprite.is_alive is False:
+            arcade.draw_lrtb_rectangle_filled(0, 0,
+                                              self.window.width, self.window.height,
+                                              color=arcade.color.BLACK)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -114,6 +121,7 @@ class Level(arcade.View):
                 bullet = self.player_sprite.spawn_attack()
                 self.scene.add_sprite("player_attack", bullet)
                 self.player_bullet_list.append(bullet)
+
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
             self.window.show_view(pause)
@@ -121,44 +129,50 @@ class Level(arcade.View):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
-        self.player_sprite.on_key_release(key,modifiers)
+        self.player_sprite.on_key_release(key, modifiers)
         if key == arcade.key.Q:
             self.player_sprite.is_attacking = False
 
     def center_camera_to_player(self):
-        self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        self.screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
+        self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width // 2)
+        self.screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height // 2)
+
         if self.screen_center_x < 0:
             self.screen_center_x = 0
         if self.screen_center_y < 0:
             self.screen_center_y = 0
-        if self.screen_center_x > 810:
-            self.screen_center_x = 810
-        if self.screen_center_y > 550:
-            self.screen_center_y = 490
+
+        if self.window.width // 2 + self.player_sprite.center_x > \
+                (self.tile_map_level.tile_width * self.tile_map_level.width) * 4:
+            self.screen_center_x = (self.tile_map_level.tile_width * self.tile_map_level.width * 4) - self.window.width
+        if self.window.height // 2 + self.player_sprite.center_y > \
+                (self.tile_map_level.tile_height * self.tile_map_level.height) * 4:
+            self.screen_center_y = (self.tile_map_level.tile_height * self.tile_map_level.height * 4) - self.window.height
+
         player_centered = self.screen_center_x, self.screen_center_y
+
         self.camera.move_to(player_centered)
 
     def center_camera_to_health(self):
-        self.player_sprite.health_bar.center_x = self.screen_center_x + constants.SCREEN_WIDTH - (
-                constants.SCREEN_WIDTH * 9 // 10)
-        self.player_sprite.health_bar.center_y = self.screen_center_y + constants.SCREEN_HEIGHT - (
-                constants.SCREEN_HEIGHT // 20)
+        self.player_sprite.health_bar.center_x = self.screen_center_x + self.window.width - (
+                self.window.width * 9 // 10)
+        self.player_sprite.health_bar.center_y = self.screen_center_y + self.window.height - (
+                self.window.height // 20)
 
     def on_update(self, delta_time, use_camera=True):
         if self.player_sprite.death.animation_finished:
-            from robot_rumble.Level.titleScreen import TitleScreen
-            title_screen = TitleScreen(self.window)
-            self.window.show_view(title_screen)
+            from robot_rumble.Level.deathScreen import DeathScreen
+            death_screen = DeathScreen(self.window)
+            self.window.show_view(death_screen)
 
         # Position the camera
         if use_camera:
             self.center_camera_to_player()
             self.center_camera_to_health()
+
         self.player_sprite.update(delta_time)
 
     def on_fall(self):
         self.player_sprite.hit()
         self.player_sprite.center_x = self.PLAYER_START_X
         self.player_sprite.center_y = self.PLAYER_START_Y
-

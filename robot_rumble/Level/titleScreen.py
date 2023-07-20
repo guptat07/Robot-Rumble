@@ -17,7 +17,7 @@ class TitleScreen(arcade.View):
         # Set background color
         arcade.set_background_color(arcade.color.BLACK)
         arcade.draw_lrtb_rectangle_filled(0, 0,
-                                          const.SCREEN_WIDTH, const.SCREEN_HEIGHT,
+                                          self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
 
         # Create a vertical BoxGroup to align buttons

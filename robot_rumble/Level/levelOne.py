@@ -19,9 +19,7 @@ class LevelOne(Level):
         self.PLAYER_START_X = 50
         self.PLAYER_START_Y = 1000
 
-
     def setup(self):
-
         super().setup()
         self.collision_handle = CollisionHandle(self.player_sprite)
 
@@ -42,7 +40,7 @@ class LevelOne(Level):
                            [1600, 730, constants.LEFT_FACING],
                            [1800, 220, constants.LEFT_FACING]]
         for x, y, direction in drone_positions:
-            drone = Drone(x,y,direction)
+            drone = Drone(x, y, direction)
             drone.update()
             self.scene.add_sprite("Drone", drone)
             self.scene.add_sprite("Thrusters", drone.thrusters)
@@ -59,8 +57,7 @@ class LevelOne(Level):
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = PlayerGunner()
         super().level_player_setup()
-        #self.scene.add_sprite_list_after("Player", constants.LAYER_NAME_FOREGROUND)
-
+        # self.scene.add_sprite_list_after("Player", constants.LAYER_NAME_FOREGROUND)
 
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()
@@ -85,6 +82,10 @@ class LevelOne(Level):
         # Read in the tiled map level
         self.tile_map_level = arcade.load_tilemap(map_name_level, constants.TILE_SCALING, layer_options_level)
         self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
+        moving_platforms = self.tile_map_level.sprite_lists[constants.LAYER_NAME_MOVING_PLATFORMS]
+        for platform in moving_platforms:
+            platform.boundary_left = platform.center_x - 200
+            platform.boundary_right = platform.center_x + 100
 
         # Initialize Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.

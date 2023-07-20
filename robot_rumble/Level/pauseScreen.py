@@ -45,7 +45,7 @@ class PauseScreen(arcade.View):
 
     def on_draw(self):
         arcade.draw_lrwh_rectangle_textured(0, 0,
-                                            const.SCREEN_WIDTH, const.SCREEN_HEIGHT,
+                                            self.window.width, self.window.height,
                                             texture=self.background, alpha=4)
         self.manager.draw()
 
