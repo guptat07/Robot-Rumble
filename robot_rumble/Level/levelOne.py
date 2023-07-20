@@ -147,3 +147,4 @@ class LevelOne(Level):
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)
+

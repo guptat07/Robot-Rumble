@@ -55,6 +55,9 @@ class Level(arcade.View):
 
         self.isPaused = False
 
+        self.view_left = 0
+        self.view_bottom = 0
+
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
@@ -131,17 +134,25 @@ class Level(arcade.View):
             self.player_sprite.is_attacking = False
 
     def center_camera_to_player(self):
-        self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        self.screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
+        self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width // 2)
+        self.screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height // 2)
+
         if self.screen_center_x < 0:
             self.screen_center_x = 0
         if self.screen_center_y < 0:
             self.screen_center_y = 0
-        if self.screen_center_x > 810:
-            self.screen_center_x = 810
-        if self.screen_center_y > 550:
-            self.screen_center_y = 490
+
+        if constants.SCREEN_WIDTH // 2 + self.player_sprite.center_x > \
+                (self.tile_map_level.tile_width * self.tile_map_level.width) * 4:
+            self.screen_center_x = (
+                                               self.tile_map_level.tile_width * self.tile_map_level.width * 4) - constants.SCREEN_WIDTH
+        if constants.SCREEN_HEIGHT // 2 + self.player_sprite.center_y > \
+                (self.tile_map_level.tile_height * self.tile_map_level.height) * 4:
+            self.screen_center_y = (
+                                               self.tile_map_level.tile_height * self.tile_map_level.height * 4) - constants.SCREEN_HEIGHT
+
         player_centered = self.screen_center_x, self.screen_center_y
+
         self.camera.move_to(player_centered)
 
     def center_camera_to_health(self):
