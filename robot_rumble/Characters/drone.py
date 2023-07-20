@@ -12,7 +12,6 @@ class Drone(Entity):
         # Setup parent class
         super().__init__()
 
-
         # Used for flipping between image sequences
         self.cur_texture = 0
         self.cur_time_frame = 0

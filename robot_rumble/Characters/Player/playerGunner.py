@@ -10,7 +10,8 @@ class PlayerGunner(PlayerBase):
         pass
 
     def update(self):
-        pass
+        super().update()
+
 
     def update_animation(self, delta_time: float = 1 / 60):
         pass
