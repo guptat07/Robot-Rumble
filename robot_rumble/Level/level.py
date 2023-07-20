@@ -46,8 +46,11 @@ class Level(arcade.View):
         self.screen_center_x = 0
         self.screen_center_y = 0
 
-
         self.player_bullet_list = None
+
+        self.right_pressed = None
+        self.left_pressed = None
+
         self.scene = None
 
         self.isPaused = False
@@ -65,7 +68,6 @@ class Level(arcade.View):
         self.scene.add_sprite("Player_Health", self.player_sprite.return_health_sprite())
         self.scene.add_sprite("Player_Death", self.player_sprite.return_death_sprite())
 
-
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
 
@@ -74,7 +76,6 @@ class Level(arcade.View):
 
         self.bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("bullet_list")
-
 
         # --- Other stuff
         # Set the background color
@@ -91,7 +92,6 @@ class Level(arcade.View):
 
     def level_map_setup(self):
         pass
-
 
     def on_draw(self):
         """Render the screen."""
@@ -139,18 +139,17 @@ class Level(arcade.View):
         player_centered = self.screen_center_x, self.screen_center_y
         self.camera.move_to(player_centered)
 
-
     def center_camera_to_health(self):
         self.player_sprite.health_bar.center_x = self.screen_center_x + constants.SCREEN_WIDTH - (
-                    constants.SCREEN_WIDTH * 9 // 10)
+                constants.SCREEN_WIDTH * 9 // 10)
         self.player_sprite.health_bar.center_y = self.screen_center_y + constants.SCREEN_HEIGHT - (
-                    constants.SCREEN_HEIGHT // 20)
+                constants.SCREEN_HEIGHT // 20)
+
     def on_update(self, delta_time, use_camera=True):
-        #death check to menu
         if self.player_sprite.death.animation_finished:
-            #titleScreen = TitleScreen(self.window, self.player_sprite)
-            #self.window.show_view(titleScreen)
-            sys.exit(0)
+            from robot_rumble.Level.titleScreen import TitleScreen
+            title_screen = TitleScreen(self.window)
+            self.window.show_view(title_screen)
 
         # Position the camera
         if use_camera:
@@ -162,3 +161,4 @@ class Level(arcade.View):
         self.player_sprite.hit()
         self.player_sprite.center_x = self.PLAYER_START_X
         self.player_sprite.center_y = self.PLAYER_START_Y
+
