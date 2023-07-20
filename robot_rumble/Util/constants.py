@@ -1,8 +1,8 @@
 # Constants File
 
 #Game constants
-SCREEN_WIDTH = 1080
-SCREEN_HEIGHT = 810
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Robot Rumble"
 TILE_SCALING = 4 #maybe it's 3
 BOSS_TILE_SCALING = 2.8
