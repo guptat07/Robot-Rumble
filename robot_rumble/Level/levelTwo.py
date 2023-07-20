@@ -47,6 +47,7 @@ class LevelTwo(Level):
     # TODO: find spawn coords of the enemies, create lists by type
     def level_enemy_setup(self):
         # There are 3 enemy types (sort of). We will create them type by type.
+
         # The drones from lv.1 return.
         self.drone_list = arcade.SpriteList()
         self.scene.add_sprite_list("drone_list")
@@ -71,6 +72,7 @@ class LevelTwo(Level):
             self.drone_list.append(drone)
 
         # This level introduces the crawlies, who can move side-to-side on their platforms.
+
         # Finally, there are the wall-mounts, who fire in place periodically.
 
     def level_player_setup(self):
