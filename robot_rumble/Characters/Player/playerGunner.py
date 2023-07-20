@@ -15,11 +15,7 @@ class PlayerGunner(PlayerBase):
         # Load jumping textures by iterating through each sprite in the sheet and adding them to the correct list
         self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked.png", 7, 32, 32)
         self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
-
-        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets",
-                                                                 "flashing.png", 2, 32, 32)
-        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets",
-                                                                       "teleport.png", 6, 32, 32)
+        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "teleport.png", 6, 32, 32)
 
         #NOT IMPLEMENTED
         self.damaged_l = 0

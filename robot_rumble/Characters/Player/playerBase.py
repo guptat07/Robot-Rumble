@@ -28,6 +28,10 @@ class PlayerBase(Entity):
 
         # Tracking the various states, which helps us smooth animations
         self.sparkle_r, self.sparkle_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "sparkle.png", 13, 32, 32)
+        self.sparkle = [0, self.sparkle_r]
+
+        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "flashing.png", 2, 32, 32)
+        self.blocking = [0, self.blocking_r]
 
         self.is_jumping = False
         self.is_attacking = False
@@ -101,6 +105,7 @@ class PlayerBase(Entity):
             self.sparkle_sprite.center_y = self.center_y
             if not self.is_blocking:
                 self.sparkle_sprite.remove_from_sprite_lists()
+            # re-add when using driver / remove when using main
             self.update_player_speed()
             for weapon in self.weapons_list:
                 weapon.update(delta_time)

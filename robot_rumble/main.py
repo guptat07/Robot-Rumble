@@ -274,8 +274,8 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         if self.scene_type != constants.SCENE_LEVEL_BOSS_ONE:   #TODO: MAN, THIS REFRESHES EVERYTIME BEFORE
-            self.player_sprite = PlayerGunner()
-            # self.player_sprite = PlayerSwordster()
+            # self.player_sprite = PlayerGunner()
+            self.player_sprite = PlayerSwordster()
 
         #TODO: add all collisions into collision handle class, does the same thing as before just wrapped and reduced redudnant code
         self.collision_handle = CollisionHandle(self.player_sprite)
@@ -580,7 +580,7 @@ class MyGame(arcade.Window):
 
         elif key == arcade.key.Q:
             # only use this line for the gunner
-            self.player_sprite.is_attacking = False
+            # self.player_sprite.is_attacking = False
             pass
 
     def center_camera_to_player(self):
