@@ -162,7 +162,9 @@ class LevelOneBoss(Level):
 
                     if death.die(delta_time):
                         death.remove_from_sprite_lists()
-                        sys.exit(0)
+                        # from robot_rumble.Level.titleScreen import TitleScreen
+                        # title_screen = TitleScreen(self.window)
+                        # self.window.show_view(title_screen)
 
         self.physics_engine_boss.update()
         self.physics_engine_level.update() #TODO: MOVE UP INTO LEVEL
@@ -264,10 +266,10 @@ class LevelOneBoss(Level):
         for death in self.death_list:
             if death.die(delta_time):
                 death.remove_from_sprite_lists()
-                sys.exit(0)
+                # from robot_rumble.Level.titleScreen import TitleScreen
+                # title_screen = TitleScreen(self.window)
+                # self.window.show_view(title_screen)
 
-    def on_key_press(self, key, modifiers):
-        super().on_key_press(key, modifiers)
 
     def on_draw(self):
         super().on_draw()
