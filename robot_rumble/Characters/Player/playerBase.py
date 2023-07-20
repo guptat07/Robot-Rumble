@@ -15,14 +15,8 @@ class PlayerBase(Entity):
     """ Player Class """
 
     def __init__(self):
-
-        # Set up parent class (call arcade.Sprite())
+        #CALL SUPER INNIT AFTER LOADING TEXTURES
         super().__init__()
-
-        # Default to right
-        self.cur_time_frame = 0
-        self.character_face_direction = constants.RIGHT_FACING
-
         # Set health
         self.health = 20
         self.health_bar = PlayerHealthBar()
@@ -35,33 +29,12 @@ class PlayerBase(Entity):
         # Tracking the various states, which helps us smooth animations
         self.is_jumping = False
         self.is_attacking = False
-        self.is_active = True
+        self.left_pressed = False
+        self.right_pressed = False
+        self.PLAYER_MOVEMENT_SPEED = 0
 
-        # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
-        self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
-        self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "run_unmasked.png", 8, 32, 32)
-        self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "run_attack1.png", 8, 32, 32)
-
-        #oad running attack textures by iterating through each sprite in the sheet and adding them to the correct list
-
-
-        # Load jumping textures by iterating through each sprite in the sheet and adding them to the correct list
-        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked.png", 7, 32, 32)
-        self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
-
-        self.idle = [0, self.idle_r]
-        self.running = [0, self.running_r]
-        self.jumping = [0, self.jumping_r]
-        self.damaged = [0, self.damaged_r]
-        self.dash = [0, self.dash_r]
-        self.attack = [0, self.attack_r]
-        self.running_attack = [0, self.running_attack_r]
-        self.jumping_attack = [0, self.jumping_attack_r]
-
-        # Set an initial texture. Required for the code to run.
-        self.texture = self.idle_r[1]
-        self.hit_box = self.texture.hit_box_points
+        # weapons
+        self.weapons_list = []
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
@@ -92,7 +65,9 @@ class PlayerBase(Entity):
     def update(self,delta_time):
         if self.health > 0:
             self.update_animation(delta_time)
-            #self.update_player_speed() TODO: MOVE FROM MAIN INTO HERE
+            self.update_player_speed()
+            for weapon in self.weapons_list:
+                weapon.update(delta_time)
         else:
             if self.death.die(delta_time):
                 self.is_alive = False
@@ -101,6 +76,15 @@ class PlayerBase(Entity):
     def drawing(self): #TODO: ADD TO SPRITE LIST IN MAIN AND THEN REMOVE FROM LIST SO IT DOES IT ONCE
         #self.health_bar.draw(filter=gl.NEAREST)
         pass
+
+    def update_player_speed(self):
+        #this is currently not used, one in main is being used
+        self.change_x = 0
+        # Using the key pressed variables lets us create more responsive x-axis movement
+        if self.left_pressed and not self.right_pressed:
+            self.change_x = -self.PLAYER_MOVEMENT_SPEED #DEFINE THIS IN SUBCLASSES
+        elif self.right_pressed and not self.left_pressed:
+            self.change_x = self.PLAYER_MOVEMENT_SPEED
 
     def hit(self):
         #moved hit from main into player, player handles its own health now
@@ -118,10 +102,23 @@ class PlayerBase(Entity):
             self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
 
     def spawn_attack(self): #this implementation should be done in its own way per characyter
-        self.is_attacking = True
-        bullet = PlayerBullet(self.center_x, self.center_y, self.character_face_direction)
-        return bullet
+        pass
 
+    def on_key_press(self, key, modifiers=0):
+        if self.is_alive:
+            if key == arcade.key.LEFT or key == arcade.key.A:
+                self.left_pressed = True
+
+            elif key == arcade.key.RIGHT or key == arcade.key.D:
+                self.right_pressed = True
+
+    def on_key_release(self, key, modifiers):
+        """Called when the user releases a key."""
+        if key == arcade.key.LEFT or key == arcade.key.A:
+            self.left_pressed = False
+
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.right_pressed = False
 
     def return_health_sprite(self):
         return self.health_bar

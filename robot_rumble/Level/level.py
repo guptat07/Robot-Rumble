@@ -8,7 +8,6 @@ from importlib.resources import files
 from arcade import gl
 from robot_rumble.Level.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
-from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class Level(arcade.View):
@@ -22,7 +21,8 @@ class Level(arcade.View):
 
         # Variable that holds the player sprite
         self.player_sprite = None
-        self.collision_handle_list = None
+        self.collision_handle = None
+        self.collision_handle_list = []
 
         # Variable for the drone sprite list
         self.drone_list = None
@@ -102,31 +102,15 @@ class Level(arcade.View):
         self.scene.draw(filter=gl.NEAREST)
         self.gui_camera.use()
 
-    def update_player_speed(self):
-        self.player_sprite.change_x = 0
-        # Using the key pressed variables lets us create more responsive x-axis movement
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -constants.MOVE_SPEED_PLAYER
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = constants.MOVE_SPEED_PLAYER
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
         if self.player_sprite.is_alive:
-
+            self.player_sprite.on_key_press(key, modifiers)
             if key == arcade.key.UP or key == arcade.key.W:
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = constants.JUMP_SPEED
-
-            if key == arcade.key.LEFT or key == arcade.key.A:
-                self.left_pressed = True
-                self.update_player_speed()
-
-            elif key == arcade.key.RIGHT or key == arcade.key.D:
-                self.right_pressed = True
-                self.update_player_speed()
-
-            elif key == arcade.key.Q:
+            if key == arcade.key.Q:
                 bullet = self.player_sprite.spawn_attack()
                 self.scene.add_sprite("player_attack", bullet)
                 self.player_bullet_list.append(bullet)
@@ -137,14 +121,7 @@ class Level(arcade.View):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
-        if key == arcade.key.LEFT or key == arcade.key.A:
-            self.left_pressed = False
-            self.update_player_speed()
-
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.right_pressed = False
-            self.update_player_speed()
-
+        self.player_sprite.on_key_release(key,modifiers)
         if key == arcade.key.Q:
             self.player_sprite.is_attacking = False
 
