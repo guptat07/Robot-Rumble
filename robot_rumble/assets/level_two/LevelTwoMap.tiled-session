@@ -1,0 +1,75 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "LevelTwoMap.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "LevelTwoMap..tmj": {
+            "scale": 1.1993749999999999,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 360.60448150078173,
+                "y": 320.58363731109955
+            }
+        },
+        "LevelTwoMap.tmx": {
+            "expandedGroupLayers": [
+                16,
+                14
+            ],
+            "scale": 0.79,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": -119.62025316455697,
+                "y": 118.98734177215186
+            }
+        },
+        "LevelTwoMapAssets.tsx": {
+            "scaleInDock": 1.2946,
+            "scaleInEditor": 1
+        },
+        "Platforms.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Prototype.json": {
+            "scale": 1.708,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 254.9765807962529,
+                "y": 132.6112412177986
+            }
+        }
+    },
+    "last.exportedFilePath": "/Users/tony/Downloads",
+    "last.externalTilesetPath": "/Users/tony/Downloads",
+    "last.imagePath": "/Users/tony/Downloads",
+    "map.height": 40,
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 20,
+    "openFiles": [
+        "LevelTwoMap.tmx"
+    ],
+    "project": "LevelTwoMap.tiled-project",
+    "property.type": "int",
+    "recentFiles": [
+        "LevelTwoMap.tmx",
+        "LevelTwoMap..tmj",
+        "Prototype.json",
+        "LevelTwoMapAssets.tsx",
+        "Platforms.tsx"
+    ],
+    "resizeMap.removeObjects": false,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
