@@ -33,9 +33,7 @@ class PlayerBase(Entity):
         self.scale = constants.PLAYER_SCALING
 
         # Tracking the various states, which helps us smooth animations
-        self.is_jumping = False
-        self.is_attacking = False
-        self.is_active = True
+
 
         # Load textures
         self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
@@ -49,6 +47,8 @@ class PlayerBase(Entity):
         # Load jumping textures by iterating through each sprite in the sheet and adding them to the correct list
         self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked.png", 7, 32, 32)
         self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
+        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "flashing.png", 5, 32, 32)
+        self.sparkle_r, self.sparkle_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "sparkle.png", 13, 32, 32)
 
         self.idle = [0, self.idle_r]
         self.running = [0, self.running_r]
@@ -58,10 +58,18 @@ class PlayerBase(Entity):
         self.attack = [0, self.attack_r]
         self.running_attack = [0, self.running_attack_r]
         self.jumping_attack = [0, self.jumping_attack_r]
+        self.blocking = [0, self.blocking_r]
+        self.sparkle = [0, self.sparkle_r]
 
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[1]
         self.hit_box = self.texture.hit_box_points
+
+        self.sparkle_sprite = arcade.Sprite()
+        self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
+        self.sparkle_sprite.center_x = self.center_x
+        self.sparkle_sprite.center_y = self.center_y
+        self.sparkle_sprite.scale = self.scale
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
@@ -69,9 +77,30 @@ class PlayerBase(Entity):
         if self.change_x < 0:
             self.running_attack[1] = self.running_attack_l
             self.jumping_attack[1] = self.jumping_attack_l
+            self.blocking[1] = self.blocking_l
         elif self.change_x > 0:
             self.running_attack[1] = self.running_attack_r
             self.jumping_attack[1] = self.jumping_attack_r
+            self.blocking[1] = self.blocking_r
+
+        if self.is_blocking == True:
+            self.texture = self.blocking[1][self.blocking[0]]
+            self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
+            if self.cur_time_frame >= 3 / 60:
+                if self.sparkle[0] >= len(self.sparkle[1]) - 1:
+                    self.sparkle[0] = 0
+                else:
+                    self.sparkle[0] += 1
+            if self.cur_time_frame >= 5 / 60:
+                if self.blocking[0] >= len(self.blocking[1]) - 1:
+                    self.blocking[0] = 0
+                else:
+                    self.blocking[0] += 1
+                self.cur_time_frame = 0
+            return
+        else:
+            self.blocking[0] = 0
+            self.sparkle[0] = 0
 
         # Moving
         if self.change_x != 0 or self.change_y != 0:
@@ -92,6 +121,8 @@ class PlayerBase(Entity):
     def update(self,delta_time):
         if self.health > 0:
             self.update_animation(delta_time)
+            self.sparkle_sprite.center_x = self.center_x
+            self.sparkle_sprite.center_y = self.center_y
             #self.update_player_speed() TODO: MOVE FROM MAIN INTO HERE
         else:
             if self.death.die(delta_time):

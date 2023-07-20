@@ -130,4 +130,4 @@ class BossTwo(BossBase):
         if self.is_attacking:
             self.change_x = 0
         super().update(delta_time)
-        self.boss_logic(delta_time)
+        # self.boss_logic(delta_time)

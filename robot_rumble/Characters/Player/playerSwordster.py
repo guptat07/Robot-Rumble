@@ -43,40 +43,41 @@ class PlayerSwordster(PlayerBase):
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
 
-        # This condition must mean that the player WAS jumping but has landed
-        if self.change_y == 0 and self.is_jumping and \
-                (self.texture == self.jumping[1][4]
-                 or self.texture == self.jumping_attack[1][6]):
-            # Update the tracker for future jumps
-            self.is_jumping = False
-            self.jumping_attack[0] = 0
-            # Animation depending on whether facing left or right and moving or still
-            if self.change_x == 0:
-                if self.is_attacking:
-                    self.texture = self.attack[1][self.attack[0]]
-                else:
-                    self.texture = self.idle[1][self.idle[0]]
-            else:
-                if self.is_attacking:
-                    self.texture = self.running_attack[1][self.running_attack[0]]
-                else:
-                    self.texture = self.running[1][self.running[0]]
-            return
-
-        # Moving
-        if self.change_x != 0 or self.change_y != 0:
-            # Check to see if the player is jumping (while moving right)
-            if self.change_y != 0:
-                self.is_jumping = True
-                if self.is_attacking:
-                    self.texture = self.jumping_attack[1][self.jumping_attack[0]]
-                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
-                # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
-                if self.is_attacking:
-                    if self.jumping_attack[0] >= 6:
-                        self.jumping_attack[0] = 0
-                        self.is_attacking = False
-                        self.jumping[0] = 3
+        if self.is_blocking == False:
+            # This condition must mean that the player WAS jumping but has landed
+            if self.change_y == 0 and self.is_jumping and \
+                    (self.texture == self.jumping[1][4]
+                     or self.texture == self.jumping_attack[1][6]):
+                # Update the tracker for future jumps
+                self.is_jumping = False
+                self.jumping_attack[0] = 0
+                # Animation depending on whether facing left or right and moving or still
+                if self.change_x == 0:
+                    if self.is_attacking:
+                        self.texture = self.attack[1][self.attack[0]]
                     else:
-                        self.jumping_attack[0] = self.jumping_attack[0] + 1
-            return
+                        self.texture = self.idle[1][self.idle[0]]
+                else:
+                    if self.is_attacking:
+                        self.texture = self.running_attack[1][self.running_attack[0]]
+                    else:
+                        self.texture = self.running[1][self.running[0]]
+                return
+
+            # Moving
+            if self.change_x != 0 or self.change_y != 0:
+                # Check to see if the player is jumping (while moving right)
+                if self.change_y != 0:
+                    self.is_jumping = True
+                    if self.is_attacking:
+                        self.texture = self.jumping_attack[1][self.jumping_attack[0]]
+                    # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
+                    # We DON'T loop back to 1 here because the character should hold the pose until they start falling.
+                    if self.is_attacking:
+                        if self.jumping_attack[0] >= 6:
+                            self.jumping_attack[0] = 0
+                            self.is_attacking = False
+                            self.jumping[0] = 3
+                        else:
+                            self.jumping_attack[0] = self.jumping_attack[0] + 1
+                return

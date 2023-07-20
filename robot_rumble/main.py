@@ -274,8 +274,8 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         if self.scene_type != constants.SCENE_LEVEL_BOSS_ONE:   #TODO: MAN, THIS REFRESHES EVERYTIME BEFORE
-            # self.player_sprite = PlayerGunner()
-            self.player_sprite = PlayerSwordster()
+            self.player_sprite = PlayerGunner()
+            # self.player_sprite = PlayerSwordster()
 
         #TODO: add all collisions into collision handle class, does the same thing as before just wrapped and reduced redudnant code
         self.collision_handle = CollisionHandle(self.player_sprite)
@@ -290,6 +290,7 @@ class MyGame(arcade.Window):
         self.scene_level_one.add_sprite("Player_death", self.player_sprite.return_death_sprite())
         self.scene_boss_one.add_sprite("Player", self.player_sprite)
         self.scene_boss_two.add_sprite("Player", self.player_sprite)
+
 
 
         # health bar to both
@@ -562,6 +563,9 @@ class MyGame(arcade.Window):
                 elif key == arcade.key.P:
                     print("X: ",self.player_sprite.center_x)
                     print("Y: ", self.player_sprite.center_y)
+                elif key == arcade.key.S:
+                    self.player_sprite.is_blocking = True
+                    self.scene_boss_two.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
 
 
 #TODO: move this into the player class
@@ -574,10 +578,14 @@ class MyGame(arcade.Window):
             self.right_pressed = False
             self.update_player_speed()
 
-        if key == arcade.key.Q:
+        elif key == arcade.key.Q:
             # only use this line for the gunner
-            # self.player_sprite.is_attacking = False
+            self.player_sprite.is_attacking = False
             pass
+        elif key == arcade.key.S:
+            self.player_sprite.is_blocking = False
+            for sparkle in self.scene_boss_two.get_sprite_list("Sparkle"):
+                sparkle.remove_from_sprite_lists()
 
     def center_camera_to_player(self):
         self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)

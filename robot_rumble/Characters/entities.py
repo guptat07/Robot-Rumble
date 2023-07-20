@@ -37,6 +37,7 @@ class Entity(arcade.Sprite):
         self.is_attacking = False
         self.is_dashing = False
         self.is_damaged = False
+        self.is_blocking = False
 
     def setup(self):
             pass
@@ -85,7 +86,7 @@ class Entity(arcade.Sprite):
             return
 
         # Idle animation
-        if self.change_x == 0 and self.change_y == 0:
+        if self.change_x == 0 and self.change_y == 0 and self.is_blocking == False:
             # If the player is standing still and pressing the attack button, play the attack animation
             if self.is_attacking and self.cur_time_frame >= 1 / 60:
                 # Designed this way to maintain consistency with other, multi-frame animation code
