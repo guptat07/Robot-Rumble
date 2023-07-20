@@ -13,7 +13,6 @@ class Explosion(Entity):
         super().__init__()
 
         # Default to face-right
-        self.cur_time_frame = 0
         self.character_face_direction = constants.RIGHT_FACING
 
         # Used for flipping between image sequences
@@ -26,7 +25,7 @@ class Explosion(Entity):
         if self.character_face_direction == constants.RIGHT_FACING:
             self.bomb = self.bomb_r
         else:
-            self.bomb = self.bomb_r
+            self.bomb = self.bomb_l
         self.texture = self.bomb[1]
 
     def face_direction(self, direction):
@@ -34,7 +33,7 @@ class Explosion(Entity):
         if self.character_face_direction == constants.RIGHT_FACING:
             self.bomb = self.bomb_r
         else:
-            self.bomb = self.bomb_r
+            self.bomb = self.bomb_l
         self.texture = self.bomb[1]
 
     def explode(self, delta_time):
@@ -54,7 +53,6 @@ class Player_Death(Entity):
         super().__init__()
 
         # Default to face-right
-        self.cur_time_frame = 0
         self.character_face_direction = constants.RIGHT_FACING
 
         # Used for flipping between image sequences
@@ -80,7 +78,7 @@ class Player_Death(Entity):
         if self.character_face_direction == constants.RIGHT_FACING:
             self.death = self.death_r
         else:
-            self.death = self.death_r
+            self.death = self.death_l
         self.texture = self.death[1]
 
     def die(self, delta_time):

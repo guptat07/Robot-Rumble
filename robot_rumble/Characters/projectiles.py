@@ -4,6 +4,7 @@ import arcade
 import math
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.entities import Entity
+from robot_rumble.Util.spriteload import load_spritesheet_pair
 
 
 class BossProjectile(Entity):
@@ -61,34 +62,36 @@ class BossProjectile(Entity):
 
 
 class PlayerBullet(Entity):
-    def __init__(self):
+    def __init__(self, x, y, direction):
         # Setup parent class
         super().__init__()
 
         # Default to face-right
-        self.cur_time_frame = 0
-        self.character_face_direction = constants.RIGHT_FACING
-
-        # Used for flipping between image sequences
-        self.cur_texture = 0
-
+        self.character_face_direction = direction
         self.scale = 2
+        self.kill_timer = 0
+        self.bullet_r, self.bullet_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "player_projectile.png", 1,32,32)
 
-        self.bullet = arcade.load_texture(
-            files("robot_rumble.assets.gunner_assets").joinpath(
-                "player_projectile.png"),
-            x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
-        self.texture = self.bullet
+        if direction == constants.RIGHT_FACING:
+            self.texture = self.bullet_r[1]
+            self.center_x = x + 20
+        else:
+            self.texture = self.bullet_l[1]
+            self.center_x = x - 20
+        self.center_y = y - 7
 
-    def move(self):
+    def update(self, delta_time):
+
         if self.character_face_direction == constants.RIGHT_FACING:
             self.change_x += constants.PLAYER_BULLET_MOVEMENT_SPEED
         else:
             self.change_x += -constants.PLAYER_BULLET_MOVEMENT_SPEED
 
-    def update(self):
+        self.kill_timer += delta_time
         self.center_x += self.change_x
         self.center_y += self.change_y
+        if self.kill_timer > constants.PLAYER_BULLET_LIFE_TIME:
+            self.kill()
 
 class DroneBullet(Entity):
     def __init__(self):
@@ -117,3 +120,22 @@ class DroneBullet(Entity):
     def update(self):
         self.center_x += self.change_x
         self.center_y += self.change_y
+
+class Sword(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = constants.RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = constants.ENEMY_SCALING
+
+        self.sword = arcade.load_texture(files("robot_rumble.assets.boss_assets").joinpath("swords.png"),
+                                          x=0, y=64, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.sword
+        self.angle += 135

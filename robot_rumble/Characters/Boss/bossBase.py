@@ -45,6 +45,7 @@ class BossBase(Entity):
 
         self.center_x = constants.SCREEN_WIDTH // 2
         self.center_y = constants.SCREEN_HEIGHT // 2 + 200
+        self.is_active = True
 
 
     def drawing(self):
@@ -70,15 +71,19 @@ class BossBase(Entity):
         self.center_y += self.change_y
 
         # Check for out-of-bounds, can be removed with walls and proper checks
-        if self.left < 0:
-            self.left = 0
-        elif self.right > constants.SCREEN_WIDTH - 1:
-            self.right = constants.SCREEN_WIDTH - 1
+        # I dont think this code does anything cause
+        # 1. the foreground is within these bounds
+        # 2. the physics engine already limits the boss to stay within the walls so I think it's the checks in the physics engine that slows stuff down
 
-        if self.bottom < 0:
-            self.bottom = 0
-        elif self.top > constants.SCREEN_HEIGHT - 1:
-            self.top = constants.SCREEN_HEIGHT - 1
+        # if self.left < 0:
+        #     self.left = 0
+        # elif self.right > constants.SCREEN_WIDTH - 1:
+        #     self.right = constants.SCREEN_WIDTH - 1
+        #
+        # if self.bottom < 0:
+        #     self.bottom = 0
+        # elif self.top > constants.SCREEN_HEIGHT - 1:
+        #     self.top = constants.SCREEN_HEIGHT - 1
 
     def ranged_attack(self):
         pass
@@ -92,5 +97,3 @@ class BossBase(Entity):
 
     def return_health_sprite(self):
         return self.hp_bar
-
-
