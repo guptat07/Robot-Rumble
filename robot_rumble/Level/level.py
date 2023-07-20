@@ -170,9 +170,9 @@ class Level(arcade.View):
 
     def on_update(self, delta_time, use_camera=True):
         if self.player_sprite.death.animation_finished:
-            from robot_rumble.Level.titleScreen import TitleScreen
-            title_screen = TitleScreen(self.window)
-            self.window.show_view(title_screen)
+            from robot_rumble.Level.deathScreen import DeathScreen
+            death_screen = DeathScreen(self.window)
+            self.window.show_view(death_screen)
 
         # Position the camera
         if use_camera:
