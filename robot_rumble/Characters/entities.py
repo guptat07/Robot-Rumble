@@ -66,6 +66,7 @@ class Entity(arcade.Sprite):
             self.attack[1] = self.attack_r
         # Should work regardless of framerate
         self.cur_time_frame += delta_time
+        print(self.cur_time_frame)
         
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
         # This condition must mean that the player WAS jumping but has landed
@@ -131,6 +132,7 @@ class Entity(arcade.Sprite):
 
             # Have the running animation loop every .133 seconds
             elif self.cur_time_frame >= 8 / 60 and not self.is_attacking:
+                print("i should be running")
                 self.texture = self.running[1][self.running[0]]
                 if self.running[0] >= len(self.running[1]) - 1:
                     self.running[0] = 0

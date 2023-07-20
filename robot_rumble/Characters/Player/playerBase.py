@@ -108,13 +108,12 @@ class PlayerBase(Entity):
             # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
 
             # Have the running animation loop every .133 seconds
-            if self.cur_time_frame >= 1 / 60 and self.change_y == 0:
-                if self.is_attacking:
-                    self.texture = self.running_attack[1][self.running_attack[0]]
-                    if self.running_attack[0] >= len(self.running_attack[1]) - 1:
-                        self.running_attack[0] = 1
-                    else:
-                        self.running_attack[0] = self.running_attack[0] + 1
+            if self.cur_time_frame >= 1 / 60 and self.change_y == 0 and self.is_attacking:
+                self.texture = self.running_attack[1][self.running_attack[0]]
+                if self.running_attack[0] >= len(self.running_attack[1]) - 1:
+                    self.running_attack[0] = 1
+                else:
+                    self.running_attack[0] = self.running_attack[0] + 1
                 self.cur_time_frame = 0
             return
 
