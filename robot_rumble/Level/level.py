@@ -62,8 +62,8 @@ class Level(arcade.View):
         """Set up the game here. Call this function to restart the game."""
 
         # Set up the Cameras
-        self.camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
-        self.gui_camera = arcade.Camera(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
+        self.camera = arcade.Camera(self.window.width, self.window.height)
+        self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
         self.level_map_setup()
         self.level_player_setup()
@@ -107,7 +107,7 @@ class Level(arcade.View):
 
         if self.player_sprite.is_alive is False:
             arcade.draw_lrtb_rectangle_filled(0, 0,
-                                              constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT,
+                                              self.window.width, self.window.height,
                                               color=arcade.color.BLACK)
 
     def on_key_press(self, key, modifiers):
@@ -142,24 +142,22 @@ class Level(arcade.View):
         if self.screen_center_y < 0:
             self.screen_center_y = 0
 
-        if constants.SCREEN_WIDTH // 2 + self.player_sprite.center_x > \
+        if self.window.width // 2 + self.player_sprite.center_x > \
                 (self.tile_map_level.tile_width * self.tile_map_level.width) * 4:
-            self.screen_center_x = (
-                                               self.tile_map_level.tile_width * self.tile_map_level.width * 4) - constants.SCREEN_WIDTH
-        if constants.SCREEN_HEIGHT // 2 + self.player_sprite.center_y > \
+            self.screen_center_x = (self.tile_map_level.tile_width * self.tile_map_level.width * 4) - self.window.width
+        if self.window.height // 2 + self.player_sprite.center_y > \
                 (self.tile_map_level.tile_height * self.tile_map_level.height) * 4:
-            self.screen_center_y = (
-                                               self.tile_map_level.tile_height * self.tile_map_level.height * 4) - constants.SCREEN_HEIGHT
+            self.screen_center_y = (self.tile_map_level.tile_height * self.tile_map_level.height * 4) - self.window.height
 
         player_centered = self.screen_center_x, self.screen_center_y
 
         self.camera.move_to(player_centered)
 
     def center_camera_to_health(self):
-        self.player_sprite.health_bar.center_x = self.screen_center_x + constants.SCREEN_WIDTH - (
-                constants.SCREEN_WIDTH * 9 // 10)
-        self.player_sprite.health_bar.center_y = self.screen_center_y + constants.SCREEN_HEIGHT - (
-                constants.SCREEN_HEIGHT // 20)
+        self.player_sprite.health_bar.center_x = self.screen_center_x + self.window.width - (
+                self.window.width * 9 // 10)
+        self.player_sprite.health_bar.center_y = self.screen_center_y + self.window.height - (
+                self.window.height // 20)
 
     def on_update(self, delta_time, use_camera=True):
         if self.player_sprite.death.animation_finished:

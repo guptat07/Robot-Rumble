@@ -75,8 +75,8 @@ class LevelOneBoss(Level):
         self.scene.add_sprite_list("boss_bullet_list")
 
         self.boss = BossOne(self.player_sprite)
-        self.boss.center_x = const.SCREEN_WIDTH // 2
-        self.boss.center_y = const.SCREEN_HEIGHT // 2 + 200
+        self.boss.center_x = self.window.width // 2
+        self.boss.center_y = self.window.height // 2 + 200
         self.scene.add_sprite("Boss", self.boss)
         self.boss_list.append(self.boss)
 

@@ -10,7 +10,7 @@ class DeathScreen(arcade.View):
         # Set background color
         arcade.set_background_color(arcade.color.BLACK)
         arcade.draw_lrtb_rectangle_filled(0, 0,
-                                          const.SCREEN_WIDTH, const.SCREEN_HEIGHT,
+                                          self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
@@ -41,8 +41,8 @@ class DeathScreen(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_text("Game Over",
-                         const.SCREEN_WIDTH // 2 - (len("Game Over") * 32 // 2),
-                         const.SCREEN_HEIGHT // 1.25,
+                         self.window.width // 2 - (len("Game Over") * 32 // 2),
+                         self.window.height // 1.25,
                          font_size=64, font_name="VT323")
         self.manager.draw()
 
