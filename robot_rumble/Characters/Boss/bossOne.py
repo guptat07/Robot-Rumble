@@ -81,12 +81,12 @@ class BossOne(BossBase):
 
 
         #if touching out of bounds, don't keep running at a wall do a new action
-        if self.left < 0:
+        if self.left < 10: # before hitting walls
             self.current_state = random.randint(0, 4)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
             self.once_jump = True
-        elif self.right > constants.SCREEN_WIDTH - 1:
+        elif self.right > constants.SCREEN_WIDTH - 10:
             self.current_state = random.randint(0, 4)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
@@ -142,7 +142,6 @@ class BossOne(BossBase):
                     self.once_jump = False
 
     def update_animation(self, delta_time):
-
         #damaged animation
         if self.damaged != -1:
             if self.damaged == 2:
@@ -187,6 +186,7 @@ class BossOne(BossBase):
                     self.cur_time_frame = 0
 
             return
+        print("gets past")
         #set start jump to 1 ONLY start
         if self.start_jump != 0:
             if self.start_jump > 3:
