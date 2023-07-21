@@ -19,8 +19,8 @@ class LevelTwo(Level):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
 
-        self.PLAYER_START_X = 1500
-        self.PLAYER_START_Y = 48
+        self.PLAYER_START_X = 1000
+        self.PLAYER_START_Y = 1000
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
@@ -97,11 +97,24 @@ class LevelTwo(Level):
             "Horizontal Moving Platforms": {
                 "use_spatial_hash": False,
             },
+            "Vertical Moving Platforms": {
+                "use_spatial_hash": False,
+            },
         }
 
         # Read in the tiled map level
         self.tile_map_level = arcade.load_tilemap(map_name_level, constants.TILE_SCALING, layer_options_level)
         self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
+
+        horizontal_moving_platforms = self.tile_map_level.sprite_lists[self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS]
+        for platform in horizontal_moving_platforms:
+            platform.boundary_left = platform.center_x - 200
+            platform.boundary_right = platform.center_x + 100
+
+        vertical_moving_platforms = self.tile_map_level.sprite_lists[self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS]
+        for platform in vertical_moving_platforms:
+            platform.boundary_bottom = platform.center_y - 100
+            platform.boundary_top = platform.center_y + 100
 
         # Initialize Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -116,6 +129,7 @@ class LevelTwo(Level):
 
         # Moving Platform
         self.scene.update([self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS])
+        self.scene.update([self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS])
 
         # Did the player fall off the map?
         if self.player_sprite.center_y < -100:
