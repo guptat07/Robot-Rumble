@@ -3,6 +3,7 @@ import robot_rumble.Util.constants as const
 from arcade.gui import UIManager
 from importlib.resources import files
 
+
 class OptionsScreen(arcade.View):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
@@ -29,13 +30,13 @@ class OptionsScreen(arcade.View):
         self.v_box.add(ui_text_label.with_space_around(bottom=50))
 
         # Create the buttons
-        size_1 = arcade.gui.UIFlatButton(text="1024 x 768", width=200)
+        size_1 = arcade.gui.UIFlatButton(text="1024 x 576", width=200)
         self.v_box.add(size_1.with_space_around(bottom=20))
 
-        size_2 = arcade.gui.UIFlatButton(text="1280 x 960", width=200)
+        size_2 = arcade.gui.UIFlatButton(text="1152 x 640", width=200)
         self.v_box.add(size_2.with_space_around(bottom=20))
 
-        size_3 = arcade.gui.UIFlatButton(text="1440 x 1080", width=200)
+        size_3 = arcade.gui.UIFlatButton(text="1280 x 720", width=200)
         self.v_box.add(size_3.with_space_around(bottom=20))
 
         start_button = arcade.gui.UIFlatButton(text="Title Screen", width=200)
@@ -57,14 +58,14 @@ class OptionsScreen(arcade.View):
         self.clear()
         self.manager.draw()
 
-    def size_1_on_click(self,event):
-        self.window.set_size(1024, 768)
+    def size_1_on_click(self, event):
+        self.window.set_size(1024, 576)
 
-    def size_2_on_click(self,event):
-        self.window.set_size(1280, 960)
+    def size_2_on_click(self, event):
+        self.window.set_size(1152, 648)
 
-    def size_3_on_click(self,event):
-        self.window.set_size(1440, 1080)
+    def size_3_on_click(self, event):
+        self.window.set_size(1280, 720)
 
     def on_click_start(self, event):
         self.manager.disable()
