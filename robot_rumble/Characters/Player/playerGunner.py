@@ -17,10 +17,6 @@ class PlayerGunner(PlayerBase):
         self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
         self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "teleport.png", 6, 32, 32)
 
-        #NOT IMPLEMENTED
-        self.damaged_l = 0
-        self.dash_l = 0
-
 
         # [0] is the animation frame, [1] is which list-> RIGHT or LEFT, access with self.idle[1][self.idle[0]]
         self.idle = [0, self.idle_r]

@@ -70,7 +70,6 @@ class Entity(arcade.Sprite):
 
         if self.is_damaged:
             self.change_x = 0
-            print(self.damaged[1])
             self.texture = self.damaged[1][self.damaged[0]]
             if self.damaged[0] == 0:
                 self.change_y = 0
