@@ -20,7 +20,7 @@ class LevelTwo(Level):
         super().__init__(window)
 
         self.PLAYER_START_X = 2700
-        self.PLAYER_START_Y = 1000
+        self.PLAYER_START_Y = 60
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
@@ -120,12 +120,20 @@ class LevelTwo(Level):
         # from the map as SpriteLists in the scene in the proper order.
         self.scene = arcade.Scene.from_tilemap(self.tile_map_level)
 
+    # def on_draw(self):
+    #     super().on_draw()
+    #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
+    #     for wall in self.scene.get_sprite_list("Platforms"):
+    #         wall.draw_hit_box(arcade.color.RED, 3)
+
     def on_update(self, delta_time):
         """Movement and game logic"""
         # Read the user's inputs to run appropriate animations
         # Move the player with the physics engine
         super().on_update(delta_time)
         self.physics_engine_level.update()
+
+
 
         # Moving Platform
         self.scene.update([self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS])
