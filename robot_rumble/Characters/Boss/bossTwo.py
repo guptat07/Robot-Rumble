@@ -87,45 +87,46 @@ class BossTwo(BossBase):
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
 
-        # The sword fighter can't move and slash at the same time
-        if self.is_attacking:
-            self.change_x = 0
+        if not self.is_damaged:
+            # The sword fighter can't move and slash at the same time
+            if self.is_attacking:
+                self.change_x = 0
 
-        # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
-        # This condition must mean that the player WAS jumping but has landed
-        if self.change_y == 0 and self.is_jumping and \
-                (self.texture == self.jumping[1][4]
-                 or self.texture == self.jumping_attack[1][4]):
-            # Update the tracker for future jumps
-            self.is_jumping = False
-            # Animation depending on whether facing left or right and moving or still
-            if self.change_x == 0:
-                if self.is_attacking:
-                    self.texture = self.attack[1][self.attack[0]]
+            # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
+            # This condition must mean that the player WAS jumping but has landed
+            if self.change_y == 0 and self.is_jumping and \
+                    (self.texture == self.jumping[1][4]
+                     or self.texture == self.jumping_attack[1][4]):
+                # Update the tracker for future jumps
+                self.is_jumping = False
+                # Animation depending on whether facing left or right and moving or still
+                if self.change_x == 0:
+                    if self.is_attacking:
+                        self.texture = self.attack[1][self.attack[0]]
+                    else:
+                        self.texture = self.idle[1][self.idle[0]]
                 else:
-                    self.texture = self.idle[1][self.idle[0]]
-            else:
-                self.texture = self.running[1][self.running[0]]
-            return
+                    self.texture = self.running[1][self.running[0]]
+                return
 
-        # Moving
-        elif self.change_x != 0 and self.change_y != 0:
-            # Check to see if the player is jumping (while moving right)
-            if self.change_y != 0:
-                self.is_jumping = True
-                if self.is_attacking:
-                    self.texture = self.jumping_attack[1][self.jumping_attack[0]]
-                # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
-                if self.change_y > 0:
+            # Moving
+            elif self.change_x != 0 and self.change_y != 0:
+                # Check to see if the player is jumping (while moving right)
+                if self.change_y != 0:
+                    self.is_jumping = True
                     if self.is_attacking:
-                        if self.jumping_attack[0] >= 3:
-                            self.jumping_attack[0] = 3
-                        else:
-                            self.jumping_attack[0] = self.jumping_attack[0] + 1
-                elif self.change_y < 0:
-                    if self.is_attacking:
-                        self.jumping_attack[0] = 1
-                        self.texture = self.jumping_attack[1][4]
+                        self.texture = self.jumping_attack[1][self.jumping_attack[0]]
+                    # Check if the player is mid-jump or mid-fall, and adjust which sprite they're on accordingly
+                    if self.change_y > 0:
+                        if self.is_attacking:
+                            if self.jumping_attack[0] >= 3:
+                                self.jumping_attack[0] = 3
+                            else:
+                                self.jumping_attack[0] = self.jumping_attack[0] + 1
+                    elif self.change_y < 0:
+                        if self.is_attacking:
+                            self.jumping_attack[0] = 1
+                            self.texture = self.jumping_attack[1][4]
 
 
     def update(self, delta_time):

@@ -67,6 +67,21 @@ class Entity(arcade.Sprite):
             self.attack[1] = self.attack_r
         # Should work regardless of framerate
         self.cur_time_frame += delta_time
+
+        if self.is_damaged:
+            self.change_x = 0
+            print(self.damaged[1])
+            self.texture = self.damaged[1][self.damaged[0]]
+            if self.damaged[0] == 0:
+                self.change_y = 0
+            if self.cur_time_frame >= 3 / 60:
+                if self.damaged[0] >= len(self.damaged[1]) - 1:
+                    self.damaged[0] = 0
+                    self.is_damaged = False
+                else:
+                    self.damaged[0] += 1
+                self.cur_time_frame = 0
+            return
         
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
         # This condition must mean that the player WAS jumping but has landed
@@ -95,9 +110,10 @@ class Entity(arcade.Sprite):
                 if self.attack[0] >= len(self.attack[1]) - 1:
                     self.attack[0] = 0
                     self.is_attacking = False
+                    self.cur_time_frame = 1/3
                 else:
                     self.attack[0] += 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             # Having the idle animation loop every .33 seconds
             elif self.cur_time_frame >= 1 / 3:
                 # Load the correct idle animation based on most recent direction faced

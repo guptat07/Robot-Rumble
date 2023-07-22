@@ -60,43 +60,46 @@ class PlayerBase(Entity):
             self.jumping_attack[1] = self.jumping_attack_r
             self.blocking[1] = self.blocking_r
 
-        if self.is_blocking == True:
-            self.change_x = 0
-            self.texture = self.blocking[1][self.blocking[0]]
-            self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
-            if self.sparkle[0] == 0:
-                self.change_y = 0
-            if self.cur_time_frame >= 3 / 60:
-                if self.sparkle[0] >= len(self.sparkle[1]) - 1:
-                    self.sparkle[0] = 0
-                    self.is_blocking = False
-                else:
-                    self.sparkle[0] += 1
-            if self.cur_time_frame >= 5 / 60:
-                if self.blocking[0] >= len(self.blocking[1]) - 1:
-                    self.blocking[0] = 0
-                else:
-                    self.blocking[0] += 1
-                self.cur_time_frame = 0
-            return
-        else:
-            self.blocking[0] = 0
-            self.sparkle[0] = 0
+        if not self.is_damaged:
+            if self.is_blocking == True:
+                self.change_x = 0
+                self.texture = self.blocking[1][self.blocking[0]]
+                self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
+                if self.sparkle[0] == 0:
+                    self.change_y = 0
+                if self.cur_time_frame >= 3 / 60:
+                    if self.sparkle[0] >= len(self.sparkle[1]) - 1:
+                        self.sparkle[0] = 0
+                        self.is_blocking = False
+                    else:
+                        self.sparkle[0] += 1
+                if self.cur_time_frame >= 5 / 60:
+                    if self.blocking[0] >= len(self.blocking[1]) - 1:
+                        self.blocking[0] = 0
+                    else:
+                        self.blocking[0] += 1
+                    self.cur_time_frame = 0
+                return
+            else:
+                self.blocking[0] = 0
+                self.sparkle[0] = 0
 
-        # Moving
-        if self.change_x != 0 or self.change_y != 0:
+            # Moving
+            if self.change_x != 0 or self.change_y != 0:
 
-            # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
+                # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
 
-            # Have the running animation loop every .133 seconds
-            if self.cur_time_frame >= 1 / 60 and self.change_y == 0 and self.is_attacking:
-                self.texture = self.running_attack[1][self.running_attack[0]]
-                if self.running_attack[0] >= len(self.running_attack[1]) - 1:
-                    self.running_attack[0] = 1
-                else:
-                    self.running_attack[0] = self.running_attack[0] + 1
-                self.cur_time_frame = 0
-            return
+                # Have the running animation loop every .133 seconds
+                if self.cur_time_frame >= 1 / 60 and self.change_y == 0 and self.is_attacking:
+                    self.texture = self.running_attack[1][self.running_attack[0]]
+                    if self.running_attack[0] >= len(self.running_attack[1]) - 1:
+                        self.running_attack[0] = 0
+                        self.is_attacking = False
+                        self.cur_time_frame = 1/3
+                    else:
+                        self.running_attack[0] = self.running_attack[0] + 1
+                        self.cur_time_frame = 0
+                return
 
     def update(self, delta_time):
         if self.health > 0:
@@ -106,7 +109,7 @@ class PlayerBase(Entity):
             if not self.is_blocking:
                 self.sparkle_sprite.remove_from_sprite_lists()
             # re-add when using driver / remove when using main
-            self.update_player_speed()
+            # self.update_player_speed()
             for weapon in self.weapons_list:
                 weapon.update(delta_time)
         else:
