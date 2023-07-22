@@ -2,6 +2,7 @@ import arcade
 
 from robot_rumble.Screens.controlScreen import ControlScreen
 from robot_rumble.Screens.optionsScreen import OptionsScreen
+from robot_rumble.Screens.characterSelectScreen import CharacterSelectScreen
 from arcade.gui import UIManager
 
 
@@ -24,9 +25,9 @@ class TitleScreen(arcade.View):
 
         # Create Text Label
         ui_text_label = arcade.gui.UITextArea(text="Robot Rumble",
-                                              width=320,
-                                              font_size=24,
-                                              font_name="Kenney Future")
+                                              width=260,
+                                              font_size=40,
+                                              font_name="VT323")
         self.v_box.add(ui_text_label.with_space_around(bottom=50))
 
         # Create the buttons
@@ -57,8 +58,8 @@ class TitleScreen(arcade.View):
     def on_click_start(self, event):
         self.clear()
         self.manager.disable()
-        control_screen = ControlScreen(self.window)
-        self.window.show_view(control_screen)
+        character_select = CharacterSelectScreen(self.window)
+        self.window.show_view(character_select)
 
     def on_click_quit(self, event):
         arcade.exit()

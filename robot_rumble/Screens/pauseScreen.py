@@ -30,11 +30,15 @@ class PauseScreen(arcade.View):
         start_button = arcade.gui.UIFlatButton(text="Resume", width=200)
         self.v_box.add(start_button.with_space_around(bottom=20))
 
+        menu_button = arcade.gui.UIFlatButton(text="Main Menu", width=200)
+        self.v_box.add(menu_button.with_space_around(bottom=20))
+
         quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
         self.v_box.add(quit_button.with_space_around(bottom=20))
 
         start_button.on_click = self.on_click_resume
         quit_button.on_click = self.on_click_quit
+        menu_button.on_click = self.on_click_menu
 
         self.manager.add(
             arcade.gui.UIAnchorWidget(
@@ -52,6 +56,12 @@ class PauseScreen(arcade.View):
     def on_click_resume(self, event):
         self.manager.disable()
         self.window.show_view(self.game_view)
+
+    def on_click_menu(self, event):
+        self.manager.disable()
+        from robot_rumble.Screens.titleScreen import TitleScreen
+        title_screen = TitleScreen(self.window)
+        self.window.show_view(title_screen)
 
     def on_click_quit(self, event):
         arcade.exit()

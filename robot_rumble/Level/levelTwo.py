@@ -6,7 +6,6 @@ from robot_rumble.Characters.drone import Drone
 from robot_rumble.Characters.projectiles import DroneBullet
 from robot_rumble.Level.level import Level
 from importlib.resources import files
-from robot_rumble.Level.bossOneLevel import BossOne
 
 TILE_SCALING = 4
 SPRITE_PIXEL_SIZE = 32
@@ -184,9 +183,6 @@ class LevelTwo(Level):
             self.player_sprite.health -= 1
             self.hit()
 
-        if self.player_sprite.center_x <= 0:
-            boss_one = BossOne(self.window)
-            self.window.show_view(boss_one)
 
     def on_key_press(self, key, modifiers):
         super().on_key_press(key, modifiers)

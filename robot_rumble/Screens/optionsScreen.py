@@ -15,7 +15,7 @@ class OptionsScreen(arcade.View):
         # Set background color
         arcade.set_background_color(arcade.color.BLACK)
         arcade.draw_lrtb_rectangle_filled(0, 0,
-                                          const.SCREEN_WIDTH, const.SCREEN_HEIGHT,
+                                          self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
@@ -24,8 +24,8 @@ class OptionsScreen(arcade.View):
 
         # Create Text Label
         ui_text_label = arcade.gui.UITextArea(text="Change Screen Size",
-                                              width=320,
-                                              font_size=24,
+                                              width=260,
+                                              font_size=36,
                                               font_name="VT323")
         self.v_box.add(ui_text_label.with_space_around(bottom=50))
 
@@ -33,7 +33,7 @@ class OptionsScreen(arcade.View):
         size_1 = arcade.gui.UIFlatButton(text="1024 x 576", width=200)
         self.v_box.add(size_1.with_space_around(bottom=20))
 
-        size_2 = arcade.gui.UIFlatButton(text="1152 x 640", width=200)
+        size_2 = arcade.gui.UIFlatButton(text="1152 x 648", width=200)
         self.v_box.add(size_2.with_space_around(bottom=20))
 
         size_3 = arcade.gui.UIFlatButton(text="1280 x 720", width=200)
