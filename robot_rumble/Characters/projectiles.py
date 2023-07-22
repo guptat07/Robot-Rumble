@@ -94,13 +94,19 @@ class PlayerBullet(Entity):
             self.kill()
 
 class DroneBullet(Entity):
-    def __init__(self):
+    def __init__(self, x, y, direction):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
+        # direction and position
         self.cur_time_frame = 0
-        self.character_face_direction = constants.RIGHT_FACING
+        self.character_face_direction = direction
+
+        self.center_y = y
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.center_x = x + 5
+        else:
+            self.center_x = x - 5
 
         # Used for flipping between image sequences
         self.cur_texture = 0

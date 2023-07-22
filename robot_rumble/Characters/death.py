@@ -8,13 +8,15 @@ from robot_rumble.Util.spriteload import load_spritesheet_pair
 
 
 class Explosion(Entity):
-    def __init__(self):
+    def __init__(self, x, y, direction):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
-        self.character_face_direction = constants.RIGHT_FACING
 
+
+        self.character_face_direction = direction
+        self.center_x = x
+        self.center_y = y
         # Used for flipping between image sequences
         self.cur_texture = 0
 
