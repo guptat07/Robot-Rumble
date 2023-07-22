@@ -106,8 +106,7 @@ class LevelOne(Level):
             self.on_fall()
 
         for bullet in self.player_bullet_list:
-            bullet.update(delta_time)
-            drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
+            drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list) #MOVE THIS INTO COLLISION HANDLE TODO
             for collision in drone_collisions_with_player_bullet:
                 for drone in self.drone_list:
                     if collision == drone:
