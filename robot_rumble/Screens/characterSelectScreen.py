@@ -59,7 +59,16 @@ class CharacterSelectScreen(arcade.View):
                          self.window.height // 1.10,
                          font_size=32, font_name="VT323")
         self.manager.draw()
-        arcade.draw_lrtb_rectangle_filled(left=111, right=262, top=300, bottom=200, color=arcade.color.AIR_FORCE_BLUE)
+        arcade.draw_lrtb_rectangle_filled(left=111, right=248, top=400, bottom=250, color=arcade.color.AIR_FORCE_BLUE)
+        arcade.draw_lrtb_rectangle_filled(left=442, right=579, top=400, bottom=250, color=arcade.color.AIR_FORCE_BLUE)
+        arcade.draw_lrtb_rectangle_filled(left=773, right=910, top=400, bottom=250, color=arcade.color.AIR_FORCE_BLUE)
+
+        arcade.draw_text(start_x=130, start_y=200, color=arcade.color.WHITE, text="Gunner",
+                         font_name="VT323", font_size=32)
+        arcade.draw_text(start_x=440, start_y=200, color=arcade.color.WHITE, text="Swordster",
+                         font_name="VT323", font_size=32)
+        arcade.draw_text(start_x=790, start_y=200, color=arcade.color.WHITE, text="Brawler",
+                         font_name="VT323", font_size=32)
 
     def on_click_next(self, event):
         self.clear()
