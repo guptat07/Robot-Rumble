@@ -1,12 +1,6 @@
-import sys
-
 import arcade
-import robot_rumble.Util.constants as const
-from robot_rumble.Characters.death import Player_Death
-from robot_rumble.Characters.projectiles import PlayerBullet
-from importlib.resources import files
 from arcade import gl
-from robot_rumble.Level.pauseScreen import PauseScreen
+from robot_rumble.Screens.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
 
 
@@ -161,7 +155,7 @@ class Level(arcade.View):
 
     def on_update(self, delta_time, use_camera=True):
         if self.player_sprite.death.animation_finished:
-            from robot_rumble.Level.deathScreen import DeathScreen
+            from robot_rumble.Screens.deathScreen import DeathScreen
             death_screen = DeathScreen(self.window)
             self.window.show_view(death_screen)
 

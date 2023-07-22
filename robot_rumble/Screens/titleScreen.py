@@ -1,8 +1,7 @@
 import arcade
 
-from robot_rumble.Level.controlScreen import ControlScreen
-from robot_rumble.Level.optionsScreen import OptionsScreen
-import robot_rumble.Util.constants as const
+from robot_rumble.Screens.controlScreen import ControlScreen
+from robot_rumble.Screens.optionsScreen import OptionsScreen
 from arcade.gui import UIManager
 
 
