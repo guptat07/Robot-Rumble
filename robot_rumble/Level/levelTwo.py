@@ -19,7 +19,7 @@ class LevelTwo(Level):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
 
-        self.PLAYER_START_X = 1000
+        self.PLAYER_START_X = 2700
         self.PLAYER_START_Y = 1000
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
