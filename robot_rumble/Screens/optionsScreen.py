@@ -68,6 +68,6 @@ class OptionsScreen(arcade.View):
 
     def on_click_start(self, event):
         self.manager.disable()
-        from robot_rumble.Level.titleScreen import TitleScreen
+        from robot_rumble.Screens.titleScreen import TitleScreen
         title_screen = TitleScreen(self.window)
         self.window.show_view(title_screen)
