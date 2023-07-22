@@ -563,8 +563,11 @@ class MyGame(arcade.Window):
                     self.scene_boss_two.add_sprite("player_bullet_list", bullet)
                     self.player_bullet_list.append(bullet)'''
                 elif key == arcade.key.P:
-                    print("X: ",self.player_sprite.center_x)
-                    print("Y: ", self.player_sprite.center_y)
+                    print("Boss X: ",self.boss2.center_x)
+                    print("Boss Y: ", self.boss2.center_y)
+                elif key == arcade.key.M:
+                    print("Player X: ", self.player_sprite.center_x)
+                    print("Player Y: ", self.player_sprite.center_y)
                 elif key == arcade.key.S  or key == arcade.key.DOWN:
                     if not self.player_sprite.is_damaged:
                         self.player_sprite.is_blocking = True
@@ -775,8 +778,8 @@ class MyGame(arcade.Window):
                     index = self.sword_list.index(sword)
                     sword.remove_from_sprite_lists()
                     del self.physics_engine_sword_list[index]
-                    if not self.player_sprite.is_blocking:
-                        self.player_sprite.is_damaged = True
+                    '''if not self.player_sprite.is_blocking:
+                        self.player_sprite.is_damaged = True'''
                     # self.player_sprite.health -= 5
                     # self.hit()
                     # print(self.player_sprite.health)

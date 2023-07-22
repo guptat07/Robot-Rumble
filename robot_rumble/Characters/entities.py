@@ -124,7 +124,7 @@ class Entity(arcade.Sprite):
                     self.idle[0] = 0
                 else:
                     self.idle[0] = self.idle[0] + 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             return
 
         # Moving
@@ -146,13 +146,13 @@ class Entity(arcade.Sprite):
                     self.jumping[0] = 3
 
             # Have the running animation loop every .133 seconds
-            elif self.cur_time_frame >= 8 / 60 and not self.is_attacking:
+            elif self.cur_time_frame >= 8 / 60 and not self.is_attacking and not self.is_dashing:
                 self.texture = self.running[1][self.running[0]]
                 if self.running[0] >= len(self.running[1]) - 1:
                     self.running[0] = 0
                 else:
                     self.running[0] = self.running[0] + 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             return
 
     def on_key_press(self, key, modifiers=0):
