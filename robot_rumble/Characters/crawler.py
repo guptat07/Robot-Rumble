@@ -27,8 +27,8 @@ class Crawler(Entity):
         self.start_y = y
 
         # these guys walk, they don't bob up and down. initialize walking logic variables (+- horizontal boundaries)
-        self.right_walk_limit = self.start_x + 50
-        self.left_walk_limit = self.start_x - 50
+        self.right_walk_limit = self.start_x + 100
+        self.left_walk_limit = self.start_x - 100
 
         # Shot animation time, determine if it's shooting, and time between shots
         self.shoot_animate = 0
@@ -100,6 +100,10 @@ class Crawler(Entity):
                 self.is_shooting = False
                 self.shooting_pose.visible = False
                 self.shooting_effect.visible = False
+                if self.character_face_direction == constants.RIGHT_FACING:
+                    self.change_x = 0.75
+                else:
+                    self.change_x = -0.75
                 return True
             elif self.shoot_animate > constants.DRONE_TIMER / 2:
                 self.shooting_pose.visible = True
@@ -110,21 +114,30 @@ class Crawler(Entity):
                 self.shoot_effect[0] += 1
                 self.shoot_animate = 0
         else:
+            self.cur_time_frame += delta_time
             if self.center_x >= self.right_walk_limit or self.center_x <= self.left_walk_limit:
-                self.change_x = -1 * self.change_x
-                # TODO: walk animation
+                self.change_direction()
+            elif self.cur_time_frame >= 1 / 10:
+                if self.walk[0] + 1 >= len(self.walk):
+                    self.walk[0] = 1
+                else:
+                    self.walk[0] = self.walk[0] + 1
+                self.texture = self.walk[self.walk[0]]
+                self.cur_time_frame = 0
         return False
 
-    def face_direction(self, direction):
-        self.character_face_direction = direction
+    def change_direction(self):
         if self.character_face_direction == constants.RIGHT_FACING:
-            self.look = self.look_r
-            self.fire = self.fire_r
-            self.shoot = self.shoot_r
+            self.character_face_direction = constants.LEFT_FACING
+            self.walk = self.walk_l
+            self.shoot_pose = self.shoot_pose_l
+            self.shoot_effect = self.shoot_effect_l
         else:
-            self.look = self.look_l
-            self.fire = self.fire_l
-            self.shoot = self.shoot_l
-        self.thrusters.texture = self.fire[1]
-        self.shooting.texture = self.shoot[1]
-        self.texture = self.look[1]
+            self.character_face_direction = constants.RIGHT_FACING
+            self.walk = self.walk_r
+            self.shoot_pose = self.shoot_pose_r
+            self.shoot_effect = self.shoot_effect_r
+        self.shooting_pose.texture = self.shoot_pose[1]
+        self.shooting_effect.texture = self.shoot_effect[1]
+        self.texture = self.walk[1]
+        self.change_x = -1 * self.change_x

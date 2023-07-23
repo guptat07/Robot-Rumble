@@ -3,9 +3,11 @@ import robot_rumble.Util.constants as constants
 
 from robot_rumble.Characters.Player.playerBase import PlayerBase
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
+
 from robot_rumble.Characters.death import Explosion
 from robot_rumble.Characters.drone import Drone
-from robot_rumble.Characters.projectiles import DroneBullet
+from robot_rumble.Characters.crawler import Crawler
+from robot_rumble.Characters.projectiles import DroneBullet, CrawlerBullet
 
 from robot_rumble.Level.level import Level
 from importlib.resources import files
@@ -19,7 +21,7 @@ class LevelTwo(Level):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
 
-        self.PLAYER_START_X = 2700
+        self.PLAYER_START_X = 1000  # 2700
         self.PLAYER_START_Y = 60
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
@@ -47,12 +49,12 @@ class LevelTwo(Level):
         # The drones from lv.1 return.
         self.drone_list = arcade.SpriteList()
         self.scene.add_sprite_list("drone_list")
-        drone_positions = [[1664, 640, constants.RIGHT_FACING],
+        drone_positions = [[1700, 720, constants.RIGHT_FACING],
                            [2624, 576, constants.LEFT_FACING],
-                           [1664, 1152, constants.RIGHT_FACING],
-                           [1920, 2368, constants.LEFT_FACING],
-                           [384, 192, constants.RIGHT_FACING],
-                           [192, 768, constants.RIGHT_FACING],
+                           [1720, 1400, constants.RIGHT_FACING],
+                           [1860, 2398, constants.LEFT_FACING],
+                           [404, 212, constants.RIGHT_FACING],
+                           [192, 718, constants.RIGHT_FACING],
                            [320, 1152, constants.RIGHT_FACING],
                            [128, 1280, constants.RIGHT_FACING]]
         for x, y, direction in drone_positions:
@@ -64,8 +66,22 @@ class LevelTwo(Level):
             self.drone_list.append(drone)
 
         # This level introduces the crawlies, who can move side-to-side on their platforms.
+        self.crawler_list = arcade.SpriteList()
+        self.scene.add_sprite_list("crawler_list")
+        crawler_positions = [[1856, 105, constants.RIGHT_FACING],
+                             [2176, 940, constants.RIGHT_FACING],
+                             [1984, 2345, constants.RIGHT_FACING],
+                             [960, 1130, constants.RIGHT_FACING],
+                             [896, 1965, constants.RIGHT_FACING]]
+        for x, y, direction in crawler_positions:
+            crawler = Crawler(x, y, direction)
+            crawler.update()
+            self.scene.add_sprite("Crawler", crawler)
+            self.scene.add_sprite("Shooting pose", crawler.shooting_pose)
+            self.scene.add_sprite("Shooting effect", crawler.shooting_effect)
+            self.crawler_list.append(crawler)
 
-        # Finally, there are the wall-mounts, who fire in place periodically.
+        # Finally, there are the wall-mounts, who fire vertically in place periodically.
 
     def level_player_setup(self):
         # Add Player Sprite list before "Foreground" layer. This will make the foreground
@@ -133,12 +149,6 @@ class LevelTwo(Level):
         super().on_update(delta_time)
         self.physics_engine_level.update()
 
-
-
-        # Moving Platform
-        self.scene.update([self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS])
-        self.scene.update([self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS])
-
         # Did the player fall off the map?
         if self.player_sprite.center_y < -100:
             self.on_fall()
@@ -146,6 +156,7 @@ class LevelTwo(Level):
         for bullet in self.player_bullet_list:
             bullet.update(delta_time)
             drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
+            crawler_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.crawler_list)
             for collision in drone_collisions_with_player_bullet:
                 for drone in self.drone_list:
                     if collision == drone:
@@ -158,6 +169,18 @@ class LevelTwo(Level):
                         self.scene.add_sprite("Explosion", drone.explosion)
                         self.explosion_list.append(drone.explosion)
                         drone.remove_from_sprite_lists()
+            for collision in crawler_collisions_with_player_bullet:
+                for crawler in self.crawler_list:
+                    if collision == crawler:
+                        crawler.shooting_pose.kill()
+                        crawler.shooting_effect.kill()
+                        crawler.explosion = Explosion()
+                        crawler.explosion.center_x = crawler.center_x
+                        crawler.explosion.center_y = crawler.center_y
+                        crawler.explosion.face_direction(crawler.character_face_direction)
+                        self.scene.add_sprite("Explosion", crawler.explosion)
+                        self.explosion_list.append(crawler.explosion)
+                        crawler.remove_from_sprite_lists()
 
         for explosion in self.explosion_list:
             if explosion.explode(delta_time):
@@ -173,6 +196,19 @@ class LevelTwo(Level):
                 else:
                     bullet.center_x = drone.shooting.center_x - 5
                 bullet.center_y = drone.shooting.center_y
+                self.scene.add_sprite("Bullet", bullet)
+                self.bullet_list.append(bullet)
+
+        for crawler in self.crawler_list:
+            crawler.update()
+            if crawler.crawler_logic(delta_time):
+                bullet = CrawlerBullet()
+                bullet.character_face_direction = crawler.character_face_direction
+                if bullet.character_face_direction == constants.RIGHT_FACING:
+                    bullet.center_x = crawler.shooting_effect.center_x + 30
+                else:
+                    bullet.center_x = crawler.shooting_effect.center_x - 30
+                bullet.center_y = crawler.shooting_effect.center_y - 20
                 self.scene.add_sprite("Bullet", bullet)
                 self.bullet_list.append(bullet)
 

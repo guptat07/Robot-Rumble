@@ -86,7 +86,8 @@ class PlayerBase(Entity):
         # Moving
         if self.change_x != 0 or self.change_y != 0:
 
-            # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
+            # Jumping used to be here
+            # currently it's in each child class since they are slightly different between the gunner and swordster
 
             # Have the running animation loop every .133 seconds
             if self.cur_time_frame >= 1 / 60 and self.change_y == 0 and self.is_attacking:
