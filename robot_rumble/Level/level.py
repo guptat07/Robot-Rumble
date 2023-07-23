@@ -27,6 +27,7 @@ class Level(arcade.View):
         # Variable for the enemy sprite lists
         self.drone_list = None
         self.crawler_list = None
+        self.turret_list = None
 
         # Variable for the bullet sprite list
         self.bullet_list = None

@@ -7,7 +7,8 @@ from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.death import Explosion
 from robot_rumble.Characters.drone import Drone
 from robot_rumble.Characters.crawler import Crawler
-from robot_rumble.Characters.projectiles import DroneBullet, CrawlerBullet
+from robot_rumble.Characters.projectiles import DroneBullet, CrawlerBullet, TurretBullet
+from robot_rumble.Characters.turret import Turret
 
 from robot_rumble.Level.level import Level
 from importlib.resources import files
@@ -21,7 +22,7 @@ class LevelTwo(Level):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
 
-        self.PLAYER_START_X = 1000  # 2700
+        self.PLAYER_START_X = 2700
         self.PLAYER_START_Y = 60
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
@@ -42,11 +43,10 @@ class LevelTwo(Level):
             walls=self.scene[constants.LAYER_NAME_PLATFORMS],
         )
 
-    # TODO: find spawn coords of the enemies, create lists by type
     def level_enemy_setup(self):
         # There are 3 enemy types (sort of). We will create them type by type.
 
-        # The drones from lv.1 return.
+        # The drones from level 1 return.
         self.drone_list = arcade.SpriteList()
         self.scene.add_sprite_list("drone_list")
         drone_positions = [[1700, 720, constants.RIGHT_FACING],
@@ -65,7 +65,7 @@ class LevelTwo(Level):
             self.scene.add_sprite("Shooting", drone.shooting)
             self.drone_list.append(drone)
 
-        # This level introduces the crawlies, who can move side-to-side on their platforms.
+        # This level introduces the crawlers, who can move side-to-side on their platforms.
         self.crawler_list = arcade.SpriteList()
         self.scene.add_sprite_list("crawler_list")
         crawler_positions = [[1856, 105, constants.RIGHT_FACING],
@@ -81,7 +81,22 @@ class LevelTwo(Level):
             self.scene.add_sprite("Shooting effect", crawler.shooting_effect)
             self.crawler_list.append(crawler)
 
-        # Finally, there are the wall-mounts, who fire vertically in place periodically.
+        # Finally, there are the wall-mount turrets, who fire downwards in place periodically.
+        self.turret_list = arcade.SpriteList()
+        self.scene.add_sprite_list("turret_list")
+        turret_positions = [[2048, 1660],
+                            [1856, 2074],
+                            [1984, 2074],
+                            [732, 1788],
+                            [1024, 1788],
+                            [608, 2492],
+                            [736, 2492],
+                            [864, 2492]]
+        for x, y in turret_positions:
+            turret = Turret(x, y)
+            turret.update()
+            self.scene.add_sprite("Turret", turret)
+            self.turret_list.append(turret)
 
     def level_player_setup(self):
         # Add Player Sprite list before "Foreground" layer. This will make the foreground
@@ -209,6 +224,14 @@ class LevelTwo(Level):
                 else:
                     bullet.center_x = crawler.shooting_effect.center_x - 30
                 bullet.center_y = crawler.shooting_effect.center_y - 20
+                self.scene.add_sprite("Bullet", bullet)
+                self.bullet_list.append(bullet)
+
+        for turret in self.turret_list:
+            if turret.turret_logic(delta_time):
+                bullet = TurretBullet()
+                bullet.center_x = turret.center_x
+                bullet.center_y = turret.center_y - 35
                 self.scene.add_sprite("Bullet", bullet)
                 self.bullet_list.append(bullet)
 
