@@ -118,6 +118,9 @@ class Level(arcade.View):
                     self.scene.add_sprite("player_attack", bullet)
                     self.player_bullet_list.append(bullet)
                     self.attack_cooldown = 0
+            if key == arcade.key.F:
+                #debugging stuff
+                print(self.player_sprite.center_x)
 
 
         if key == arcade.key.ESCAPE:
