@@ -127,6 +127,60 @@ class DroneBullet(Entity):
         self.center_x += self.change_x
         self.center_y += self.change_y
 
+
+class CrawlerBullet(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+        self.character_face_direction = constants.RIGHT_FACING
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = constants.ENEMY_SCALING
+
+        self.bullet = arcade.load_texture(files("robot_rumble.assets.enemies.enemy2").joinpath("enemy2bullet.png"),
+                                          x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.bullet
+
+    def move(self):
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.change_x += constants.DRONE_BULLET_MOVEMENT_SPEED
+        else:
+            self.change_x += -constants.DRONE_BULLET_MOVEMENT_SPEED
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+class TurretBullet(Entity):
+    def __init__(self):
+        # Setup parent class
+        super().__init__()
+
+        # Default to face-right
+        self.cur_time_frame = 0
+
+        # Used for flipping between image sequences
+        self.cur_texture = 0
+
+        self.scale = constants.ENEMY_SCALING
+
+        self.bullet = arcade.load_texture(files("robot_rumble.assets.enemies.enemy3").joinpath("enemy3bullet.png"),
+                                          x=0, y=0, width=32, height=32, hit_box_algorithm="Simple")
+        self.texture = self.bullet
+
+    def move(self):
+        self.change_y += -constants.DRONE_BULLET_MOVEMENT_SPEED
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+
 class Sword(Entity):
     def __init__(self):
         # Setup parent class
