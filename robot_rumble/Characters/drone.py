@@ -77,6 +77,12 @@ class Drone(Entity):
             bullet.move()
             bullet.update()
 
+    def kill_all(self):
+        for bullet in self.bullet_list:
+            bullet.kill()
+            self.thrusters.kill()
+            self.shooting.kill()
+
 
     def drone_bullet(self, delta_time):
         if self.drone_logic(delta_time):
