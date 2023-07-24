@@ -4,6 +4,8 @@ from arcade.gui import UIManager
 import robot_rumble.Util.constants as const
 from importlib.resources import files
 
+from robot_rumble.Util.spriteload import load_spritesheet_pair_nocount
+
 
 class CharacterSelectScreen(arcade.View):
     def __init__(self, window: arcade.Window):
@@ -20,18 +22,34 @@ class CharacterSelectScreen(arcade.View):
                                           color=arcade.color.BLACK)
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
-        # Create a vertical BoxGroup to align buttons
-        self.v_box = arcade.gui.UIBoxLayout(vertical=False, space_between=28)
+        section_space_width = self.window.width / 3
+        section_space_height = self.window.height / 3
+        self.space_between = (section_space_width * .1) / 2
+
+        # Create a BoxGroup to align buttons
+        self.v_box = arcade.gui.UIBoxLayout(vertical=False, space_between=self.space_between)
         self.button_box = arcade.gui.UIBoxLayout()
 
-        # Create Text Label
-        char_1 = arcade.gui.UIFlatButton(width=303, height=333)
+        self.button_width = section_space_width - ((section_space_width * .1) / 2)
+        button_height = section_space_height * 2
+
+        print("Button Width" + str(self.button_width))
+        print("Button Height" + str(button_height))
+
+        # Create Character Screen
+        char_1 = arcade.gui.UIFlatButton(width=self.button_width, height=button_height)
         self.v_box.add(char_1)
-        char_2 = arcade.gui.UIFlatButton(width=303, height=333)
+        char_2 = arcade.gui.UIFlatButton(width=self.button_width, height=button_height)
         self.v_box.add(char_2)
-        char_3 = arcade.gui.UIFlatButton(width=303, height=333)
+        char_3 = arcade.gui.UIFlatButton(width=self.button_width, height=button_height)
         self.v_box.add(char_3)
 
+        # Load Idle Character Sprites
+        self.gunner_idle = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
+        self.sword_idle = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 5, 32, 32)
+
+        self.scene = arcade.Scene()
+        self.scene.add_sprite("Gunner", self.gunner_idle)
         next_button = arcade.gui.UIFlatButton(text="Next", width=200)
         self.button_box.add(next_button)
 
@@ -59,9 +77,7 @@ class CharacterSelectScreen(arcade.View):
                          self.window.height // 1.10,
                          font_size=32, font_name="VT323")
         self.manager.draw()
-        arcade.draw_lrtb_rectangle_filled(left=111, right=248, top=400, bottom=250, color=arcade.color.AIR_FORCE_BLUE)
-        arcade.draw_lrtb_rectangle_filled(left=442, right=579, top=400, bottom=250, color=arcade.color.AIR_FORCE_BLUE)
-        arcade.draw_lrtb_rectangle_filled(left=773, right=910, top=400, bottom=250, color=arcade.color.AIR_FORCE_BLUE)
+        self.scene.draw()
 
         arcade.draw_text(start_x=130, start_y=200, color=arcade.color.WHITE, text="Gunner",
                          font_name="VT323", font_size=32)
@@ -76,7 +92,3 @@ class CharacterSelectScreen(arcade.View):
         from robot_rumble.Screens.controlScreen import ControlScreen
         control_screen = ControlScreen(self.window)
         self.window.show_view(control_screen)
-
-    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
-        print("x " + str(x))
-        print("y " + str(y))
