@@ -1,6 +1,5 @@
 import arcade
 import robot_rumble.Util.constants as constants
-from robot_rumble.Characters.Player.playerBase import PlayerBase
 from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
@@ -54,15 +53,13 @@ class LevelOne(Level):
     def level_player_setup(self):
         if self.player_type == 'gunner':
             self.player_sprite = PlayerGunner()
-            super().level_player_setup()
-            self.player_bullet_list = arcade.SpriteList()
-            self.scene.add_sprite_list("player_bullet_list")
         elif self.player_type == 'sword':
             self.player_sprite = PlayerSwordster()
-            super().level_player_setup()
         elif self.player_type == 'brawler':
             self.player_sprite = PlayerFighter()
-            super().level_player_setup()
+        super().level_player_setup()
+        self.player_bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("player_bullet_list")
 
     def level_map_setup(self):
         # Name of map file to load
