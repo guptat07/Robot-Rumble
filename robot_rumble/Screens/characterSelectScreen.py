@@ -1,4 +1,3 @@
-# TODO put in a check to make sure player chooses a character or set a default
 from importlib.resources import files
 
 import arcade
