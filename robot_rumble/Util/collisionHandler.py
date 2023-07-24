@@ -12,10 +12,24 @@ class CollisionHandle():
     def setup(self):
         pass
 
-    def update_collision(self,delta_time):
+    def update_collision(self, delta_time,enemy_bullets, list_of_enemy_lists=[[]]):
         for explosion in self.explosion_list:
             if explosion.explode(delta_time):
                 explosion.remove_from_sprite_lists()
+        #collision with bullet types
+        bullet_collision = arcade.check_for_collision_with_list(self.player, enemy_bullets)
+        for bullet in bullet_collision:
+            bullet.remove_from_sprite_lists()
+            self.player.hit()
+
+        #collision w enemies
+        for enemy_list in list_of_enemy_lists:
+            enemy_collision = arcade.check_for_collision_with_list(self.player, enemy_list)
+            for enemy in enemy_collision:
+                self.player.hit()
+
+
+
 
     def update_player_collision_with_enemy(self,enemy_list, delta_time):
         #just moved from main, handle collision for player taking damage

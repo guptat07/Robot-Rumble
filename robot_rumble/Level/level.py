@@ -22,7 +22,7 @@ class Level(arcade.View):
         self.drone_list = None
 
         # Variable for the bullet sprite list
-        self.bullet_list = None
+        self.enemy_bullet_list = None
 
         # Variable for the explosion sprite list
         self.explosion_list = None
@@ -71,8 +71,8 @@ class Level(arcade.View):
         self.death_list = arcade.SpriteList()
         self.scene.add_sprite_list("death_list")
 
-        self.bullet_list = arcade.SpriteList()
-        self.scene.add_sprite_list("bullet_list")
+        self.enemy_bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("enemy_bullet_list")
 
         # --- Other stuff
         # Set the background color

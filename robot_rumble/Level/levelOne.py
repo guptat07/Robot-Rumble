@@ -47,6 +47,9 @@ class LevelOne(Level):
             self.scene.add_sprite("Shooting", drone.shooting)
             self.drone_list.append(drone)
 
+        self.player_bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("player_bullet_list")
+
     def level_player_setup(self):
         # Add Player Spritelist before "Foreground" layer. This will make the foreground
         # be drawn after the player, making it appear to be in front of the Player.
@@ -97,7 +100,6 @@ class LevelOne(Level):
         # Move the player with the physics engine
         super().on_update(delta_time)
         self.physics_engine_level.update()
-        self.collision_handle.update_collision(delta_time)
         # Moving Platform
         self.scene.update([constants.LAYER_NAME_MOVING_PLATFORMS])
 
@@ -115,13 +117,15 @@ class LevelOne(Level):
             drone_bullet = drone.drone_bullet(delta_time)
             if drone_bullet != None:
                 self.scene.add_sprite("drone_bullet", drone_bullet)
-                self.bullet_list.append(drone_bullet)
+                self.enemy_bullet_list.append(drone_bullet)
+
+        self.collision_handle.update_collision(delta_time,self.enemy_bullet_list, [self.drone_list])
 
         #check and manage collision with player and drone bullets
         #self.collision_handle.update_player_collision_with_bullet(self.bullet_list,delta_time) #TODO
-        self.level_change()
+        self.level_change_check()
 
-    def level_change(self):
+    def level_change_check(self):
         if self.player_sprite.center_x <= 0:
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
