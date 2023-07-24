@@ -2,6 +2,7 @@ import arcade
 
 from robot_rumble.Util import constants
 
+
 class Entity(arcade.Sprite):
     def __init__(self):
         super().__init__()
@@ -41,13 +42,13 @@ class Entity(arcade.Sprite):
         self.is_blocking = False
 
     def setup(self):
-            pass
+        pass
 
     def update(self):
         pass
 
     def update_animation(self, delta_time: float = 1 / 60):
-        
+
         # Regardless of animation, determine if character is facing left or right
         if self.change_x < 0:
             self.character_face_direction = constants.LEFT_FACING
@@ -81,7 +82,7 @@ class Entity(arcade.Sprite):
                     self.damaged[0] += 1
                 self.cur_time_frame = 0
             return
-        
+
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
         # This condition must mean that the player WAS jumping but has landed
         if self.change_y == 0 and self.is_jumping and \
@@ -109,7 +110,7 @@ class Entity(arcade.Sprite):
                 if self.attack[0] >= len(self.attack[1]) - 1:
                     self.attack[0] = 0
                     self.is_attacking = False
-                    self.cur_time_frame = 1/3
+                    self.cur_time_frame = 1 / 3
                 else:
                     self.attack[0] += 1
                     self.cur_time_frame = 0
@@ -124,7 +125,7 @@ class Entity(arcade.Sprite):
                     self.idle[0] = 0
                 else:
                     self.idle[0] = self.idle[0] + 1
-                    self.cur_time_frame = 0
+                self.cur_time_frame = 0
             return
 
         # Moving
@@ -160,9 +161,6 @@ class Entity(arcade.Sprite):
 
     def on_key_release(self, key, modifiers=0):
         pass
-
-
-
 
 
 '''
