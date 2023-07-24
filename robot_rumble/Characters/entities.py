@@ -67,6 +67,20 @@ class Entity(arcade.Sprite):
             self.attack[1] = self.attack_r
         # Should work regardless of framerate
         self.cur_time_frame += delta_time
+
+        if self.is_damaged:
+            self.change_x = 0
+            self.texture = self.damaged[1][self.damaged[0]]
+            if self.damaged[0] == 0:
+                self.change_y = 0
+            if self.cur_time_frame >= 3 / 60:
+                if self.damaged[0] >= len(self.damaged[1]) - 1:
+                    self.damaged[0] = 0
+                    self.is_damaged = False
+                else:
+                    self.damaged[0] += 1
+                self.cur_time_frame = 0
+            return
         
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
         # This condition must mean that the player WAS jumping but has landed
@@ -95,9 +109,10 @@ class Entity(arcade.Sprite):
                 if self.attack[0] >= len(self.attack[1]) - 1:
                     self.attack[0] = 0
                     self.is_attacking = False
+                    self.cur_time_frame = 1/3
                 else:
                     self.attack[0] += 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             # Having the idle animation loop every .33 seconds
             elif self.cur_time_frame >= 1 / 3:
                 # Load the correct idle animation based on most recent direction faced
@@ -109,7 +124,7 @@ class Entity(arcade.Sprite):
                     self.idle[0] = 0
                 else:
                     self.idle[0] = self.idle[0] + 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             return
 
         # Moving
@@ -131,13 +146,13 @@ class Entity(arcade.Sprite):
                     self.jumping[0] = 3
 
             # Have the running animation loop every .133 seconds
-            elif self.cur_time_frame >= 8 / 60 and not self.is_attacking:
+            elif self.cur_time_frame >= 8 / 60 and not self.is_attacking and not self.is_dashing:
                 self.texture = self.running[1][self.running[0]]
                 if self.running[0] >= len(self.running[1]) - 1:
                     self.running[0] = 0
                 else:
                     self.running[0] = self.running[0] + 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             return
 
     def on_key_press(self, key, modifiers=0):
