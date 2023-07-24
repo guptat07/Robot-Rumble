@@ -19,7 +19,7 @@ from importlib.resources import files
 from robot_rumble.Util.collisionHandler import CollisionHandle
 from robot_rumble.Util.spriteload import load_spritesheet
 
-#TODO: move all into constants file
+# TODO: move all into constants file
 # TODO: DEPRECATE IS_ACTIVE FOR IS_ALIVE
 TILE_SCALING = 4
 SPRITE_PIXEL_SIZE = 32
