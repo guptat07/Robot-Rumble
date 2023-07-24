@@ -33,9 +33,15 @@ class PlayerSwordster(PlayerBase):
         self.running_attack = [0, self.running_attack_r]
         self.jumping_attack = [0, self.jumping_attack_r]
         self.blocking = [0, self.blocking_r]
+
+        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER * 3/4
         
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[0]
+
+
+    def update(self,delta_time):
+        super().update(delta_time)
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
