@@ -1,9 +1,9 @@
-import arcade
-
-from robot_rumble.Level.levelOne import LevelOne
-from arcade.gui import UIManager
-import robot_rumble.Util.constants as const
 from importlib.resources import files
+
+import arcade
+from arcade.gui import UIManager
+
+from robot_rumble.Screens.characterSelectScreen import CharacterSelectScreen
 
 
 class ControlScreen(arcade.View):
@@ -33,9 +33,7 @@ class ControlScreen(arcade.View):
 
     def on_click_start(self, event):
         self.manager.disable()
-        level_one = LevelOne(self.window)
-        level_one.setup()
-        self.window.show_view(level_one)
+        char_select = CharacterSelectScreen(self.window)
+        self.window.show_view(char_select)
 
-    def on_click_quit(self, event):
-        arcade.exit()
+
