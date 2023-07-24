@@ -1,5 +1,6 @@
-import arcade
 from importlib.resources import files
+
+import arcade
 from arcade.gui import UIManager
 
 

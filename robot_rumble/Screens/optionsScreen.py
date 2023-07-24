@@ -1,7 +1,7 @@
-import arcade
-import robot_rumble.Util.constants as const
-from arcade.gui import UIManager
 from importlib.resources import files
+
+import arcade
+from arcade.gui import UIManager
 
 
 class OptionsScreen(arcade.View):

@@ -1,7 +1,7 @@
+from importlib.resources import files
+
 import arcade
 from arcade.gui import UIManager
-import robot_rumble.Util.constants as const
-from importlib.resources import files
 
 
 class PauseScreen(arcade.View):

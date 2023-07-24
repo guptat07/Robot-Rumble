@@ -1,7 +1,9 @@
 import arcade
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.Player.playerBase import PlayerBase
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
 from robot_rumble.Characters.death import Explosion
 from robot_rumble.Characters.drone import Drone
 from robot_rumble.Characters.projectiles import DroneBullet
@@ -13,11 +15,13 @@ from robot_rumble.Util.collisionHandler import CollisionHandle
 
 class LevelOne(Level):
 
-    def __init__(self, window: arcade.Window):
+    def __init__(self, window: arcade.Window, player_type):
         super().__init__(window)
 
         self.PLAYER_START_X = 50
         self.PLAYER_START_Y = 1000
+
+        self.player_type = player_type
 
     def setup(self):
         super().setup()
@@ -48,20 +52,17 @@ class LevelOne(Level):
             self.drone_list.append(drone)
 
     def level_player_setup(self):
-        # Add Player Spritelist before "Foreground" layer. This will make the foreground
-        # be drawn after the player, making it appear to be in front of the Player.
-        # Setting before using scene.add_sprite allows us to define where the SpriteList
-        # will be in the draw order. If we just use add_sprite, it will be appended to the
-        # end of the order.
-
-        # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = PlayerGunner()
-        super().level_player_setup()
-        # self.scene.add_sprite_list_after("Player", constants.LAYER_NAME_FOREGROUND)
-
-        # If the player is a gunner - set up bullet list
-        self.player_bullet_list = arcade.SpriteList()
-        self.scene.add_sprite_list("player_bullet_list")
+        if self.player_type == 'gunner':
+            self.player_sprite = PlayerGunner()
+            super().level_player_setup()
+            self.player_bullet_list = arcade.SpriteList()
+            self.scene.add_sprite_list("player_bullet_list")
+        elif self.player_type == 'sword':
+            self.player_sprite = PlayerSwordster()
+            super().level_player_setup()
+        elif self.player_type == 'brawler':
+            self.player_sprite = PlayerFighter()
+            super().level_player_setup()
 
     def level_map_setup(self):
         # Name of map file to load
@@ -104,22 +105,22 @@ class LevelOne(Level):
         # Did the player fall off the map?
         if self.player_sprite.center_y < -100:
             self.on_fall()
-
-        for bullet in self.player_bullet_list:
-            bullet.update(delta_time)
-            drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
-            for collision in drone_collisions_with_player_bullet:
-                for drone in self.drone_list:
-                    if collision == drone:
-                        drone.thrusters.kill()
-                        drone.shooting.kill()
-                        drone.explosion = Explosion()
-                        drone.explosion.center_x = drone.center_x
-                        drone.explosion.center_y = drone.center_y
-                        drone.explosion.face_direction(drone.character_face_direction)
-                        self.scene.add_sprite("Explosion", drone.explosion)
-                        self.explosion_list.append(drone.explosion)
-                        drone.remove_from_sprite_lists()
+        if self.player_type == 'gunner':
+            for bullet in self.player_bullet_list:
+                bullet.update(delta_time)
+                drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
+                for collision in drone_collisions_with_player_bullet:
+                    for drone in self.drone_list:
+                        if collision == drone:
+                            drone.thrusters.kill()
+                            drone.shooting.kill()
+                            drone.explosion = Explosion()
+                            drone.explosion.center_x = drone.center_x
+                            drone.explosion.center_y = drone.center_y
+                            drone.explosion.face_direction(drone.character_face_direction)
+                            self.scene.add_sprite("Explosion", drone.explosion)
+                            self.explosion_list.append(drone.explosion)
+                            drone.remove_from_sprite_lists()
 
         for explosion in self.explosion_list:
             if explosion.explode(delta_time):
@@ -151,4 +152,3 @@ class LevelOne(Level):
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)
-

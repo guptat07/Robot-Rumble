@@ -1,10 +1,14 @@
 # TODO put in a check to make sure player chooses a character or set a default
-import arcade
-from arcade.gui import UIManager
-import robot_rumble.Util.constants as const
 from importlib.resources import files
 
-from robot_rumble.Util.spriteload import load_spritesheet_pair_nocount
+import arcade
+from arcade import Scene
+from arcade import gl
+from arcade.gui import UIManager
+
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
+from robot_rumble.Characters.Player.playerGunner import PlayerGunner
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
 
 
 class CharacterSelectScreen(arcade.View):
@@ -45,15 +49,32 @@ class CharacterSelectScreen(arcade.View):
         self.v_box.add(char_3)
 
         # Load Idle Character Sprites
-        self.gunner_idle = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "idle1.png", 2, 32, 32)
-        self.sword_idle = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 5, 32, 32)
+        self.gunner = PlayerGunner()
+        self.sword = PlayerSwordster()
+        self.fighter = PlayerFighter()
 
-        self.scene = arcade.Scene()
-        self.scene.add_sprite("Gunner", self.gunner_idle)
-        next_button = arcade.gui.UIFlatButton(text="Next", width=200)
-        self.button_box.add(next_button)
+        self.gunner.center_x = (self.window.width / 3) / 2
+        self.gunner.center_y = (self.window.height / 2)
 
-        next_button.on_click = self.on_click_next
+        self.sword.center_x = (self.window.width / 2)
+        self.sword.center_y = (self.window.height / 2)
+
+        self.fighter.center_x = (self.window.width / 3) + (self.window.width / 3 * 3) / 2
+        self.fighter.center_y = (self.window.height / 2)
+
+        self.gunner.scale = 5
+        self.sword.scale = 5
+        self.fighter.scale = 5
+
+        self.scene = Scene()
+        self.scene.add_sprite("gunner", self.gunner)
+        self.scene.add_sprite("sword", self.sword)
+        self.scene.add_sprite("fighter", self.fighter)
+
+        char_1.on_click = self.on_click_char1
+        char_2.on_click = self.on_click_char2
+        char_3.on_click = self.on_click_char3
+
 
         self.manager.add(
             arcade.gui.UIAnchorWidget(
@@ -70,6 +91,11 @@ class CharacterSelectScreen(arcade.View):
             )
         )
 
+    def on_update(self, delta_time: float):
+        self.gunner.update(delta_time)
+        self.sword.update(delta_time)
+        self.fighter.update(delta_time)
+
     def on_draw(self):
         self.clear()
         arcade.draw_text("Character Select",
@@ -77,18 +103,50 @@ class CharacterSelectScreen(arcade.View):
                          self.window.height // 1.10,
                          font_size=32, font_name="VT323")
         self.manager.draw()
-        self.scene.draw()
+        self.scene.draw(filter=gl.NEAREST)
 
-        arcade.draw_text(start_x=130, start_y=200, color=arcade.color.WHITE, text="Gunner",
-                         font_name="VT323", font_size=32)
-        arcade.draw_text(start_x=440, start_y=200, color=arcade.color.WHITE, text="Swordster",
-                         font_name="VT323", font_size=32)
-        arcade.draw_text(start_x=790, start_y=200, color=arcade.color.WHITE, text="Brawler",
-                         font_name="VT323", font_size=32)
+        arcade.draw_text(start_x=(self.window.width / 3) / 2 - len("Gunner") * 16 //2,
+                         start_y=(self.window.height/3)/1.5,
+                         color=arcade.color.WHITE,
+                         text="Gunner",
+                         font_name="VT323",
+                         font_size=32
+                         )
+        arcade.draw_text(start_x=(self.window.width / 2) - len("Knight") * 16 //2,
+                         start_y=(self.window.height/3)/1.5,
+                         color=arcade.color.WHITE,
+                         text="Knight",
+                         font_name="VT323",
+                         font_size=32
+                         )
+        arcade.draw_text(start_x=(self.window.width / 3) + (self.window.width / 3 * 3) / 2 - len("Brawler") * 16 //2,
+                         start_y=(self.window.height/3)/1.5,
+                         color=arcade.color.WHITE,
+                         text="Brawler",
+                         font_name="VT323",
+                         font_size=32
+                         )
 
-    def on_click_next(self, event):
+    def on_click_char1(self, event):
         self.clear()
         self.manager.disable()
-        from robot_rumble.Screens.controlScreen import ControlScreen
-        control_screen = ControlScreen(self.window)
-        self.window.show_view(control_screen)
+        from robot_rumble.Level.levelOne import LevelOne
+        level_one = LevelOne(self.window, "gunner")
+        level_one.setup()
+        self.window.show_view(level_one)
+
+    def on_click_char2(self, event):
+        self.clear()
+        self.manager.disable()
+        from robot_rumble.Level.levelOne import LevelOne
+        level_one = LevelOne(self.window, "sword")
+        level_one.setup()
+        self.window.show_view(level_one)
+
+    def on_click_char3(self, event):
+        self.clear()
+        self.manager.disable()
+        from robot_rumble.Level.levelOne import LevelOne
+        level_one = LevelOne(self.window, "brawler")
+        level_one.setup()
+        self.window.show_view(level_one)
