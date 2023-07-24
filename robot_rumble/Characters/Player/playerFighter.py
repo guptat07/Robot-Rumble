@@ -11,18 +11,22 @@ from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet
 from robot_rumble.Characters.Player.playerBase import PlayerBase
 
 
-class PlayerSwordster(PlayerBase):
+class PlayerFighter(PlayerBase):
     def __init__(self):
         super().__init__()
         # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 2, 32, 32)
-        self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)
-        self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "run_unmasked.png", 8, 32, 32)
-        self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)
-        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_unmasked.png", 7, 32, 32)
-        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_attack_unmasked.png", 7, 48, 32)
-        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "damaged_masked.png", 6, 32, 32)
-        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "flashing.png", 2, 32, 32)
+        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "idle.png", 2, 32, 32)
+        self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "attack_unmasked.png", 37, 48, 32)
+        self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "run_unmasked.png", 8, 32, 32)
+        self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "attack_unmasked.png", 37, 48, 32)
+        # FIX
+        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "jump_unmasked.png", 7, 32, 32)
+        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "attack_unmasked.png", 7, 48, 32)
+        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "damaged_masked.png", 6, 32, 32)
+        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "flashing.png", 2, 32, 32)
+
+        self.sparkle_r, self.sparkle_l = load_spritesheet_pair_nocount("robot_rumble.assets.fighter_assets", "sparkle.png", 13, 32, 32)
+        self.sparkle = [0, self.sparkle_r]
 
         self.idle = [0, self.idle_r]
         self.running = [0, self.running_r]
@@ -33,7 +37,7 @@ class PlayerSwordster(PlayerBase):
         self.running_attack = [0, self.running_attack_r]
         self.jumping_attack = [0, self.jumping_attack_r]
         self.blocking = [0, self.blocking_r]
-        
+
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[0]
 

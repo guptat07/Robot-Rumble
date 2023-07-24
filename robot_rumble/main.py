@@ -6,6 +6,7 @@ import arcade
 import arcade.gui
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 from robot_rumble.Characters.death import Explosion, Player_Death
 from robot_rumble.Characters.Boss.bossOne import BossOne as BossOne
 from robot_rumble.Characters.Boss.bossTwo import BossTwo as BossTwo
@@ -274,8 +275,9 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         if self.scene_type != constants.SCENE_LEVEL_BOSS_ONE:   #TODO: MAN, THIS REFRESHES EVERYTIME BEFORE
-            # self.player_sprite = PlayerGunner()
-            self.player_sprite = PlayerSwordster()
+            self.player_sprite = PlayerGunner()
+            # self.player_sprite = PlayerSwordster()
+            # self.player_sprite = PlayerFighter()
 
         #TODO: add all collisions into collision handle class, does the same thing as before just wrapped and reduced redudnant code
         self.collision_handle = CollisionHandle(self.player_sprite)
@@ -561,11 +563,15 @@ class MyGame(arcade.Window):
                     self.scene_boss_two.add_sprite("player_bullet_list", bullet)
                     self.player_bullet_list.append(bullet)'''
                 elif key == arcade.key.P:
-                    print("X: ",self.player_sprite.center_x)
-                    print("Y: ", self.player_sprite.center_y)
-                elif key == arcade.key.S:
-                    self.player_sprite.is_blocking = True
-                    self.scene_boss_two.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
+                    print("Boss X: ",self.boss2.center_x)
+                    print("Boss Y: ", self.boss2.center_y)
+                elif key == arcade.key.M:
+                    print("Player X: ", self.player_sprite.center_x)
+                    print("Player Y: ", self.player_sprite.center_y)
+                elif key == arcade.key.S  or key == arcade.key.DOWN:
+                    if not self.player_sprite.is_damaged:
+                        self.player_sprite.is_blocking = True
+                        self.scene_boss_two.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
 
 
 #TODO: move this into the player class
@@ -580,7 +586,7 @@ class MyGame(arcade.Window):
 
         elif key == arcade.key.Q:
             # only use this line for the gunner
-            # self.player_sprite.is_attacking = False
+            self.player_sprite.is_attacking = False
             pass
 
     def center_camera_to_player(self):
@@ -769,6 +775,8 @@ class MyGame(arcade.Window):
                     index = self.sword_list.index(sword)
                     sword.remove_from_sprite_lists()
                     del self.physics_engine_sword_list[index]
+                    '''if not self.player_sprite.is_blocking:
+                        self.player_sprite.is_damaged = True'''
                     # self.player_sprite.health -= 5
                     # self.hit()
                     # print(self.player_sprite.health)

@@ -55,9 +55,6 @@ class Player_Death(Entity):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
-        self.character_face_direction = constants.RIGHT_FACING
-
         # Used for flipping between image sequences
         self.cur_texture = 0
         self.animation_finished = False
@@ -65,7 +62,6 @@ class Player_Death(Entity):
         self.death_time = 0
         self.death_r, self.death_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "death1.png", 7, 64, 32)
 
-        self.scale = constants.ENEMY_SCALING
 
         if self.character_face_direction == constants.RIGHT_FACING:
             self.death = self.death_r
@@ -73,9 +69,11 @@ class Player_Death(Entity):
             self.death = self.death_r
         self.texture = self.death[1]
 
-    def center(self, x, y):
+    def center(self, x, y, scale, direction):
         self.center_x = x
         self.center_y = y
+        self.scale = scale
+        self.face_direction(direction)
 
     def face_direction(self, direction):
         self.character_face_direction = direction
