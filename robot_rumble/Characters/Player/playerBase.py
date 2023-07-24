@@ -109,7 +109,7 @@ class PlayerBase(Entity):
             if not self.is_blocking:
                 self.sparkle_sprite.remove_from_sprite_lists()
             # re-add when using driver / remove when using main
-            self.update_player_speed()
+            # self.update_player_speed()
             for weapon in self.weapons_list:
                 weapon.update(delta_time)
         else:
