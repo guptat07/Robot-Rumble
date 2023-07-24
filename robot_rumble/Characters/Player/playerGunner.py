@@ -17,18 +17,14 @@ class PlayerGunner(PlayerBase):
         self.jumping_attack_r , self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "jump_unmasked_attack.png", 7, 32, 32)
         self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "teleport.png", 6, 32, 32)
 
-        #NOT IMPLEMENTED
-        self.damaged_l = 0
-        self.dash_l = 0
-
 
         # [0] is the animation frame, [1] is which list-> RIGHT or LEFT, access with self.idle[1][self.idle[0]]
         self.idle = [0, self.idle_r]
         self.running = [0, self.running_r]
         self.jumping = [0, self.jumping_r]
         self.attack = [0, self.attack_r]
-        self.damaged = [0, self.damaged_l]
-        self.dash = [0, self.dash_l]
+        self.damaged = [0, self.damaged_r]
+        self.dash = [0, self.dash_r]
         self.running_attack = [0, self.running_attack_r]
         self.jumping_attack = [0, self.jumping_attack_r]
 
@@ -51,7 +47,7 @@ class PlayerGunner(PlayerBase):
     def update_animation(self, delta_time: float = 1 / 60):
         super().update_animation(delta_time)
 
-        if self.is_blocking == False:
+        if not self.is_blocking and not self.is_damaged:
             # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
             # This condition must mean that the player WAS jumping but has landed
             if self.change_y == 0 and self.is_jumping and \

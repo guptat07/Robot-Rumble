@@ -82,6 +82,10 @@ class LevelOne(Level):
         # Read in the tiled map level
         self.tile_map_level = arcade.load_tilemap(map_name_level, constants.TILE_SCALING, layer_options_level)
         self.platform_list_level = self.tile_map_level.sprite_lists["Platforms"]
+        moving_platforms = self.tile_map_level.sprite_lists[constants.LAYER_NAME_MOVING_PLATFORMS]
+        for platform in moving_platforms:
+            platform.boundary_left = platform.center_x - 200
+            platform.boundary_right = platform.center_x + 100
 
         # Initialize Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
