@@ -12,7 +12,7 @@ class Explosion(Entity):
         # Setup parent class
         super().__init__()
 
-
+        self.scale = constants.ENEMY_SCALING
 
         self.character_face_direction = direction
         self.center_x = x
