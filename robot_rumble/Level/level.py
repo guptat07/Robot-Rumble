@@ -24,7 +24,7 @@ class Level(arcade.View):
         self.turret_list = None
 
         # Variable for the bullet sprite list
-        self.bullet_list = None
+        self.enemy_bullet_list = None
 
         # Variable for the explosion sprite list
         self.explosion_list = None
@@ -43,6 +43,7 @@ class Level(arcade.View):
         self.screen_center_y = 0
 
         self.player_bullet_list = None
+        self.attack_cooldown = 10
 
         self.right_pressed = None
         self.left_pressed = None
@@ -73,8 +74,8 @@ class Level(arcade.View):
         self.death_list = arcade.SpriteList()
         self.scene.add_sprite_list("death_list")
 
-        self.bullet_list = arcade.SpriteList()
-        self.scene.add_sprite_list("bullet_list")
+        self.enemy_bullet_list = arcade.SpriteList()
+        self.scene.add_sprite_list("enemy_bullet_list")
 
         # --- Other stuff
         # Set the background color
@@ -114,9 +115,12 @@ class Level(arcade.View):
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = constants.JUMP_SPEED
             if key == arcade.key.Q:
-                bullet = self.player_sprite.spawn_attack()
-                self.scene.add_sprite("player_attack", bullet)
-                self.player_bullet_list.append(bullet)
+                if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN:
+                    bullet = self.player_sprite.spawn_attack()
+                    self.scene.add_sprite("player_attack", bullet)
+                    self.player_bullet_list.append(bullet)
+                    self.attack_cooldown = 0
+
 
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
@@ -167,6 +171,7 @@ class Level(arcade.View):
             self.center_camera_to_health()
 
         self.player_sprite.update(delta_time)
+        self.attack_cooldown += delta_time
 
     def on_fall(self):
         self.player_sprite.hit()

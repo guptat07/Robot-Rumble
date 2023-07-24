@@ -651,10 +651,7 @@ class MyGame(arcade.Window):
                         if collision == drone:
                             drone.thrusters.kill()
                             drone.shooting.kill()
-                            drone.explosion = Explosion()
-                            drone.explosion.center_x = drone.center_x
-                            drone.explosion.center_y = drone.center_y
-                            drone.explosion.face_direction(drone.character_face_direction)
+                            drone.explosion = Explosion(drone.center_x, drone.center_y, drone.character_face_direction)
                             self.scene_level_one.add_sprite("Explosion", drone.explosion)
                             self.explosion_list.append(drone.explosion)
                             drone.remove_from_sprite_lists()
@@ -691,7 +688,7 @@ class MyGame(arcade.Window):
                 self.player_sprite.hit()
 
         if self.scene_type == constants.SCENE_LEVEL_BOSS_ONE:
-            self.collision_handle.update_enemy(self.boss_list,delta_time)
+            self.collision_handle.update_player_collision_with_enemy(self.boss_list,delta_time)
 
 
             for bullet in self.player_bullet_list:
