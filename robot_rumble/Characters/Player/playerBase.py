@@ -109,7 +109,7 @@ class PlayerBase(Entity):
             if not self.is_blocking:
                 self.sparkle_sprite.remove_from_sprite_lists()
             # re-add when using driver / remove when using main
-            # self.update_player_speed()
+            self.update_player_speed()
             for weapon in self.weapons_list:
                 weapon.update(delta_time)
         else:
@@ -122,11 +122,12 @@ class PlayerBase(Entity):
     def update_player_speed(self):
         # this is currently not used, one in main is being used
         self.change_x = 0
-        # Using the key pressed variables lets us create more responsive x-axis movement
-        if self.left_pressed and not self.right_pressed:
-            self.change_x = -self.PLAYER_MOVEMENT_SPEED  # DEFINE THIS IN SUBCLASSES
-        elif self.right_pressed and not self.left_pressed:
-            self.change_x = self.PLAYER_MOVEMENT_SPEED
+        if not self.is_blocking:
+            # Using the key pressed variables lets us create more responsive x-axis movement
+            if self.left_pressed and not self.right_pressed:
+                self.change_x = -self.PLAYER_MOVEMENT_SPEED  # DEFINE THIS IN SUBCLASSES
+            elif self.right_pressed and not self.left_pressed:
+                self.change_x = self.PLAYER_MOVEMENT_SPEED
 
     def hit(self):
         # moved hit from main into player, player handles its own health now
@@ -134,8 +135,8 @@ class PlayerBase(Entity):
         if self.health == 0:
             self.is_alive = False
             self.death.center(self.center_x, self.center_y)
-            # This line was removed because the current player doesn't have direction
-            # death.face_direction(self.player_sprite.character_face_direction)
+            self.death.face_direction(self.character_face_direction)
+            self.death.scale = self.scale
             self.change_x = 0
             self.change_y = 0
             self.kill()

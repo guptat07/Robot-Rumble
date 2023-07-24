@@ -792,7 +792,7 @@ class MyGame(arcade.Window):
                         sword.remove_from_sprite_lists()
                         del self.physics_engine_sword_list[index]
 
-            if self.boss2.is_active:
+            if self.boss2.is_alive:
                 self.boss2.update(delta_time)
                 self.physics_engine_boss2.update()
                 self.boss2_list.update_animation()

@@ -37,6 +37,8 @@ class PlayerSwordster(PlayerBase):
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[0]
 
+        self.death.change_player_type("swordster")
+
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
 
