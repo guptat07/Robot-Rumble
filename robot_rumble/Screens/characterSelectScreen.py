@@ -37,9 +37,6 @@ class CharacterSelectScreen(arcade.View):
         self.button_width = section_space_width - ((section_space_width * .1) / 2)
         button_height = section_space_height * 2
 
-        print("Button Width" + str(self.button_width))
-        print("Button Height" + str(button_height))
-
         # Create Character Screen
         char_1 = arcade.gui.UIFlatButton(width=self.button_width, height=button_height)
         self.v_box.add(char_1)

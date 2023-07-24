@@ -110,7 +110,7 @@ class LevelOne(Level):
         if drone_xp != None:
             self.scene.add_sprite("Explosion", drone_xp)
             self.explosion_list.append(drone_xp)
-            
+
         for drone in self.drone_list:
             drone.update()
             drone_bullet = drone.drone_bullet(delta_time)
