@@ -2,6 +2,7 @@ import arcade
 from arcade import gl
 from robot_rumble.Screens.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
+from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 
 
 class Level(arcade.View):
@@ -116,7 +117,8 @@ class Level(arcade.View):
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = constants.JUMP_SPEED
             if key == arcade.key.Q:
-                if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN:
+                self.player_sprite.is_attacking = True
+                if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN and type(self.player_sprite) == PlayerGunner:
                     bullet = self.player_sprite.spawn_attack()
                     self.scene.add_sprite("player_attack", bullet)
                     self.player_bullet_list.append(bullet)
