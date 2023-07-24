@@ -81,12 +81,12 @@ class BossOne(BossBase):
 
 
         #if touching out of bounds, don't keep running at a wall do a new action
-        if self.left < 70: # before hitting walls
+        if self.left < 290: # before hitting walls
             self.current_state = random.randint(0, 4)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
             self.once_jump = True
-        elif self.right > 1000:
+        elif self.right > 1020:
             self.current_state = random.randint(0, 4)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
@@ -103,8 +103,9 @@ class BossOne(BossBase):
         #if player is near, focus on attack
 
 
-
-
+        #TODO
+        #edit boss logic to be more fun and less buggy
+        # edit player healthbar and boss healthbar
 
         match self.current_state:
             #idle

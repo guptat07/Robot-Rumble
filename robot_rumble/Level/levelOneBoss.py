@@ -46,23 +46,33 @@ class LevelOneBoss(Level):
         self.boss_bullet_list_circle = None
 
 
-        self.PLAYER_START_X = 100
-        self.PLAYER_START_Y = 300
+        self.PLAYER_START_X = 600
+        self.PLAYER_START_Y = 200
 
     def setup(self):
         super().setup()
+        player_centered = 0,0
+        if self.window.width == 1024:
+            player_centered = 160,0
+        elif self.window.width == 1152:
+            player_centered = 97, 0 #change
+        elif self.window.width == 1280:
+            player_centered = 35, 0 #change
+
+        self.camera.move_to(player_centered)
+
         self.boss_setup()
 
         self.physics_engine_boss = arcade.PhysicsEnginePlatformer(
             self.boss,
             gravity_constant=constants.GRAVITY,
-            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+            walls=[self.wall_list_boss_level, self.platform_list_boss],
         )
 
         self.physics_engine_level = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
             gravity_constant=constants.GRAVITY,
-            walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
+            walls=[self.wall_list_boss_level, self.platform_list_boss],
         )
 
     def boss_setup(self):
@@ -93,7 +103,7 @@ class LevelOneBoss(Level):
 
     def level_map_setup(self):
         # Name of map file to load
-        map_name_level = files("robot_rumble.assets").joinpath("Boss_Level.json")
+        map_name_level = files("robot_rumble.assets").joinpath("test1.json")
 
         # Layer specific options are defined based on Layer names in a dictionary
         # Doing this will make the SpriteList for the platforms layer
@@ -138,6 +148,10 @@ class LevelOneBoss(Level):
 
         boss_collision.clear()
         '''
+        # Did the player fall off the map?
+        if self.player_sprite.center_y < -50:
+            self.on_fall()
+
         super().on_update(delta_time,False)
 
         for bullet in self.player_bullet_list:
