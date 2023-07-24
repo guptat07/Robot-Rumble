@@ -40,7 +40,7 @@ class LevelOne(Level):
                            [1600, 730, constants.LEFT_FACING],
                            [1800, 220, constants.LEFT_FACING]]
         for x, y, direction in drone_positions:
-            drone = Drone(x, y, direction) #TODO Checkj whats wrong here
+            drone = Drone(x, y, direction)
             drone.update()
             self.scene.add_sprite("Drone", drone)
             self.scene.add_sprite("Thrusters", drone.thrusters)
@@ -107,6 +107,7 @@ class LevelOne(Level):
         if self.player_sprite.center_y < -100:
             self.on_fall()
 
+        #drone EXPLOSION
         drone_xp = self.collision_handle.update_enemy_collision(self.player_bullet_list,self.drone_list, constants.ENEMY_DRONE)
         if drone_xp != None:
             self.scene.add_sprite("Explosion", drone_xp)
@@ -119,10 +120,9 @@ class LevelOne(Level):
                 self.scene.add_sprite("drone_bullet", drone_bullet)
                 self.enemy_bullet_list.append(drone_bullet)
 
+        #collision check between enemy bullet_list and enemies with player
         self.collision_handle.update_collision(delta_time,self.enemy_bullet_list, [self.drone_list])
 
-        #check and manage collision with player and drone bullets
-        #self.collision_handle.update_player_collision_with_bullet(self.bullet_list,delta_time) #TODO
         self.level_change_check()
 
     def level_change_check(self):

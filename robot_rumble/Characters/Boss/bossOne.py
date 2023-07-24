@@ -159,7 +159,7 @@ class BossOne(BossBase):
                     self.damaged = 1
                 return
 
-
+        #print(self.teleport[1])
         if self.teleport[1] != -1:
             if self.teleport[1] >= 3 and self.teleport[0] == False:
                 return
@@ -186,7 +186,6 @@ class BossOne(BossBase):
                     self.cur_time_frame = 0
 
             return
-        print("gets past")
         #set start jump to 1 ONLY start
         if self.start_jump != 0:
             if self.start_jump > 3:
