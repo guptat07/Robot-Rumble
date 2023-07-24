@@ -1,5 +1,6 @@
-import arcade
 from importlib.resources import files
+
+import arcade
 from arcade.gui import UIManager
 
 
@@ -20,11 +21,23 @@ class DeathScreen(arcade.View):
         # Create a vertical BoxGroup to align buttons
         self.v_box = arcade.gui.UIBoxLayout(vertical=False)
 
+        # Button Style
+        default_style = {
+            "font_name": "VT323",
+            "font_color": arcade.color.WHITE,
+            "font_size" : 22,
+
+            # used if button is pressed
+            "bg_color_pressed": arcade.color.WHITE,
+            "border_color_pressed": arcade.color.WHITE,  # also used when hovered
+            "font_color_pressed": arcade.color.BLACK,
+        }
+
         # Create the buttons
-        start_button = arcade.gui.UIFlatButton(text="Title Screen", width=200)
+        start_button = arcade.gui.UIFlatButton(text="Title Screen", width=200, style=default_style)
         self.v_box.add(start_button.with_space_around(bottom=20, left=20, right=20))
 
-        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200, style=default_style)
         self.v_box.add(quit_button.with_space_around(bottom=20, left=20, right=20))
 
         start_button.on_click = self.on_click_start
@@ -53,7 +66,3 @@ class DeathScreen(arcade.View):
 
     def on_click_quit(self, event):
         arcade.exit()
-
-    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
-        print(x)
-        print(y)

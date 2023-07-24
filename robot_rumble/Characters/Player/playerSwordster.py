@@ -15,7 +15,7 @@ class PlayerSwordster(PlayerBase):
     def __init__(self):
         super().__init__()
         # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 5, 32, 32)
+        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 2, 32, 32)
         self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)
         self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "run_unmasked.png", 8, 32, 32)
         self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)

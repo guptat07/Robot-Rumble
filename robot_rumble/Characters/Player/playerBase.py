@@ -18,7 +18,7 @@ class PlayerBase(Entity):
         # CALL SUPER INNIT AFTER LOADING TEXTURES
         super().__init__()
         # Set health
-        self.health = 10
+        self.health = 20
         self.health_bar = PlayerHealthBar()
         self.death = Player_Death()
         self.is_alive = True
@@ -131,18 +131,21 @@ class PlayerBase(Entity):
 
     def hit(self):
         # moved hit from main into player, player handles its own health now
-        self.health -= 1
-        if self.health == 0:
-            self.is_alive = False
-            self.death.center(self.center_x, self.center_y)
-            self.death.face_direction(self.character_face_direction)
-            self.death.scale = self.scale
-            self.change_x = 0
-            self.change_y = 0
-            self.kill()
-        if self.health_bar.hp_list[0] < 21:
-            self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
-            self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
+        if not self.is_damaged:
+            self.is_damaged = True
+            self.health -= 1
+            if self.health == 0:
+                self.is_alive = False
+                self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
+                # This line was removed because the current player doesn't have direction
+                # death.face_direction(self.player_sprite.character_face_direction)
+                self.change_x = 0
+                self.change_y = 0
+                self.kill()
+            if self.health_bar.hp_list[0] < 21:
+                self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
+                self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
+
 
     def spawn_attack(self):  # this implementation should be done in its own way per characyter
         pass
