@@ -34,6 +34,7 @@ BOSS_STUN_TIME = 3
 
 # constants of player/boss gunner
 MOVE_SPEED = 2
+RUNNING_MOVE_SPEED = 5
 MOVE_SPEED_PLAYER = 10
 JUMP_SPEED = 20
 

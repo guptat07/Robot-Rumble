@@ -45,6 +45,7 @@ class LevelOneBoss(Level):
         # Variable for the boss bullet
         self.boss_bullet_list = None
         self.boss_bullet_list_circle = None
+        self.door_sprite = None
 
 
         self.PLAYER_START_X = 600
@@ -217,11 +218,18 @@ class LevelOneBoss(Level):
                         self.scene.add_sprite("name", y)
 
             if self.boss_first_form:
+                self.boss.damaged == -1
+                if self.boss.center_x > self.player_sprite.center_x:
+                    self.boss.character_face_direction = constants.LEFT_FACING
+                else:
+                    self.boss.character_face_direction = constants.RIGHT_FACING
                 self.boss.change_x = 0
 
+                '''
                 if self.boss.damaged != -1:
                     self.boss.boss_logic(delta_time)
                     return
+                '''
 
                 # teleport and wait
                 if self.boss_form_pos_timer[0] == 0:
@@ -275,11 +283,21 @@ class LevelOneBoss(Level):
                 self.boss.character_face_direction = constants.RIGHT_FACING
 
         else:
+            #death stuff
             self.boss.return_health_sprite().kill()
             for bullet in self.boss_bullet_list_circle:
                 bullet.kill()
             for bullet in self.boss_bullet_list:
                 bullet.kill()
+            self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
+                                             center_x=self.PLAYER_START_X,
+                                             center_y=self.PLAYER_START_Y)
+            self.scene.add_sprite(name="Door", sprite=self.door_sprite)
+            if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
+                from robot_rumble.Level.levelTwo import LevelTwo
+                level_two = LevelTwo(self.window, self.player_sprite)
+                level_two.setup()
+                self.window.show_view(level_two)
 
         self.boss.update(delta_time)
         '''
@@ -294,6 +312,13 @@ class LevelOneBoss(Level):
                 # self.window.show_view(title_screen)
         '''
 
+    def on_key_press(self, key, modifiers):
+        super().on_key_press(key, modifiers)
+        '''
+        if key == arcade.key.L:
+            self.boss_first_form = False
+            self.boss_form_swap_timer = 0
+            '''
 
     def on_draw(self):
         super().on_draw()

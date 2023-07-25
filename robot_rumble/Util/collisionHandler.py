@@ -69,6 +69,8 @@ class CollisionHandle():
     def update_player_boss(self, player, boss):
         if arcade.check_for_collision(boss, player):
             player.hit()
+            if not boss.boss_first_form and boss.damaged == -1:
+                boss.damaged = 0
 
     def update_boss_collision(self, player_bullet_list, boss):
         boss_collisions_with_player_bullet = arcade.check_for_collision_with_list(boss, player_bullet_list)

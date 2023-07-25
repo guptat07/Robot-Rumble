@@ -134,6 +134,8 @@ class Level(arcade.View):
             pause = PauseScreen(self)
             self.window.show_view(pause)
             self.isPaused = True
+        if key == arcade.key.F:
+            print(self.player_sprite.center_y)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""

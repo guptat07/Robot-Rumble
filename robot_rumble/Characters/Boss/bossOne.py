@@ -5,12 +5,15 @@ from arcade import gl
 from robot_rumble.Characters.Boss.bossBase import BossBase
 from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Util import constants
-from robot_rumble.Util.spriteload import load_spritesheet_pair
+from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet_pair_nocount
+
+
 class BossOne(BossBase):
     def __init__(self, target):
 
         # Set up parent class
         super().__init__(target)
+        self.height_to_do = 260
 
         # Default to face-right
         self.boss_logic_timer = 0
@@ -37,6 +40,8 @@ class BossOne(BossBase):
         self.running_r, self.running_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "run1.png", 8, 32, 32)
         self.jump_r, self.jump_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "jump1.png", 7, 32, 32)
         self.teleport_r, self.teleport_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "teleport.png", 6, 32, 32)
+        self.dash_r, self.dash_l = load_spritesheet_pair_nocount("robot_rumble.assets.gunner_assets", "dash1.png", 7, 32, 32)
+        self.dashing_frame = 0
 
         self.damaged_r = [1]
         self.damaged_l = [1]
@@ -87,12 +92,12 @@ class BossOne(BossBase):
 
         #if touching out of bounds, don't keep running at a wall do a new action
         if self.left < 290: # before hitting walls
-            self.current_state = random.randint(3, 4)
+            self.current_state = 3 #random.randint(3, 4)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
             self.once_jump = True
         elif self.right > 1020:
-            self.current_state = random.randint(1, 2)
+            self.current_state = 1 # (1,2)
             self.boss_logic_countdown = random.randint(1, 3)
             self.boss_logic_timer = 0
             self.once_jump = True
@@ -117,28 +122,32 @@ class BossOne(BossBase):
                 self.change_x = 0
             #walk left
             case 1:
-                self.change_x = -constants.MOVE_SPEED
+                self.change_x = -constants.MOVE_SPEED * 2
                 self.character_face_direction = constants.LEFT_FACING
+                if self.center_x < 570 and random.randint(1,2) == 1 and self.center_y < self.height_to_do:
+                    self.current_state = 2 # jump left special
             #jump left
             case 2:
                 self.character_face_direction = constants.LEFT_FACING
-                if self.once_jump:
+                if self.once_jump and self.center_y < self.height_to_do:
                     self.start_jump = 1
                     self.change_y = constants.JUMP_SPEED
                     self.once_jump = False
-                self.change_x = -constants.MOVE_SPEED
+                self.change_x = -constants.RUNNING_MOVE_SPEED
             #walk right
             case 3:
                 self.character_face_direction = constants.RIGHT_FACING
-                self.change_x = constants.MOVE_SPEED
+                self.change_x = constants.RUNNING_MOVE_SPEED
+                if self.center_x > 760 and random.randint(1,2) == 1 and self.center_y < self.height_to_do:
+                    self.current_state = 4
             #jump right
             case 4:
                 self.character_face_direction = constants.RIGHT_FACING
-                if self.once_jump:
+                if self.once_jump and self.center_y < self.height_to_do:
                     self.start_jump = 1
                     self.change_y = constants.JUMP_SPEED
                     self.once_jump = False
-                self.change_x = constants.MOVE_SPEED
+                self.change_x = constants.RUNNING_MOVE_SPEED
             #only jump
             case 5:
                 if self.once_jump:
@@ -146,24 +155,50 @@ class BossOne(BossBase):
                     self.change_y = constants.JUMP_SPEED
                     self.once_jump = False
 
+            #special cases
+            #left jump special
+            case 6:
+                self.boss_logic_countdown = 0
+                self.boss_logic_countdown = 3
+                self.character_face_direction = constants.LEFT_FACING
+                if self.once_jump:
+                    self.start_jump = 1
+                    self.change_y = constants.JUMP_SPEED
+                    self.once_jump = False
+                self.change_x = -constants.RUNNING_MOVE_SPEED
+            #right
+            case 7:
+                self.boss_logic_timer = 0
+                self.boss_logic_countdown = 3
+                self.character_face_direction = constants.RIGHT_FACING
+                if self.once_jump:
+                    self.start_jump = 1
+                    self.change_y = constants.JUMP_SPEED
+                    self.once_jump = False
+                self.change_x = constants.RUNNING_MOVE_SPEED
+
+
     def update_animation(self, delta_time):
         self.cur_time_frame += delta_time
         #damaged animation damaged is the disable state, is_disabled is something else
-        if self.damaged != -1:
+        if self.damaged != -1:      #TODO BRO IS TWEAKING
+            if self.boss_first_form:
+                self.damaged = -1
+                return
             if self.damaged == 2:
                 return
             if self.cur_time_frame >= 1 / 20:
                 if self.character_face_direction == constants.LEFT_FACING:
-                    self.texture = self.damaged_l[self.damaged]
+                    self.texture = self.damaged_l[self.damaged+1]
                 else:
-                    self.texture = self.damaged_r[self.damaged]
+                    self.texture = self.damaged_r[self.damaged+1]
                 self.cur_time_frame = 0
 
                 if self.damaged == 1:
                     self.damaged = 0
                 else:
                     self.damaged = 1
-                return
+            return
 
         if self.is_damaged:
             self.change_x = 0
@@ -185,6 +220,26 @@ class BossOne(BossBase):
                     else:
                         self.damaged_l[0] += 1
                     self.cur_time_frame = 0
+            return
+
+        if (self.current_state == 1 or self.current_state == 2) and not self.boss_first_form:
+            self.texture = self.dash_l[self.dashing_frame]
+            if self.cur_time_frame > 1 / 60:
+                if self.dashing_frame >= len(self.dash_l) - 1:
+                    self.dashing_frame = 0
+                else:
+                    self.dashing_frame += 1
+                self.cur_time_frame = 0
+            return
+
+        if (self.current_state == 3 or self.current_state == 4) and not self.boss_first_form:
+            self.texture = self.dash_r[self.dashing_frame]
+            if self.cur_time_frame > 1 / 60:
+                if self.dashing_frame >= len(self.dash_r) - 1:
+                    self.dashing_frame = 0
+                else:
+                    self.dashing_frame += 1
+                self.cur_time_frame = 0
             return
 
         if self.teleport[1] != -1:
@@ -340,10 +395,7 @@ class BossOne(BossBase):
                 for bullet in self.boss_bullet_list:
                     bullet.homing(delta_time)
 
-        if self.center_x > self.target.center_x:
-            self.character_face_direction = constants.LEFT_FACING
-        else:
-            self.character_face_direction = constants.RIGHT_FACING
+
 
     def drawing(self):
         super().drawing()
