@@ -91,12 +91,21 @@ class LevelOneBoss(Level):
         self.boss.center_y = self.window.height // 2 + 200
         self.scene.add_sprite("Boss", self.boss)
         self.boss_list.append(self.boss)
+
+        if self.window.width == 1024:
+            self.boss.return_health_sprite().center_x = 672
+        elif self.window.width == 1152:
+            self.boss.return_health_sprite().center_x = 700
+        elif self.window.width == 1280:
+            self.boss.return_health_sprite().center_x = self.window.width // 2 + 30
         self.boss.return_health_sprite().center_y = self.window.height - 20
-        self.boss.return_health_sprite().center_x = self.window.width // 2
+
         #self.boss_death = self.boss.return_death_sprite()
         self.scene.add_sprite("boss_death",self.boss.return_death_sprite())
 
-        #self.scene.add_sprite("Boss_HP", self.boss.return_health_sprite())
+        self.scene["boss_death"].visible = False
+
+        self.scene.add_sprite("Boss_HP", self.boss.return_health_sprite())
 
 
 
@@ -283,6 +292,8 @@ class LevelOneBoss(Level):
                 self.boss.character_face_direction = constants.RIGHT_FACING
 
         else:
+            self.scene["boss_death"].visible = True
+
             #death stuff
             self.boss.return_health_sprite().kill()
             for bullet in self.boss_bullet_list_circle:
