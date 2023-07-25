@@ -7,6 +7,7 @@ from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Util.spriteload import load_spritesheet, load_spritesheet_pair, load_spritesheet_nocount
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.entities import Entity
+from robot_rumble.Characters.death import Player_Death
 
 
 class BossHealthBar(arcade.Sprite):
@@ -47,7 +48,9 @@ class BossBase(Entity):
 
         self.center_x = constants.SCREEN_WIDTH // 2
         self.center_y = constants.SCREEN_HEIGHT // 2 + 200
-        self.is_active = True
+        self.is_alive = True
+
+        self.death = Player_Death()
 
 
         self.death = Player_Death()
@@ -66,6 +69,7 @@ class BossBase(Entity):
     def update(self, delta_time):
         #self.boss_logic(delta_time)
         # don't overheal or get to negative health
+
         if self.health <= 0:
             if self.death.die(delta_time):
                 self.death.kill()

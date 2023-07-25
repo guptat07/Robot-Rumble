@@ -2,7 +2,9 @@ import arcade
 import robot_rumble.Util.constants as constants
 
 from robot_rumble.Characters.Player.playerBase import PlayerBase
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
 
 from robot_rumble.Characters.death import Explosion
 from robot_rumble.Characters.drone import Drone
@@ -16,14 +18,15 @@ from robot_rumble.Level.levelOneBoss import LevelOneBoss
 from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
-
 class LevelTwo(Level):
 
-    def __init__(self, window: arcade.Window):
+    def __init__(self, window: arcade.Window, player_type):
         super().__init__(window)
 
         self.PLAYER_START_X = 2700
         self.PLAYER_START_Y = 60
+
+        self.player_type = player_type
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
@@ -44,7 +47,8 @@ class LevelTwo(Level):
         )
 
     def level_enemy_setup(self):
-        # There are 3 enemy types (sort of). We will create them type by type.
+        # There are 3 enemy types (sort of— 3 things can damage you, but you can only attack two).
+        # We will create them kind by kind.
 
         # The drones from level 1 return.
         self.drone_list = arcade.SpriteList()
@@ -106,9 +110,13 @@ class LevelTwo(Level):
         # end of the order.
 
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = PlayerGunner()
+        if self.player_type == 'gunner':
+            self.player_sprite = PlayerGunner()
+        elif self.player_type == 'sword':
+            self.player_sprite = PlayerSwordster()
+        elif self.player_type == 'brawler':
+            self.player_sprite = PlayerFighter()
         super().level_player_setup()
-        # self.scene.add_sprite("Player", self.player_sprite)
 
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()
@@ -165,85 +173,53 @@ class LevelTwo(Level):
         self.physics_engine_level.update()
 
         # Did the player fall off the map?
-        if self.player_sprite.center_y < -100:
+        if self.player_sprite.center_y < -100 and self.player_sprite.center_x > 1000:
             self.on_fall()
+        elif self.player_sprite.center_y < -100 and self.player_sprite.center_x < 1000:
+            self.player_sprite.hit()
+            self.player_sprite.center_x = 1000
+            self.player_sprite.center_y = 60
 
-        for bullet in self.player_bullet_list:
-            bullet.update(delta_time)
-            drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.drone_list)
-            crawler_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, self.crawler_list)
-            for collision in drone_collisions_with_player_bullet:
-                for drone in self.drone_list:
-                    if collision == drone:
-                        drone.thrusters.kill()
-                        drone.shooting.kill()
-                        drone.explosion = Explosion()
-                        drone.explosion.center_x = drone.center_x
-                        drone.explosion.center_y = drone.center_y
-                        drone.explosion.face_direction(drone.character_face_direction)
-                        self.scene.add_sprite("Explosion", drone.explosion)
-                        self.explosion_list.append(drone.explosion)
-                        drone.remove_from_sprite_lists()
-            for collision in crawler_collisions_with_player_bullet:
-                for crawler in self.crawler_list:
-                    if collision == crawler:
-                        crawler.shooting_pose.kill()
-                        crawler.shooting_effect.kill()
-                        crawler.explosion = Explosion()
-                        crawler.explosion.center_x = crawler.center_x
-                        crawler.explosion.center_y = crawler.center_y
-                        crawler.explosion.face_direction(crawler.character_face_direction)
-                        self.scene.add_sprite("Explosion", crawler.explosion)
-                        self.explosion_list.append(crawler.explosion)
-                        crawler.remove_from_sprite_lists()
+        # enemy EXPLOSION
+        drone_explosion = self.collision_handle.update_enemy_collision(self.player_bullet_list, self.drone_list,
+                                                                constants.ENEMY_DRONE)
+        if drone_explosion is not None:
+            self.scene.add_sprite("Explosion", drone_explosion)
+            self.explosion_list.append(drone_explosion)
 
-        for explosion in self.explosion_list:
-            if explosion.explode(delta_time):
-                explosion.remove_from_sprite_lists()
+        crawler_explosion = self.collision_handle.update_enemy_collision(self.player_bullet_list, self.crawler_list,
+                                                                constants.ENEMY_DRONE)
+        if crawler_explosion is not None:
+            self.scene.add_sprite("Explosion", crawler_explosion)
+            self.explosion_list.append(crawler_explosion)
 
+        # enemy bullets
         for drone in self.drone_list:
             drone.update()
-            if drone.drone_logic(delta_time):
-                bullet = DroneBullet()
-                bullet.character_face_direction = drone.character_face_direction
-                if bullet.character_face_direction == constants.RIGHT_FACING:
-                    bullet.center_x = drone.shooting.center_x + 5
-                else:
-                    bullet.center_x = drone.shooting.center_x - 5
-                bullet.center_y = drone.shooting.center_y
-                self.scene.add_sprite("Bullet", bullet)
-                self.bullet_list.append(bullet)
+            drone_bullet = drone.drone_bullet(delta_time)
+            if drone_bullet is not None:
+                self.scene.add_sprite("drone_bullet", drone_bullet)
+                self.enemy_bullet_list.append(drone_bullet)
 
         for crawler in self.crawler_list:
             crawler.update()
-            if crawler.crawler_logic(delta_time):
-                bullet = CrawlerBullet()
-                bullet.character_face_direction = crawler.character_face_direction
-                if bullet.character_face_direction == constants.RIGHT_FACING:
-                    bullet.center_x = crawler.shooting_effect.center_x + 30
-                else:
-                    bullet.center_x = crawler.shooting_effect.center_x - 30
-                bullet.center_y = crawler.shooting_effect.center_y - 20
-                self.scene.add_sprite("Bullet", bullet)
-                self.bullet_list.append(bullet)
+            crawler_bullet = crawler.crawler_bullet(delta_time)
+            if crawler_bullet is not None:
+                self.scene.add_sprite("crawler_bullet", crawler_bullet)
+                self.enemy_bullet_list.append(crawler_bullet)
 
         for turret in self.turret_list:
-            if turret.turret_logic(delta_time):
-                bullet = TurretBullet()
-                bullet.center_x = turret.center_x
-                bullet.center_y = turret.center_y - 35
-                self.scene.add_sprite("Bullet", bullet)
-                self.bullet_list.append(bullet)
+            turret.update()
+            turret_bullet = turret.turret_bullet(delta_time)
+            if turret_bullet is not None:
+                self.scene.add_sprite("turret_bullet", turret_bullet)
+                self.enemy_bullet_list.append(turret_bullet)
 
-        for bullet in self.bullet_list:
-            bullet.move()
-            bullet.update()
+        self.collision_handle.update_collision(delta_time, self.enemy_bullet_list, [self.drone_list, self.crawler_list])
 
-        bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.bullet_list)
-        for bullet in bullet_collisions:
-            bullet.remove_from_sprite_lists()
-            self.player_sprite.hit()
+        self.level_change_check()
 
+    def level_change_check(self):
         if self.player_sprite.center_x <= 0:
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()

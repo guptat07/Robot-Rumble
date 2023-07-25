@@ -60,13 +60,20 @@ class Player_Death(Entity):
         self.animation_finished = False
 
         self.death_time = 0
-        self.death_r, self.death_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "death1.png", 7, 64, 32)
+        self.death_gunner_r, self.death_gunner_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "death1.png", 7, 64, 32)
+        self.death_swordster_r, self.death_swordster_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "death1.png", 7, 64, 32)
+        self.death_fighter_r, self.death_fighter_l = load_spritesheet_pair("robot_rumble.assets.fighter_assets", "death1.png", 7, 64, 32)
+
+
+        self.scale = constants.ENEMY_SCALING
+        self.death_r = self.death_gunner_r
+        self.death_l = self.death_gunner_l
 
 
         if self.character_face_direction == constants.RIGHT_FACING:
             self.death = self.death_r
         else:
-            self.death = self.death_r
+            self.death = self.death_l
         self.texture = self.death[1]
 
     def center(self, x, y, scale, direction):
@@ -82,6 +89,20 @@ class Player_Death(Entity):
         else:
             self.death = self.death_l
         self.texture = self.death[1]
+
+    def change_player_type(self, player_type):
+        match player_type:
+            case "gunner":
+                self.death_r = self.death_gunner_r
+                self.death_l = self.death_gunner_l
+            case "swordster":
+                self.death_r = self.death_swordster_r
+                self.death_l = self.death_swordster_l
+            case "fighter":
+                self.death_r = self.death_fighter_r
+                self.death_l = self.death_fighter_l
+        self.face_direction(self.character_face_direction)
+
 
     def die(self, delta_time):
         self.death_time += delta_time

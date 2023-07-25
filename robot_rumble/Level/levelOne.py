@@ -11,6 +11,8 @@ from importlib.resources import files
 from robot_rumble.Level.levelOneBoss import LevelOneBoss
 from robot_rumble.Util.collisionHandler import CollisionHandle
 
+from robot_rumble.Level.levelTwoBoss import LevelTwoBoss
+
 
 class LevelOne(Level):
 
@@ -118,10 +120,18 @@ class LevelOne(Level):
         #collision check between enemy bullet_list and enemies with player
         self.collision_handle.update_collision(delta_time,self.enemy_bullet_list, [self.drone_list])
 
+        if self.player_sprite.health <= 0:
+            self.scene["Player_Death"].visible = True
+
         self.level_change_check()
+
 
     def level_change_check(self):
         if self.player_sprite.center_x <= 0:
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)
+            # level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
+            # level_two_boss.setup()
+            # self.window.show_view(level_two_boss)
+

@@ -129,13 +129,18 @@ class DroneBullet(Entity):
 
 
 class CrawlerBullet(Entity):
-    def __init__(self):
+    def __init__(self, x, y, direction):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
+        # Direction and position
         self.cur_time_frame = 0
-        self.character_face_direction = constants.RIGHT_FACING
+        self.character_face_direction = direction
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.center_x = x + 30
+        else:
+            self.center_x = x - 30
+        self.center_y = y - 20
 
         # Used for flipping between image sequences
         self.cur_texture = 0
@@ -156,15 +161,18 @@ class CrawlerBullet(Entity):
         self.center_x += self.change_x
         self.center_y += self.change_y
 
+
 class TurretBullet(Entity):
-    def __init__(self):
+    def __init__(self, x, y):
         # Setup parent class
         super().__init__()
 
-        # Default to face-right
-        self.cur_time_frame = 0
+        # Position
+        self.center_x = x
+        self.center_y = y - 35
 
         # Used for flipping between image sequences
+        self.cur_time_frame = 0
         self.cur_texture = 0
 
         self.scale = constants.ENEMY_SCALING

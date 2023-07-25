@@ -68,6 +68,7 @@ class Level(arcade.View):
 
         self.scene.add_sprite("Player_Health", self.player_sprite.return_health_sprite())
         self.scene.add_sprite("Player_Death", self.player_sprite.return_death_sprite())
+        self.scene["Player_Death"].visible = False
 
         self.explosion_list = arcade.SpriteList()
         self.scene.add_sprite_list("explosion_list")
@@ -125,11 +126,10 @@ class Level(arcade.View):
                     self.scene.add_sprite("player_attack", bullet)
                     self.player_bullet_list.append(bullet)
                     self.attack_cooldown = 0
-            if key == arcade.key.F:
-                #debugging stuff
-                print(self.player_sprite.center_x)
-
-
+            if key == arcade.key.S or key == arcade.key.DOWN:
+                if not self.player_sprite.is_damaged:
+                    self.player_sprite.is_blocking = True
+                    self.scene.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
             self.window.show_view(pause)
