@@ -2,6 +2,8 @@ import arcade
 import random
 from importlib.resources import files
 from arcade import gl
+
+from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Util.spriteload import load_spritesheet, load_spritesheet_pair, load_spritesheet_nocount
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.entities import Entity
@@ -30,7 +32,7 @@ class BossBase(Entity):
         self.hp_bar = BossHealthBar()
         self.hp_bar.scale = 5
         self.hp_bar.center_x = constants.SCREEN_WIDTH // 2
-        self.hp_bar.center_y = constants.SCREEN_HEIGHT // 2 + 380
+        self.hp_bar.center_y = constants.SCREEN_HEIGHT // 2
 
         #other boss sprite stuff
         self.character_face_direction = constants.LEFT_FACING
@@ -51,6 +53,9 @@ class BossBase(Entity):
         self.death = Player_Death()
 
 
+        self.death = Player_Death()
+
+
     def drawing(self):
         #just drawing the health bar
         # if self.health >= 41:
@@ -65,16 +70,20 @@ class BossBase(Entity):
     def update(self, delta_time):
         #self.boss_logic(delta_time)
         # don't overheal or get to negative health
-        if self.health >= 80:
-            self.health = 80
-        elif self.health <= 0:
-            self.health = 0
-            self.is_alive = False
-            self.death.die(delta_time)
 
-        # player movement
-        self.center_x += self.change_x
-        self.center_y += self.change_y
+        if self.health <= 0:
+            if self.death.die(delta_time):
+                self.death.kill()
+
+        else:
+            if self.health >= 80:
+                self.health = 80
+            elif self.health <= 0:
+                self.health = 0
+
+            # player movement
+            self.center_x += self.change_x
+            self.center_y += self.change_y
 
         # Check for out-of-bounds, can be removed with walls and proper checks
         # I dont think this code does anything cause
@@ -100,6 +109,16 @@ class BossBase(Entity):
     def return_sprite_lists(self):
         return self.sprite_lists_weapon
 
+    def hit(self):
+        if not self.is_damaged:
+            self.health -= 10
+            self.is_damaged = True
+            if self.health <= 0:
+                #self.is_alive = False
+                self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
+                self.change_x = 0
+                self.change_y = 0
+                self.kill_all()
 
     def return_health_sprite(self):
         return self.hp_bar
