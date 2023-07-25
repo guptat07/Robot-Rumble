@@ -112,9 +112,13 @@ class BossBase(Entity):
             self.death.scale = self.scale
             self.change_x = 0
             self.change_y = 0
+            self.kill_all()
             self.kill()
 
         # TODO: add health bar adjustments
+
+    def kill_all(self):
+        pass
 
     def return_death_sprite(self):
         return self.death

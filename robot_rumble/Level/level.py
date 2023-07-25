@@ -45,6 +45,7 @@ class Level(arcade.View):
 
         self.player_bullet_list = None
         self.attack_cooldown = 10
+        self.block_cooldown = 10
 
         self.right_pressed = None
         self.left_pressed = None
@@ -113,7 +114,7 @@ class Level(arcade.View):
         """Called whenever a key is pressed."""
         if self.player_sprite.is_alive:
             self.player_sprite.on_key_press(key, modifiers)
-            if key == arcade.key.UP or key == arcade.key.W:
+            if (key == arcade.key.UP or key == arcade.key.W) and not self.player_sprite.is_blocking:
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = constants.JUMP_SPEED
             if key == arcade.key.Q:
@@ -125,7 +126,7 @@ class Level(arcade.View):
                     self.attack_cooldown = 0
 
             if key == arcade.key.S or key == arcade.key.DOWN:
-                if not self.player_sprite.is_damaged:
+                if not self.player_sprite.is_damaged and self.block_cooldown > constants.BLOCK_COOLDOWN and not self.player_sprite.is_blocking:
                     self.player_sprite.is_blocking = True
                     self.scene.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
 
@@ -139,8 +140,12 @@ class Level(arcade.View):
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
         self.player_sprite.on_key_release(key, modifiers)
-        if key == arcade.key.Q:
+        if key == arcade.key.Q and type(self.player_sprite) == PlayerGunner():
             self.player_sprite.is_attacking = False
+        if key == arcade.key.S or key == arcade.key.DOWN:
+            if self.player_sprite.is_blocking:
+                self.block_cooldown = 0
+            self.player_sprite.is_blocking = False
 
     def center_camera_to_player(self):
         self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width // 2)
@@ -181,6 +186,7 @@ class Level(arcade.View):
 
         self.player_sprite.update(delta_time)
         self.attack_cooldown += delta_time
+        self.block_cooldown += delta_time
 
     def on_fall(self):
         self.player_sprite.hit()
