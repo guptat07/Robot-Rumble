@@ -43,6 +43,11 @@ class PlayerFighter(PlayerBase):
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[0]
 
+        self.slash_can_hit = [True, True, True, True]
+        self.jump_can_hit = True
+        self.slashes = [7, 14, 24]
+        self.character = 2
+
         self.death.change_player_type("fighter")
 
 
@@ -52,6 +57,11 @@ class PlayerFighter(PlayerBase):
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
+
+        if self.fix_slash:
+            self.slash_can_hit = [True, True, True, True]
+            self.fix_slash = False
+            self.jump_can_hit = True
 
         if not self.is_blocking and not self.is_damaged:
             # This condition must mean that the player WAS jumping but has landed
@@ -91,3 +101,4 @@ class PlayerFighter(PlayerBase):
                         else:
                             self.jumping_attack[0] = self.jumping_attack[0] + 1
                 return
+

@@ -10,6 +10,7 @@ from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Level.level import Level
 import robot_rumble.Util.constants as const
 from importlib.resources import files
+from robot_rumble.Util.collisionHandler import CollisionHandle
 
 from robot_rumble.Util import constants
 
@@ -20,6 +21,7 @@ class LevelOneBoss(Level):
 
         self.player_sprite = player
         self.door_sprite = None
+        self.collision_handle = CollisionHandle(self.player_sprite)
 
         # Boss Level Physics Engine
         self.foreground_boss_level = None
@@ -81,6 +83,9 @@ class LevelOneBoss(Level):
         self.scene.add_sprite("Boss", self.boss)
         self.boss_list.append(self.boss)
 
+        self.scene.add_sprite("Boss_Death", self.boss.return_death_sprite())
+        self.scene["Boss_Death"].visible = False
+
 
 
         # Boss Bullet Ring
@@ -141,6 +146,8 @@ class LevelOneBoss(Level):
         '''
         super().on_update(delta_time,False)
 
+        self.collision_handle.update_boss_collision_melee(self.boss_list, self.boss)
+
         for bullet in self.player_bullet_list:
             bullet.update(delta_time)
             boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
@@ -149,20 +156,20 @@ class LevelOneBoss(Level):
                 collision.kill()
                 self.boss.health -= 1
                 if self.boss.health <= 0:
-                    death = Player_Death()
-                    death.scale = 3
-                    death.center_x = self.boss.center_x
-                    death.center_y = self.boss.center_y
-                    death.face_direction(self.boss.character_face_direction)
-                    self.scene.add_sprite("Death", death)
-                    self.death_list.append(death)
-                    self.boss.kill()
+                    # death = Player_Death()
+                    # death.scale = 3
+                    # death.center_x = self.boss.center_x
+                    # death.center_y = self.boss.center_y
+                    # death.face_direction(self.boss.character_face_direction)
+                    # self.scene.add_sprite("Death", death)
+                    # self.death_list.append(death)
+                    # self.boss.kill()
                     self.boss.is_active = False
                     self.boss.change_x = 0
                     self.boss.change_y = 0
 
-                    if death.die(delta_time):
-                        death.remove_from_sprite_lists()
+                    # if death.die(delta_time):
+                    #     death.remove_from_sprite_lists()
                         # from robot_rumble.Level.titleScreen import TitleScreen
                         # title_screen = TitleScreen(self.window)
                         # self.window.show_view(title_screen)
@@ -264,9 +271,8 @@ class LevelOneBoss(Level):
         self.physics_engine_boss.update()
         self.boss_list.update_animation()
 
-        for death in self.death_list:
-            if death.die(delta_time):
-                death.remove_from_sprite_lists()
+        if self.boss.health <= 0:
+            self.scene["Boss_Death"].visible = True
 
         if self.boss.death.animation_finished:
             self.boss.death.kill()

@@ -10,6 +10,9 @@ from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Level.level import Level
 from importlib.resources import files
 from robot_rumble.Util import constants
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
+from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class LevelTwoBoss(Level):
@@ -18,6 +21,7 @@ class LevelTwoBoss(Level):
 
         self.door_sprite = None
         self.player_sprite = player
+        self.collision_handle = CollisionHandle(self.player_sprite)
 
         # Boss Level Physics Engine
         self.physics_engine_level = None
@@ -111,6 +115,7 @@ class LevelTwoBoss(Level):
         self.player_sprite.center_x = self.PLAYER_START_X
         self.player_sprite.center_y = self.PLAYER_START_Y
 
+        self.center_camera_to_health()
         if self.window.width == 1024:
             self.player_sprite.return_health_sprite().center_x = 260
         elif self.window.width == 1152:
@@ -123,6 +128,9 @@ class LevelTwoBoss(Level):
     def on_update(self, delta_time):
         super().on_update(delta_time,False)
 
+        # Check for collisions between player and enemies
+        self.collision_handle.update_boss_collision_melee(self.boss_list, self.boss)
+
         # Make sure all swords have physics engines
         if len(self.physics_engine_sword_list) < len(self.boss.sword_list):
             for index in range(len(self.physics_engine_sword_list), len(self.boss.sword_list)):
@@ -134,6 +142,7 @@ class LevelTwoBoss(Level):
                 self.scene.add_sprite("Sword", self.boss.sword_list[index])
                 self.sword_list.append(self.boss.sword_list[index])
 
+        # Player Gunner bullet collisions
         for bullet in self.player_bullet_list:
             bullet.update(delta_time)
             boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
@@ -141,13 +150,16 @@ class LevelTwoBoss(Level):
             for collision in boss_collision:
                 collision.kill()
                 self.boss.hit()
-                if self.boss.health <= 0:
-                    self.scene["Boss_Death"].visible = True
 
         self.physics_engine_boss.update()
         self.physics_engine_level.update() #TODO: MOVE UP INTO LEVEL
         for physics_engine_sword in self.physics_engine_sword_list:
             physics_engine_sword.update()
+
+        self.boss.update(delta_time)
+        self.boss_list.update_animation()
+        if self.boss.health <= 0:
+            self.scene["Boss_Death"].visible = True
 
         if len(self.sword_list) > 0:
             # Check for collisions with player
@@ -169,9 +181,6 @@ class LevelTwoBoss(Level):
                     del self.physics_engine_sword_list[index]
 
         if self.boss.is_alive:
-            self.boss.update(delta_time)
-            self.physics_engine_boss.update()
-            self.boss_list.update_animation()
             if self.boss.is_attacking:
                 if (self.boss.character_face_direction == constants.RIGHT_FACING and self.player_sprite.center_x > self.boss.center_x) \
                         or (self.boss.character_face_direction == constants.LEFT_FACING and self.player_sprite.center_x < self.boss.center_x):

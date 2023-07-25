@@ -3,6 +3,8 @@ from arcade import gl
 from robot_rumble.Screens.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 
 
 class Level(arcade.View):
@@ -119,6 +121,16 @@ class Level(arcade.View):
                     self.player_sprite.change_y = constants.JUMP_SPEED
             if key == arcade.key.Q:
                 self.player_sprite.is_attacking = True
+                if type(self.player_sprite) == PlayerSwordster:
+                    if self.player_sprite.character_face_direction == constants.RIGHT_FACING:
+                        self.player_sprite.center_x += 32
+                    else:
+                        self.player_sprite.center_x -= 32
+                if type(self.player_sprite) == PlayerFighter:
+                    if self.player_sprite.character_face_direction == constants.RIGHT_FACING:
+                        self.player_sprite.center_x += 16
+                    else:
+                        self.player_sprite.center_x -= 16
                 if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN and type(self.player_sprite) == PlayerGunner:
                     bullet = self.player_sprite.spawn_attack()
                     self.scene.add_sprite("player_attack", bullet)
@@ -136,8 +148,9 @@ class Level(arcade.View):
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
         self.player_sprite.on_key_release(key, modifiers)
-        if key == arcade.key.Q and type(self.player_sprite) == PlayerGunner():
-            self.player_sprite.is_attacking = False
+        if key == arcade.key.Q:
+            if type(self.player_sprite) == PlayerGunner():
+                self.player_sprite.is_attacking = False
         if key == arcade.key.S or key == arcade.key.DOWN:
             if self.player_sprite.is_blocking:
                 self.block_cooldown = 0
