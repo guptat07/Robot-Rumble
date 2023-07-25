@@ -30,7 +30,7 @@ class CollisionHandle():
             for enemy in enemy_collision:
                 self.player.hit()
 
-    def update_player_collision_with_enemy(self,enemy_list, delta_time):
+    def update_player_collision_with_enemy(self, enemy_list, delta_time):
         # just moved from main, handle collision for player taking damage
         enemy_collision = arcade.check_for_collision_with_list(self.player, enemy_list)
         self.invuln_frames_timer += delta_time
@@ -41,7 +41,7 @@ class CollisionHandle():
             self.invuln_frames_timer = 0
         enemy_collision.clear()
 
-    def update_player_collision_with_bullet(self,bullet_list, delta_time):
+    def update_player_collision_with_bullet(self, bullet_list, delta_time):
         # just moved from main, handle collision for player taking damage
         enemy_collision = arcade.check_for_collision_with_list(self.player, bullet_list)
         self.invuln_frames_timer += delta_time
@@ -56,7 +56,7 @@ class CollisionHandle():
     def update_enemy_collision(self, player_bullet_list, enemy_list, enemy_type):
         if enemy_type == constants.ENEMY_DRONE:
             for bullet in player_bullet_list:
-                drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet,enemy_list)
+                drone_collisions_with_player_bullet = arcade.check_for_collision_with_list(bullet, enemy_list)
                 for collision in drone_collisions_with_player_bullet:
                     collision.kill_all()
                     collision.explosion = Explosion(collision.center_x,collision.center_y,collision.character_face_direction)
@@ -101,3 +101,12 @@ class CollisionHandle():
                         elif self.player.is_jumping:
                             boss.hit()
                             self.player.jump_can_hit = False
+        else:
+            return None
+
+    def enemy_bullet_collision_walls(self, enemy_bullet_list, wall_list):
+        for bullet in enemy_bullet_list:
+            enemy_bullet_collisions_with_walls = arcade.check_for_collision_with_list(bullet, wall_list)
+            if len(enemy_bullet_collisions_with_walls) > 0:
+                bullet.kill()
+

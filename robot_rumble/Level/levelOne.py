@@ -127,6 +127,9 @@ class LevelOne(Level):
         # collision check between enemy bullet_list and enemies with player
         self.collision_handle.update_collision(delta_time, self.enemy_bullet_list, [self.drone_list])
 
+        # collision check between enemy bullets and walls
+        self.collision_handle.enemy_bullet_collision_walls(self.enemy_bullet_list, self.platform_list_level)
+
         if self.player_sprite.health <= 0:
             self.scene["Player_Death"].visible = True
 

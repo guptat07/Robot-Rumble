@@ -15,6 +15,7 @@ class Level(arcade.View):
         self.physics_engine_level = None
         self.platform_list_level = None
         self.tile_map_level = None
+        self.wall_list_boss_level = None
 
         # Variable that holds the player sprite
         self.player_sprite = None
@@ -196,6 +197,8 @@ class Level(arcade.View):
         self.player_sprite.update(delta_time)
         self.attack_cooldown += delta_time
         self.block_cooldown += delta_time
+
+
 
     def on_fall(self):
         self.player_sprite.hit()
