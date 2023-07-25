@@ -15,11 +15,13 @@ class TitleScreen(arcade.View):
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
 
-        # Set background color
+        # Set background color and load music
         arcade.set_background_color(arcade.color.BLACK)
         arcade.draw_lrtb_rectangle_filled(0, 0,
                                           self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
+        self.click_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("menu_button_press.wav"))
 
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
@@ -71,6 +73,7 @@ class TitleScreen(arcade.View):
         self.manager.draw()
 
     def on_click_start(self, event):
+        arcade.play_sound(self.click_sound)
         self.clear()
         self.manager.disable()
         control_screen = ControlScreen(self.window)
@@ -80,6 +83,7 @@ class TitleScreen(arcade.View):
         arcade.exit()
 
     def on_click_options(self, event):
+        arcade.play_sound(self.click_sound)
         self.clear()
         self.manager.disable()
         options_screen = OptionsScreen(self.window)
