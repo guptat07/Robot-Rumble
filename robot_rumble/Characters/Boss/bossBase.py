@@ -58,11 +58,12 @@ class BossBase(Entity):
 
     def drawing(self):
         #just drawing the health bar
-        if self.health >= 41:
-            self.hp_bar.texture = self.hp_bar.green_bar[self.health-41]
-        elif self.health >= 0:
-            self.hp_bar.texture = self.hp_bar.red_bar[40-self.health]
-        self.hp_bar.draw(filter=gl.NEAREST)
+        # if self.health >= 41:
+        #     self.hp_bar.texture = self.hp_bar.green_bar[self.health-41]
+        # elif self.health >= 0:
+        #     self.hp_bar.texture = self.hp_bar.red_bar[40-self.health]
+        # self.hp_bar.draw(filter=gl.NEAREST)
+        pass
 
     def boss_logic(self, delta_time):
         pass
@@ -121,6 +122,23 @@ class BossBase(Entity):
 
     def return_health_sprite(self):
         return self.hp_bar
+
+    def hit(self):
+        self.health -= 1
+        self.is_damaged = True
+        if self.health == 0:
+            self.is_alive = False
+            self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
+            self.death.scale = self.scale
+            self.change_x = 0
+            self.change_y = 0
+            self.kill_all()
+            self.kill()
+
+        # TODO: add health bar adjustments
+
+    def kill_all(self):
+        pass
 
     def return_death_sprite(self):
         return self.death

@@ -70,7 +70,6 @@ class PlayerBase(Entity):
                 if self.cur_time_frame >= 3 / 60:
                     if self.sparkle[0] >= len(self.sparkle[1]) - 1:
                         self.sparkle[0] = 0
-                        self.is_blocking = False
                     else:
                         self.sparkle[0] += 1
                 if self.cur_time_frame >= 5 / 60:
@@ -95,6 +94,7 @@ class PlayerBase(Entity):
                     if self.running_attack[0] >= len(self.running_attack[1]) - 1:
                         self.running_attack[0] = 0
                         self.is_attacking = False
+                        self.fix_slash = True
                         self.cur_time_frame = 1/3
                     else:
                         self.running_attack[0] = self.running_attack[0] + 1

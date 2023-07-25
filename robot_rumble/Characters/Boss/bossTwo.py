@@ -6,6 +6,8 @@ from robot_rumble.Characters.Boss.bossBase import BossBase
 from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Util import constants
 from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet_pair_nocount
+from robot_rumble.Characters.projectiles import Sword
+
 class BossTwo(BossBase):
     def __init__(self, target):
 
@@ -40,6 +42,9 @@ class BossTwo(BossBase):
         self.is_jumping = False
         self.is_attacking = False
         self.slash_can_hit = [True, True, True]
+        self.jump_can_hit = True
+        self.sword_list = []
+        self.sword_timer = 1
 
         self.texture = self.idle_r[1]
 
@@ -78,10 +83,9 @@ class BossTwo(BossBase):
             if self.target.center_x < self.center_x + 24*constants.ENEMY_SCALING and self.target.center_x > self.center_x - 24*constants.ENEMY_SCALING\
                     and self.target.center_y < self.center_y + 50 and self.target.center_y > self.center_y - 50:
                 if not self.is_attacking:
-                    self.slash_can_hit = [True, True, True]
                     # need to adjust the sprite centering due to the difference in sprite size
                     if self.change_x != 0:
-                        if self.character_face_direction == constants.RIGHT_FACING and self.center_x < 1000:
+                        if self.character_face_direction == constants.RIGHT_FACING and self.center_x < 1100:
                             self.center_x += 16*constants.ENEMY_SCALING
                         else:
                             self.center_x -= 16*constants.ENEMY_SCALING
@@ -102,6 +106,12 @@ class BossTwo(BossBase):
 
         # Second form logic
         else:
+            # spawn sword based on timer
+            self.sword_timer += delta_time
+            if self.sword_timer > constants.SWORD_SPAWN_TIME:
+                self.make_sword()
+                self.sword_timer = 0
+
             # dash when close to player
             if abs(self.center_x - self.target.center_x) < 200:
                 self.is_dashing = True
@@ -109,22 +119,22 @@ class BossTwo(BossBase):
                 self.is_dashing = False
 
             # Check if the boss should patrol
-            if self.center_x - self.target.center_x > 0 and self.target.center_x <= 383 and self.center_y == 134.75:
-                if self.center_x < 870 and self.center_x > 520:
-                    if self.center_x > 855:
+            if self.center_x - self.target.center_x > 0 and self.target.center_x <= 523 and self.center_y == 134.75 and self.center_x > 660:
+                if self.center_x < 1010 and self.center_x > 660:
+                    if self.center_x > 995:
                         self.character_face_direction = constants.LEFT_FACING
-                    elif self.center_x < 550:
+                    elif self.center_x < 690:
                         self.character_face_direction = constants.RIGHT_FACING
                     if self.character_face_direction == constants.RIGHT_FACING:
                         self.change_x = constants.BOSS2_MOVE_SPEED
                     elif self.character_face_direction == constants.LEFT_FACING:
                         self.change_x = -constants.BOSS2_MOVE_SPEED
 
-            elif self.center_x - self.target.center_x < 0 and self.target.center_x >= 368 and self.center_y == 134.75:
-                if self.center_x < 335 and self.center_x > 200:
-                    if self.center_x > 325:
+            elif self.center_x - self.target.center_x < 0 and self.target.center_x >= 508 and self.center_y == 134.75 and self.center_x < 475:
+                if self.center_x < 450 and self.center_x > 340:
+                    if self.center_x > 445:
                         self.character_face_direction = constants.LEFT_FACING
-                    elif self.center_x < 220:
+                    elif self.center_x < 360:
                         self.character_face_direction = constants.RIGHT_FACING
                     if self.character_face_direction == constants.RIGHT_FACING:
                         self.change_x = constants.BOSS2_MOVE_SPEED
@@ -133,47 +143,45 @@ class BossTwo(BossBase):
 
             else:
                 # Check proximity to wall and if close to wall run past player
-                if (self.center_x < 85 and self.center_y == 269 and self.change_x == 0)\
+                if (self.center_x < 225 and self.center_y == 269 and self.change_x == 0)\
                         or (self.center_x < 300 and self.character_face_direction == constants.RIGHT_FACING):
                     self.change_x = constants.BOSS2_MOVE_SPEED
                     self.character_face_direction = constants.RIGHT_FACING
-                elif (self.center_x > 995 and self.center_y == 314 and self.change_x == 0)\
+                elif (self.center_x > 1135 and self.center_y == 314 and self.change_x == 0)\
                         or (self.center_x > 830 and self.character_face_direction == constants.LEFT_FACING):
                     self.change_x = -constants.BOSS2_MOVE_SPEED
                     self.character_face_direction = constants.LEFT_FACING
                 else:
                     self.run_from_player()
 
-            if (self.center_x > 880 and self.center_y == 269 and self.character_face_direction == constants.LEFT_FACING)\
-                    or (self.center_x > 150 and self.center_x < 300 and self.center_y == 269 and self.character_face_direction == constants.RIGHT_FACING):
+            if (self.center_x > 1020 and self.center_y == 269 and self.character_face_direction == constants.LEFT_FACING)\
+                    or (self.center_x > 290 and self.center_x < 440 and self.center_y == 269 and self.character_face_direction == constants.RIGHT_FACING):
                 self.change_y = constants.BOSS2_JUMP_SPEED * 1.5
-                self.change_x *= 10
 
 
         # checks if the boss needs to jump
-        if self.change_x != 0 and not self.is_jumping:
-            if (self.center_x > 468 and self.center_x < 530 and self.character_face_direction == constants.LEFT_FACING and (self.center_y == 134.75 or self.center_y == 179.5))\
-                    or (self.center_x > 315 and self.center_x < 383 and self.character_face_direction == constants.RIGHT_FACING and (self.center_y == 134.75 or self.center_y == 179.5))\
-                    or (self.center_x > 866 and self.center_x < 876 and self.center_y == 134.75 and self.character_face_direction == constants.RIGHT_FACING)\
-                    or (self.center_x > 925 and self.center_x < 965 and self.center_y == 269 and self.character_face_direction == constants.RIGHT_FACING):
+        if self.change_x != 0 and not self.is_jumping and not self.is_attacking:
+            if (self.center_x > 610 and self.center_x < 670 and self.character_face_direction == constants.LEFT_FACING and (self.center_y == 134.75 or self.center_y == 179.5))\
+                    or (self.center_x > 455 and self.center_x < 523 and self.character_face_direction == constants.RIGHT_FACING and (self.center_y == 134.75 or self.center_y == 179.5))\
+                    or (self.center_x > 995 and self.center_x < 1016 and self.center_y == 134.75 and self.character_face_direction == constants.RIGHT_FACING)\
+                    or (self.center_x > 1065 and self.center_x < 1105 and self.center_y == 269 and self.character_face_direction == constants.RIGHT_FACING):
                 self.change_y = constants.BOSS2_JUMP_SPEED
                 self.is_jumping = True
-            elif (self.center_x > 200 and self.center_x < 260 and self.character_face_direction == constants.LEFT_FACING and self.center_y == 134.75) \
-                    or (self.center_x > 900 and self.center_x < 920 and self.center_y == 179.5 and self.character_face_direction == constants.RIGHT_FACING):
+            elif (self.center_x > 340 and self.center_x < 380 and self.character_face_direction == constants.LEFT_FACING and self.center_y == 134.75) \
+                    or (self.center_x > 1040 and self.center_x < 1060 and self.center_y == 179.5 and self.character_face_direction == constants.RIGHT_FACING):
                 self.change_y = constants.BOSS2_JUMP_SPEED * 1.5
                 self.is_jumping = True
 
         # Check if the boss is running into the wall
-        if self.center_x < 85 and self.center_y == 269 and self.change_x < 0:
+        if self.center_x < 225 and self.center_y == 269 and self.change_x < 0:
             self.change_x = 0
             self.character_face_direction = constants.RIGHT_FACING
-        elif self.center_x > 995 and self.center_y == 314 and self.change_x > 0:
+        elif self.center_x > 1135 and self.center_y == 314 and self.change_x > 0:
             self.change_x = 0
             self.character_face_direction = constants.LEFT_FACING
 
         if self.is_attacking or self.is_damaged:
             self.change_x = 0
-
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
@@ -225,31 +233,48 @@ class BossTwo(BossBase):
                     self.cur_time_frame = 0
                 return
 
+            if self.texture == self.attack[1][0]:
+                self.slash_can_hit = [True, True, True]
+            if self.texture == self.jumping_attack[1][0]:
+                self.jump_can_hit = True
+
     def run_from_player(self):
         # Move away from player
-        if self.target.center_x < self.center_x:
-            self.change_x = constants.BOSS2_MOVE_SPEED
-            if self.is_dashing:
-                self.change_x = constants.BOSS2_MOVE_SPEED * 2.5
-        elif self.target.center_x > self.center_x:
-            self.change_x = -constants.BOSS2_MOVE_SPEED
-            if self.is_dashing:
-                self.change_x = -constants.BOSS2_MOVE_SPEED * 2.5
-        else:
-            self.change_x = 0
+        if self.change_y == 0:
+            if self.target.center_x < self.center_x:
+                self.change_x = constants.BOSS2_MOVE_SPEED
+                if self.is_dashing:
+                    self.change_x = constants.BOSS2_MOVE_SPEED * 2.5
+            elif self.target.center_x > self.center_x:
+                self.change_x = -constants.BOSS2_MOVE_SPEED
+                if self.is_dashing:
+                    self.change_x = -constants.BOSS2_MOVE_SPEED * 2.5
+            else:
+                self.change_x = 0
 
     def run_to_player(self):
         # Move toward player
-        if self.target.center_x < self.center_x:
-            self.change_x = -constants.BOSS2_MOVE_SPEED
-            if self.is_dashing:
-                self.change_x = -constants.BOSS2_MOVE_SPEED * 2
-        elif self.target.center_x > self.center_x:
-            self.change_x = constants.BOSS2_MOVE_SPEED
-            if self.is_dashing:
-                self.change_x = constants.BOSS2_MOVE_SPEED * 2
-        else:
-            self.change_x = 0
+        if self.change_y == 0:
+            if self.target.center_x < self.center_x:
+                self.change_x = -constants.BOSS2_MOVE_SPEED
+                if self.is_dashing:
+                    self.change_x = -constants.BOSS2_MOVE_SPEED * 2
+            elif self.target.center_x > self.center_x:
+                self.change_x = constants.BOSS2_MOVE_SPEED
+                if self.is_dashing:
+                    self.change_x = constants.BOSS2_MOVE_SPEED * 2
+            else:
+                self.change_x = 0
+
+    def make_sword(self):
+        sword = Sword()
+        sword.center_x = self.target.center_x
+        sword.center_y = 800
+        self.sword_list.append(sword)
+
+    def kill_all(self):
+        for sword in self.sword_list:
+            sword.kill()
 
     def update(self, delta_time):
         if self.is_attacking:

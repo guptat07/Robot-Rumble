@@ -102,8 +102,6 @@ class LevelOne(Level):
         # Move the player with the physics engine
         super().on_update(delta_time)
         self.physics_engine_level.update()
-        # Moving Platform
-        self.scene.update([constants.LAYER_NAME_MOVING_PLATFORMS])
 
         # Did the player fall off the map?
         if self.player_sprite.center_y < -100:
@@ -125,6 +123,9 @@ class LevelOne(Level):
 
         # collision check between enemy bullet_list and enemies with player
         self.collision_handle.update_collision(delta_time, self.enemy_bullet_list, [self.drone_list])
+
+        # collision check between enemy bullets and walls
+        self.collision_handle.enemy_bullet_collision_walls(self.enemy_bullet_list, self.platform_list_level)
 
         if self.player_sprite.health <= 0:
             self.scene["Player_Death"].visible = True
