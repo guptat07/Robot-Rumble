@@ -19,7 +19,7 @@ class LevelOne(Level):
         super().__init__(window)
 
         self.PLAYER_START_X = 50
-        self.PLAYER_START_Y = 100
+        self.PLAYER_START_Y = 1000
         self.door_sprite = None
 
         self.player_type = player_type
@@ -29,7 +29,7 @@ class LevelOne(Level):
 
         self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
                                     center_x=self.PLAYER_START_X + 50,
-                                    center_y=self.PLAYER_START_Y+ 100) #- 840
+                                    center_y=self.PLAYER_START_Y - 840) #- 840
         self.scene.add_sprite(name="Door", sprite=self.door_sprite)
 
         self.level_enemy_setup()

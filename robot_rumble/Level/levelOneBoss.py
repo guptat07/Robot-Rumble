@@ -188,6 +188,7 @@ class LevelOneBoss(Level):
         if self.boss.health > 0:
             self.collision_handle.update_boss_collision(self.player_bullet_list,self.boss)
             self.collision_handle.update_player_boss(self.player_sprite,self.boss)
+            self.collision_handle.update_boss_collision_melee(self.boss_list, self.boss)
 
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
@@ -302,7 +303,7 @@ class LevelOneBoss(Level):
                 bullet.kill()
             self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
                                              center_x=self.PLAYER_START_X,
-                                             center_y=self.PLAYER_START_Y)
+                                             center_y=self.PLAYER_START_Y - 75)
             self.scene.add_sprite(name="Door", sprite=self.door_sprite)
             if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
                 from robot_rumble.Level.levelTwo import LevelTwo
