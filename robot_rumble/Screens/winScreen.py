@@ -4,7 +4,7 @@ import arcade
 from arcade.gui import UIManager
 
 
-class DeathScreen(arcade.View):
+class WinScreen(arcade.View):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
         # Set background color

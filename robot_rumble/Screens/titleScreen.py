@@ -1,6 +1,7 @@
 import arcade
 from arcade.gui import UIManager
 
+from robot_rumble.Level.levelTwo import LevelTwo
 from robot_rumble.Screens.controlScreen import ControlScreen
 from robot_rumble.Screens.optionsScreen import OptionsScreen
 from importlib.resources import files
@@ -72,8 +73,11 @@ class TitleScreen(arcade.View):
     def on_click_start(self, event):
         self.clear()
         self.manager.disable()
-        control_screen = ControlScreen(self.window)
-        self.window.show_view(control_screen)
+        level_two = LevelTwo(self.window)
+        level_two.setup()
+        self.window.show_view(level_two)
+        # control_screen = ControlScreen(self.window)
+        # self.window.show_view(control_screen)
 
     def on_click_quit(self, event):
         arcade.exit()
