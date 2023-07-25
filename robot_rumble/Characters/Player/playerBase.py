@@ -122,11 +122,12 @@ class PlayerBase(Entity):
     def update_player_speed(self):
         # this is currently not used, one in main is being used
         self.change_x = 0
-        # Using the key pressed variables lets us create more responsive x-axis movement
-        if self.left_pressed and not self.right_pressed:
-            self.change_x = -self.PLAYER_MOVEMENT_SPEED  # DEFINE THIS IN SUBCLASSES
-        elif self.right_pressed and not self.left_pressed:
-            self.change_x = self.PLAYER_MOVEMENT_SPEED
+        if not self.is_blocking:
+            # Using the key pressed variables lets us create more responsive x-axis movement
+            if self.left_pressed and not self.right_pressed:
+                self.change_x = -self.PLAYER_MOVEMENT_SPEED  # DEFINE THIS IN SUBCLASSES
+            elif self.right_pressed and not self.left_pressed:
+                self.change_x = self.PLAYER_MOVEMENT_SPEED
 
     def hit(self):
         # moved hit from main into player, player handles its own health now
@@ -144,6 +145,7 @@ class PlayerBase(Entity):
             if self.health_bar.hp_list[0] < 21:
                 self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
                 self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
+
 
     def spawn_attack(self):  # this implementation should be done in its own way per characyter
         pass

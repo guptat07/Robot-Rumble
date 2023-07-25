@@ -152,6 +152,7 @@ class LevelOneBoss(Level):
                     death.scale = 3
                     death.center_x = self.boss.center_x
                     death.center_y = self.boss.center_y
+                    death.face_direction(self.boss.character_face_direction)
                     self.scene.add_sprite("Death", death)
                     self.death_list.append(death)
                     self.boss.kill()

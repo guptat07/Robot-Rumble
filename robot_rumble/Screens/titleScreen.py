@@ -3,6 +3,7 @@ from arcade.gui import UIManager
 
 from robot_rumble.Screens.controlScreen import ControlScreen
 from robot_rumble.Screens.optionsScreen import OptionsScreen
+from importlib.resources import files
 
 
 class TitleScreen(arcade.View):
@@ -18,6 +19,8 @@ class TitleScreen(arcade.View):
         arcade.draw_lrtb_rectangle_filled(0, 0,
                                           self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
+
+        arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
         # Create a vertical BoxGroup to align buttons
         self.v_box = arcade.gui.UIBoxLayout()

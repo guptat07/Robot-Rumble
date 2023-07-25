@@ -40,8 +40,11 @@ class PlayerSwordster(PlayerBase):
         self.texture = self.idle_r[0]
 
 
+        self.death.change_player_type("swordster")
+
     def update(self,delta_time):
         super().update(delta_time)
+
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)

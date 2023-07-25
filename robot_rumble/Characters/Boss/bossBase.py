@@ -5,6 +5,7 @@ from arcade import gl
 from robot_rumble.Util.spriteload import load_spritesheet, load_spritesheet_pair, load_spritesheet_nocount
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.entities import Entity
+from robot_rumble.Characters.death import Player_Death
 
 
 class BossHealthBar(arcade.Sprite):
@@ -45,7 +46,9 @@ class BossBase(Entity):
 
         self.center_x = constants.SCREEN_WIDTH // 2
         self.center_y = constants.SCREEN_HEIGHT // 2 + 200
-        self.is_active = True
+        self.is_alive = True
+
+        self.death = Player_Death()
 
 
     def drawing(self):
@@ -65,6 +68,8 @@ class BossBase(Entity):
             self.health = 80
         elif self.health <= 0:
             self.health = 0
+            if self.death.die(delta_time):
+                self.is_alive = False
 
         # player movement
         self.center_x += self.change_x
@@ -97,3 +102,20 @@ class BossBase(Entity):
 
     def return_health_sprite(self):
         return self.hp_bar
+
+    def hit(self):
+        self.health -= 1
+        self.is_damaged = True
+        if self.health == 0:
+            self.is_alive = False
+            self.death.center(self.center_x, self.center_y)
+            self.death.face_direction(self.character_face_direction)
+            self.death.scale = self.scale
+            self.change_x = 0
+            self.change_y = 0
+            self.kill()
+
+        # TODO: add health bar adjustments
+
+    def return_death_sprite(self):
+        return self.death
