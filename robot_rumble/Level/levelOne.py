@@ -10,7 +10,6 @@ from robot_rumble.Level.level import Level
 from importlib.resources import files
 from robot_rumble.Level.levelOneBoss import LevelOneBoss
 from robot_rumble.Util.collisionHandler import CollisionHandle
-
 from robot_rumble.Level.levelTwoBoss import LevelTwoBoss
 
 
@@ -21,12 +20,18 @@ class LevelOne(Level):
 
         self.PLAYER_START_X = 50
         self.PLAYER_START_Y = 1000
+        self.door_sprite = None
 
         self.player_type = player_type
 
     def setup(self):
         super().setup()
         self.collision_handle = CollisionHandle(self.player_sprite)
+
+        self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
+                                    center_x=self.PLAYER_START_X + 50,
+                                    center_y=self.PLAYER_START_Y - 840)
+        self.scene.add_sprite(name="Door", sprite=self.door_sprite)
 
         self.level_enemy_setup()
         # Create the 'physics engine'
@@ -107,8 +112,9 @@ class LevelOne(Level):
         if self.player_sprite.center_y < -100:
             self.on_fall()
 
-        #drone EXPLOSION
-        drone_xp = self.collision_handle.update_enemy_collision(self.player_bullet_list,self.drone_list, constants.ENEMY_DRONE)
+        # drone EXPLOSION
+        drone_xp = self.collision_handle.update_enemy_collision(self.player_bullet_list, self.drone_list,
+                                                                constants.ENEMY_DRONE)
         if drone_xp != None:
             self.scene.add_sprite("Explosion", drone_xp)
             self.explosion_list.append(drone_xp)
@@ -120,21 +126,20 @@ class LevelOne(Level):
                 self.scene.add_sprite("drone_bullet", drone_bullet)
                 self.enemy_bullet_list.append(drone_bullet)
 
-        #collision check between enemy bullet_list and enemies with player
-        self.collision_handle.update_collision(delta_time,self.enemy_bullet_list, [self.drone_list])
+        # collision check between enemy bullet_list and enemies with player
+        self.collision_handle.update_collision(delta_time, self.enemy_bullet_list, [self.drone_list])
 
         if self.player_sprite.health <= 0:
             self.scene["Player_Death"].visible = True
 
+        print(arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite))
+
         self.level_change_check()
 
-
     def level_change_check(self):
-        if self.player_sprite.center_x <= 0:
+        if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)
-            # level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
-            # level_two_boss.setup()
-            # self.window.show_view(level_two_boss)
+
 
