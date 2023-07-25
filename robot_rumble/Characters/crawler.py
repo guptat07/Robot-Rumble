@@ -1,10 +1,12 @@
 import arcade
 
 from robot_rumble.Util import constants
-from robot_rumble.Characters.entities import Entity
-from importlib.resources import files
-
 from robot_rumble.Util.spriteload import load_spritesheet_pair
+
+from robot_rumble.Characters.entities import Entity
+from robot_rumble.Characters.projectiles import CrawlerBullet
+
+from importlib.resources import files
 
 
 class Crawler(Entity):
@@ -30,10 +32,11 @@ class Crawler(Entity):
         self.right_walk_limit = self.start_x + 100
         self.left_walk_limit = self.start_x - 100
 
-        # Shot animation time, determine if it's shooting, and time between shots
+        # Shot animation time, determine if it's shooting, time between shots, and a list of all the bullets
         self.shoot_animate = 0
         self.is_shooting = False
         self.time_to_shoot = 0
+        self.bullet_list = []
 
         self.scale = constants.ENEMY_SCALING
 
@@ -79,6 +82,29 @@ class Crawler(Entity):
         else:
             self.shooting_effect.center_x = self.center_x - 10
         self.shooting_effect.center_y = self.center_y
+
+        # Bullet logic
+        for bullet in self.bullet_list:
+            bullet.move()
+            bullet.update()
+
+    def kill_all(self):
+        for bullet in self.bullet_list:
+            bullet.kill()
+            self.kill()
+            self.shooting_pose.kill()
+            self.shooting_effect.kill()
+
+    def crawler_bullet(self, delta_time):
+        if self.crawler_logic(delta_time):
+            bullet = CrawlerBullet(
+                self.shooting_effect.center_x,
+                self.shooting_effect.center_y,
+                self.character_face_direction)
+            self.bullet_list.append(bullet)
+            return bullet
+        else:
+            return None
 
     def crawler_logic(self, delta_time):
         # update either the time between shots or how long it's been since the shoot animation started
