@@ -80,7 +80,7 @@ class Entity(arcade.Sprite):
                     self.is_damaged = False
                 else:
                     self.damaged[0] += 1
-                self.cur_time_frame = 0
+                    self.cur_time_frame = 0
             return
 
         # Landing overrides the cur_time_frame counter (to prevent stuttery looking animation)
