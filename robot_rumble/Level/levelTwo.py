@@ -26,6 +26,8 @@ class LevelTwo(Level):
 
         self.PLAYER_START_X = 2700
         self.PLAYER_START_Y = 60
+        # self.PLAYER_START_X = 39
+        # self.PLAYER_START_Y = 2270
 
         self.player_sprite = player
         self.door_sprite = None

@@ -30,11 +30,10 @@ class LevelOne(Level):
 
     def setup(self):
         super().setup()
-        self.collision_handle = CollisionHandle(self.player_sprite)
 
         self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
                                     center_x=self.PLAYER_START_X + 50,
-                                    center_y=self.PLAYER_START_Y - 840)
+                                    center_y=self.PLAYER_START_Y - 840) #- 840
         self.scene.add_sprite(name="Door", sprite=self.door_sprite)
 
         self.level_enemy_setup()
@@ -62,8 +61,6 @@ class LevelOne(Level):
             self.scene.add_sprite("Shooting", drone.shooting)
             self.drone_list.append(drone)
 
-        self.player_bullet_list = arcade.SpriteList()
-        self.scene.add_sprite_list("player_bullet_list")
 
     def level_player_setup(self):
         if self.player_type == 'gunner':
@@ -110,8 +107,6 @@ class LevelOne(Level):
         # Move the player with the physics engine
         super().on_update(delta_time)
         self.physics_engine_level.update()
-        # Moving Platform
-        self.scene.update([constants.LAYER_NAME_MOVING_PLATFORMS])
 
         # Did the player fall off the map?
         if self.player_sprite.center_y < -100:
