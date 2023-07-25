@@ -213,10 +213,14 @@ class LevelTwo(Level):
 
         self.collision_handle.update_collision(delta_time, self.enemy_bullet_list, [self.drone_list, self.crawler_list])
 
+        # collision check between enemy bullets and walls
+        self.collision_handle.enemy_bullet_collision_walls(self.enemy_bullet_list, self.platform_list_level)
+
         self.level_change_check()
 
     def level_change_check(self):
-        if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
+        if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20 or \
+                (self.player_sprite.center_x < 0 and self.player_sprite.center_y > 1000):
             level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
             level_two_boss.setup()
             self.window.show_view(level_two_boss)
