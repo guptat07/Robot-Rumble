@@ -73,11 +73,8 @@ class TitleScreen(arcade.View):
     def on_click_start(self, event):
         self.clear()
         self.manager.disable()
-        level_two = LevelTwo(self.window)
-        level_two.setup()
-        self.window.show_view(level_two)
-        # control_screen = ControlScreen(self.window)
-        # self.window.show_view(control_screen)
+        control_screen = ControlScreen(self.window)
+        self.window.show_view(control_screen)
 
     def on_click_quit(self, event):
         arcade.exit()

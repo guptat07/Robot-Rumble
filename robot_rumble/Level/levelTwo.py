@@ -20,13 +20,13 @@ from robot_rumble.Util.collisionHandler import CollisionHandle
 
 class LevelTwo(Level):
 
-    def __init__(self, window: arcade.Window, player_type):
+    def __init__(self, window: arcade.Window, player):
         super().__init__(window)
 
         self.PLAYER_START_X = 2700
         self.PLAYER_START_Y = 60
 
-        self.player_type = player_type
+        self.player_sprite = player
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
@@ -103,20 +103,9 @@ class LevelTwo(Level):
             self.turret_list.append(turret)
 
     def level_player_setup(self):
-        # Add Player Sprite list before "Foreground" layer. This will make the foreground
-        # be drawn after the player, making it appear to be in front of the Player.
-        # Setting before using scene.add_sprite allows us to define where the SpriteList
-        # will be in the draw order. If we just use add_sprite, it will be appended to the
-        # end of the order.
-
-        # Set up the player, specifically placing it at these coordinates.
-        if self.player_type == 'gunner':
-            self.player_sprite = PlayerGunner()
-        elif self.player_type == 'sword':
-            self.player_sprite = PlayerSwordster()
-        elif self.player_type == 'brawler':
-            self.player_sprite = PlayerFighter()
         super().level_player_setup()
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
 
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()

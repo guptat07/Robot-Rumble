@@ -132,13 +132,11 @@ class LevelOne(Level):
         if self.player_sprite.health <= 0:
             self.scene["Player_Death"].visible = True
 
-        print(arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite))
-
         self.level_change_check()
 
     def level_change_check(self):
         if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
-            level_one_boss = LevelTwoBoss(self.window, self.player_sprite)
+            level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)
 
