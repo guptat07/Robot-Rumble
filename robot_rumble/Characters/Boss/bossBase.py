@@ -27,7 +27,7 @@ class BossBase(Entity):
         super().__init__()
         self.target = target
         #we can maybe change the rate of damage for other bosses or the health, but it's kind of hard coded with the health bar
-        self.health = 40
+        self.health = 1 # TODO CHANGE
         #rest of healthbar creation and setup
         self.hp_bar = BossHealthBar()
         self.hp_bar.scale = 5
