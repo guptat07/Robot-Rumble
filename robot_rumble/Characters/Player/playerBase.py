@@ -18,7 +18,7 @@ class PlayerBase(Entity):
         # CALL SUPER INNIT AFTER LOADING TEXTURES
         super().__init__()
         # Set health
-        self.health = 20
+        self.health = 2000
         self.health_bar = PlayerHealthBar()
         self.death = Player_Death()
         self.is_alive = True

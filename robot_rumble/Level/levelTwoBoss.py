@@ -16,6 +16,7 @@ class LevelTwoBoss(Level):
     def __init__(self, window: arcade.Window, player):
         super().__init__(window)
 
+        self.door_sprite = None
         self.player_sprite = player
 
         # Boss Level Physics Engine
@@ -192,6 +193,15 @@ class LevelTwoBoss(Level):
 
         if self.boss.death.animation_finished:
             self.boss.death.kill()
+            self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
+                                             center_x=self.PLAYER_START_X,
+                                             center_y=self.PLAYER_START_Y)
+            self.scene.add_sprite(name="Door", sprite=self.door_sprite)
+            if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
+                from robot_rumble.Screens.winScreen import WinScreen
+                win_screen = WinScreen(self.window)
+                self.window.show_view(win_screen)
+
 
 
     def on_draw(self):

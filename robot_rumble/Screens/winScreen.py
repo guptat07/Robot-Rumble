@@ -1,37 +1,25 @@
+from importlib.resources import files
+
 import arcade
 from arcade.gui import UIManager
 
-from robot_rumble.Level.levelTwo import LevelTwo
-from robot_rumble.Screens.controlScreen import ControlScreen
-from robot_rumble.Screens.optionsScreen import OptionsScreen
-from importlib.resources import files
 
-
-class TitleScreen(arcade.View):
+class WinScreen(arcade.View):
     def __init__(self, window: arcade.Window):
         super().__init__(window)
-
-        # a UIManager to handle the UI.
-        self.manager = arcade.gui.UIManager()
-        self.manager.enable()
-
         # Set background color
         arcade.set_background_color(arcade.color.BLACK)
         arcade.draw_lrtb_rectangle_filled(0, 0,
                                           self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
-
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
-        # Create a vertical BoxGroup to align buttons
-        self.v_box = arcade.gui.UIBoxLayout()
+        # a UIManager to handle the UI.
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
 
-        # Create Text Label
-        ui_text_label = arcade.gui.UITextArea(text="Robot Rumble",
-                                              width=260,
-                                              font_size=40,
-                                              font_name="VT323")
-        self.v_box.add(ui_text_label.with_space_around(bottom=50))
+        # Create a vertical BoxGroup to align buttons
+        self.v_box = arcade.gui.UIBoxLayout(vertical=False)
 
         # Button Style
         default_style = {
@@ -46,18 +34,14 @@ class TitleScreen(arcade.View):
         }
 
         # Create the buttons
-        start_button = arcade.gui.UIFlatButton(text="Start Game", width=200, style=default_style)
-        self.v_box.add(start_button.with_space_around(bottom=20))
-
-        options_button = arcade.gui.UIFlatButton(text="Options", width=200, style=default_style)
-        self.v_box.add(options_button.with_space_around(bottom=20))
+        start_button = arcade.gui.UIFlatButton(text="Title Screen", width=200, style=default_style)
+        self.v_box.add(start_button.with_space_around(bottom=20, left=20, right=20))
 
         quit_button = arcade.gui.UIFlatButton(text="Quit", width=200, style=default_style)
-        self.v_box.add(quit_button.with_space_around(bottom=20))
+        self.v_box.add(quit_button.with_space_around(bottom=20, left=20, right=20))
 
         start_button.on_click = self.on_click_start
         quit_button.on_click = self.on_click_quit
-        options_button.on_click = self.on_click_options
 
         self.manager.add(
             arcade.gui.UIAnchorWidget(
@@ -68,19 +52,17 @@ class TitleScreen(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_text("You Win!",
+                         self.window.width // 2 - (len("You Win!") * 32 // 2),
+                         self.window.height // 1.25,
+                         font_size=64, font_name="VT323")
         self.manager.draw()
 
     def on_click_start(self, event):
-        self.clear()
         self.manager.disable()
-        control_screen = ControlScreen(self.window)
-        self.window.show_view(control_screen)
+        from robot_rumble.Screens.titleScreen import TitleScreen
+        title_screen = TitleScreen(self.window)
+        self.window.show_view(title_screen)
 
     def on_click_quit(self, event):
         arcade.exit()
-
-    def on_click_options(self, event):
-        self.clear()
-        self.manager.disable()
-        options_screen = OptionsScreen(self.window)
-        self.window.show_view(options_screen)
