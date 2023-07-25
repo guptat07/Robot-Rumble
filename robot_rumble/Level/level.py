@@ -2,6 +2,9 @@ import arcade
 from arcade import gl
 from robot_rumble.Screens.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
+from robot_rumble.Characters.Player.playerGunner import PlayerGunner
+from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 
 
 class Level(arcade.View):
@@ -45,6 +48,7 @@ class Level(arcade.View):
 
         self.player_bullet_list = None
         self.attack_cooldown = 10
+        self.block_cooldown = 10
 
         self.right_pressed = None
         self.left_pressed = None
@@ -113,17 +117,28 @@ class Level(arcade.View):
         """Called whenever a key is pressed."""
         if self.player_sprite.is_alive:
             self.player_sprite.on_key_press(key, modifiers)
-            if key == arcade.key.UP or key == arcade.key.W:
+            if (key == arcade.key.UP or key == arcade.key.W) and not self.player_sprite.is_blocking:
                 if self.physics_engine_level.can_jump():
                     self.player_sprite.change_y = constants.JUMP_SPEED
             if key == arcade.key.Q:
-                if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN:
+                self.player_sprite.is_attacking = True
+                if type(self.player_sprite) == PlayerSwordster:
+                    if self.player_sprite.character_face_direction == constants.RIGHT_FACING:
+                        self.player_sprite.center_x += 32
+                    else:
+                        self.player_sprite.center_x -= 32
+                if type(self.player_sprite) == PlayerFighter:
+                    if self.player_sprite.character_face_direction == constants.RIGHT_FACING:
+                        self.player_sprite.center_x += 16
+                    else:
+                        self.player_sprite.center_x -= 16
+                if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN and type(self.player_sprite) == PlayerGunner:
                     bullet = self.player_sprite.spawn_attack()
                     self.scene.add_sprite("player_attack", bullet)
                     self.player_bullet_list.append(bullet)
                     self.attack_cooldown = 0
             if key == arcade.key.S or key == arcade.key.DOWN:
-                if not self.player_sprite.is_damaged:
+                if not self.player_sprite.is_damaged and self.block_cooldown > constants.BLOCK_COOLDOWN and not self.player_sprite.is_blocking:
                     self.player_sprite.is_blocking = True
                     self.scene.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
         if key == arcade.key.ESCAPE:
@@ -135,7 +150,12 @@ class Level(arcade.View):
         """Called when the user releases a key."""
         self.player_sprite.on_key_release(key, modifiers)
         if key == arcade.key.Q:
-            self.player_sprite.is_attacking = False
+            if type(self.player_sprite) == PlayerGunner():
+                self.player_sprite.is_attacking = False
+        if key == arcade.key.S or key == arcade.key.DOWN:
+            if self.player_sprite.is_blocking:
+                self.block_cooldown = 0
+            self.player_sprite.is_blocking = False
 
     def center_camera_to_player(self):
         self.screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width // 2)
@@ -176,6 +196,7 @@ class Level(arcade.View):
 
         self.player_sprite.update(delta_time)
         self.attack_cooldown += delta_time
+        self.block_cooldown += delta_time
 
 
 

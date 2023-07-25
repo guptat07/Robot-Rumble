@@ -105,8 +105,6 @@ class LevelOne(Level):
         # Move the player with the physics engine
         super().on_update(delta_time)
         self.physics_engine_level.update()
-        # Moving Platform
-        self.scene.update([constants.LAYER_NAME_MOVING_PLATFORMS])
 
         # Did the player fall off the map?
         if self.player_sprite.center_y < -100:
