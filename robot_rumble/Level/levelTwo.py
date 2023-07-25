@@ -15,18 +15,20 @@ from robot_rumble.Characters.turret import Turret
 from robot_rumble.Level.level import Level
 from importlib.resources import files
 from robot_rumble.Level.levelOneBoss import LevelOneBoss
+from robot_rumble.Level.levelTwoBoss import LevelTwoBoss
 from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class LevelTwo(Level):
 
-    def __init__(self, window: arcade.Window, player_type):
+    def __init__(self, window: arcade.Window, player):
         super().__init__(window)
 
         self.PLAYER_START_X = 2700
         self.PLAYER_START_Y = 60
 
-        self.player_type = player_type
+        self.player_sprite = player
+        self.door_sprite = None
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
@@ -34,6 +36,11 @@ class LevelTwo(Level):
     def setup(self):
         super().setup()
         self.collision_handle = CollisionHandle(self.player_sprite)
+
+        self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
+                                         center_x=39,
+                                         center_y=2270)
+        self.scene.add_sprite(name="Door", sprite=self.door_sprite)
 
         self.level_enemy_setup()
 
@@ -103,20 +110,9 @@ class LevelTwo(Level):
             self.turret_list.append(turret)
 
     def level_player_setup(self):
-        # Add Player Sprite list before "Foreground" layer. This will make the foreground
-        # be drawn after the player, making it appear to be in front of the Player.
-        # Setting before using scene.add_sprite allows us to define where the SpriteList
-        # will be in the draw order. If we just use add_sprite, it will be appended to the
-        # end of the order.
-
-        # Set up the player, specifically placing it at these coordinates.
-        if self.player_type == 'gunner':
-            self.player_sprite = PlayerGunner()
-        elif self.player_type == 'sword':
-            self.player_sprite = PlayerSwordster()
-        elif self.player_type == 'brawler':
-            self.player_sprite = PlayerFighter()
         super().level_player_setup()
+        self.player_sprite.center_x = self.PLAYER_START_X
+        self.player_sprite.center_y = self.PLAYER_START_Y
 
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()
@@ -182,13 +178,13 @@ class LevelTwo(Level):
 
         # enemy EXPLOSION
         drone_explosion = self.collision_handle.update_enemy_collision(self.player_bullet_list, self.drone_list,
-                                                                constants.ENEMY_DRONE)
+                                                                       constants.ENEMY_DRONE)
         if drone_explosion is not None:
             self.scene.add_sprite("Explosion", drone_explosion)
             self.explosion_list.append(drone_explosion)
 
         crawler_explosion = self.collision_handle.update_enemy_collision(self.player_bullet_list, self.crawler_list,
-                                                                constants.ENEMY_DRONE)
+                                                                         constants.ENEMY_DRONE)
         if crawler_explosion is not None:
             self.scene.add_sprite("Explosion", crawler_explosion)
             self.explosion_list.append(crawler_explosion)
@@ -220,7 +216,14 @@ class LevelTwo(Level):
         self.level_change_check()
 
     def level_change_check(self):
-        if self.player_sprite.center_x <= 0:
-            level_one_boss = LevelOneBoss(self.window, self.player_sprite)
-            level_one_boss.setup()
-            self.window.show_view(level_one_boss)
+        if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
+            level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
+            level_two_boss.setup()
+            self.window.show_view(level_two_boss)
+
+
+    def on_key_press(self, key, modifiers):
+        super().on_key_press(key, modifiers)
+        if key == arcade.key.E:
+            print(self.player_sprite.center_x)
+            print(self.player_sprite.center_y)
