@@ -68,6 +68,14 @@ class LevelTwoBoss(Level):
             walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
+        if self.window.width == 1024:
+            self.boss.return_health_sprite().center_x = 672
+        elif self.window.width == 1152:
+            self.boss.return_health_sprite().center_x = 700
+        elif self.window.width == 1280:
+            self.boss.return_health_sprite().center_x = self.window.width // 2 + 30
+        self.boss.return_health_sprite().center_y = self.window.height - 20
+
     def boss_setup(self):
 
         self.boss_list = arcade.SpriteList()
@@ -82,6 +90,8 @@ class LevelTwoBoss(Level):
 
         self.sword_list = arcade.SpriteList()
         self.scene.add_sprite_list(self.sword_list)
+
+        self.scene.add_sprite("Boss_HP", self.boss.return_health_sprite())
 
 
     def level_map_setup(self):
@@ -160,6 +170,7 @@ class LevelTwoBoss(Level):
         self.boss_list.update_animation()
         if self.boss.health <= 0:
             self.scene["Boss_Death"].visible = True
+            self.boss.return_health_sprite().kill()
 
         if len(self.sword_list) > 0:
             # Check for collisions with player
