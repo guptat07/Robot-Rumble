@@ -18,13 +18,12 @@ class LevelOne(Level):
         super().__init__(window)
 
         self.PLAYER_START_X = 50
-        self.PLAYER_START_Y = 1000
+        self.PLAYER_START_Y = 100 #1000
 
         self.player_type = player_type
 
     def setup(self):
         super().setup()
-        self.collision_handle = CollisionHandle(self.player_sprite)
 
         self.level_enemy_setup()
         # Create the 'physics engine'
@@ -50,8 +49,6 @@ class LevelOne(Level):
             self.scene.add_sprite("Shooting", drone.shooting)
             self.drone_list.append(drone)
 
-        self.player_bullet_list = arcade.SpriteList()
-        self.scene.add_sprite_list("player_bullet_list")
 
     def level_player_setup(self):
         if self.player_type == 'gunner':

@@ -2,6 +2,7 @@ import arcade
 from arcade import gl
 from robot_rumble.Screens.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
+from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class Level(arcade.View):
@@ -77,10 +78,14 @@ class Level(arcade.View):
         self.enemy_bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("enemy_bullet_list")
 
+
         # --- Other stuff
         # Set the background color
         if self.tile_map_level.background_color:
             arcade.set_background_color(self.tile_map_level.background_color)
+
+
+        self.collision_handle = CollisionHandle(self.player_sprite)
 
     def level_enemy_setup(self):
         pass

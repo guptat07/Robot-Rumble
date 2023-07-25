@@ -70,3 +70,13 @@ class CollisionHandle():
                             return drone.explosion
         else:
             return None
+
+    def update_player_boss(self, player, boss):
+        if arcade.check_for_collision(boss, player):
+            player.hit()
+
+    def update_boss_collision(self, player_bullet_list, boss):
+        boss_collisions_with_player_bullet = arcade.check_for_collision_with_list(boss, player_bullet_list)
+        for collision in boss_collisions_with_player_bullet:
+            boss.hit()
+            collision.kill()

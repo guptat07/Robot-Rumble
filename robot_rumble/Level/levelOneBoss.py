@@ -41,6 +41,7 @@ class LevelOneBoss(Level):
         self.boss_center_y = 0
         self.boss_hit_time = 0
 
+        self.boss_death = None
         # Variable for the boss bullet
         self.boss_bullet_list = None
         self.boss_bullet_list_circle = None
@@ -55,9 +56,9 @@ class LevelOneBoss(Level):
         if self.window.width == 1024:
             player_centered = 160,0
         elif self.window.width == 1152:
-            player_centered = 97, 0 #change
+            player_centered = 97, 0
         elif self.window.width == 1280:
-            player_centered = 35, 0 #change
+            player_centered = 35, 0
 
         self.camera.move_to(player_centered)
 
@@ -89,6 +90,13 @@ class LevelOneBoss(Level):
         self.boss.center_y = self.window.height // 2 + 200
         self.scene.add_sprite("Boss", self.boss)
         self.boss_list.append(self.boss)
+        self.boss.return_health_sprite().center_y = self.window.height - 20
+        self.boss.return_health_sprite().center_x = self.window.width // 2
+        #self.boss_death = self.boss.return_death_sprite()
+        self.scene.add_sprite("boss_death",self.boss.return_death_sprite())
+
+        #self.scene.add_sprite("Boss_HP", self.boss.return_health_sprite())
+
 
 
 
@@ -100,6 +108,7 @@ class LevelOneBoss(Level):
             self.boss_bullet_list_circle.append(y)
             self.scene.add_sprite("name", x)
             self.scene.add_sprite("name", y)
+
 
     def level_map_setup(self):
         # Name of map file to load
@@ -132,6 +141,11 @@ class LevelOneBoss(Level):
         self.player_sprite.center_x = self.PLAYER_START_X
         self.player_sprite.center_y = self.PLAYER_START_Y
 
+        if self.window.width == 1024:
+            self.player_sprite.return_health_sprite().center_x = 260
+        elif self.window.width == 1152:
+            self.player_sprite.return_health_sprite().center_x = 220
+
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("player_bullet_list")
@@ -154,125 +168,138 @@ class LevelOneBoss(Level):
 
         super().on_update(delta_time,False)
 
-        for bullet in self.player_bullet_list:
-            bullet.update(delta_time)
-            boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
-            # teleport here
-            for collision in boss_collision:
-                collision.kill()
-                self.boss.health -= 1
-                if self.boss.health <= 0:
-                    death = Player_Death()
-                    death.scale = 3
-                    death.center_x = self.boss.center_x
-                    death.center_y = self.boss.center_y
-                    self.scene.add_sprite("Death", death)
-                    self.death_list.append(death)
-                    self.boss.kill()
-                    self.boss.is_active = False
-                    self.boss.change_x = 0
-                    self.boss.change_y = 0
-
-                    if death.die(delta_time):
-                        death.remove_from_sprite_lists()
-                        # from robot_rumble.Level.titleScreen import TitleScreen
-                        # title_screen = TitleScreen(self.window)
-                        # self.window.show_view(title_screen)
-
         self.physics_engine_boss.update()
-        self.physics_engine_level.update() #TODO: MOVE UP INTO LEVEL
+        self.physics_engine_level.update()  # TODO: MOVE UP INTO LEVEL
+        if self.boss.health > 0:
+            self.collision_handle.update_boss_collision(self.player_bullet_list,self.boss)
+            self.collision_handle.update_player_boss(self.player_sprite,self.boss)
 
-        bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
+            '''
+            for bullet in self.player_bullet_list:
+                bullet.update(delta_time)
+                boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
+                # teleport here
+                for collision in boss_collision:
+                    collision.kill()
+                    self.boss.health -= 1
+                    if self.boss.health <= 0:
+                        death = Player_Death()
+                        death.scale = 3
+                        death.center_x = self.boss.center_x
+                        death.center_y = self.boss.center_y
+                        self.scene.add_sprite("Death", death)
+                        self.death_list.append(death)
+                        self.boss.kill()
+                        self.boss.is_active = False
+                        self.boss.change_x = 0
+                        self.boss.change_y = 0
+    
+                        if death.die(delta_time):
+                            death.remove_from_sprite_lists()
+                            # from robot_rumble.Level.titleScreen import TitleScreen
+                            # title_screen = TitleScreen(self.window)
+                            # self.window.show_view(title_screen)
+            '''
 
-        for bullet in bullet_collisions:
-            bullet.remove_from_sprite_lists()
-            self.player_sprite.hit()
 
-        bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite,
-                                                                        self.boss_bullet_list_circle)
 
-        for bull in bullet_collisions_circle:
-            bull.remove_from_sprite_lists()
-            self.player_sprite.hit()
+            bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
-        self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
-        self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
+            for bullet in bullet_collisions:
+                bullet.remove_from_sprite_lists()
+                self.player_sprite.hit()
 
-        # rebuild bullets if going into first form
-        if self.boss_form_swap_timer >= const.FORM_TIMER:
-            self.boss_first_form = not self.boss_first_form
-            self.boss_form_swap_timer = 0
+            bullet_collisions_circle = arcade.check_for_collision_with_list(self.player_sprite,
+                                                                            self.boss_bullet_list_circle)
+
+            for bull in bullet_collisions_circle:
+                bull.remove_from_sprite_lists()
+                self.player_sprite.hit()
+
+
+            self.collision_handle.update_player_collision_with_bullet(self.boss.boss_bullet_list,delta_time)
+            self.collision_handle.update_player_collision_with_bullet(self.boss.boss_bullet_list_circle,delta_time)
+
+
+            self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
+            self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
+
+            # rebuild bullets if going into first form
+            if self.boss_form_swap_timer >= const.FORM_TIMER:
+                self.boss_first_form = not self.boss_first_form
+                self.boss_form_swap_timer = 0
+                if self.boss_first_form:
+                    for i in range(0, 360, 60):
+                        x = BossProjectile(100, const.BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0,
+                                           i)
+                        y = BossProjectile(100, const.BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y,
+                                           0, 0,
+                                           i + 30)
+                        self.boss_bullet_list_circle.append(x)
+                        self.boss_bullet_list_circle.append(y)
+                        self.scene.add_sprite("name", x)
+                        self.scene.add_sprite("name", y)
+
             if self.boss_first_form:
-                for i in range(0, 360, 60):
-                    x = BossProjectile(100, const.BULLET_RADIUS, self.boss.center_x, self.boss.center_y, 0, 0,
-                                       i)
-                    y = BossProjectile(100, const.BULLET_RADIUS + 100, self.boss.center_x, self.boss.center_y,
-                                       0, 0,
-                                       i + 30)
-                    self.boss_bullet_list_circle.append(x)
-                    self.boss_bullet_list_circle.append(y)
-                    self.scene.add_sprite("name", x)
-                    self.scene.add_sprite("name", y)
+                self.boss.change_x = 0
 
-        if self.boss_first_form:
-            self.boss.change_x = 0
+                if self.boss.damaged != -1:
+                    self.boss.boss_logic(delta_time)
+                    return
 
-            if self.boss.damaged != -1:
+                # teleport and wait
+                if self.boss_form_pos_timer[0] == 0:
+                    self.boss.teleport = [False, 1]
+                    self.boss_form_pos_timer[0] = 1
+
+                if self.boss_form_pos_timer[1] > 3 / 20 and self.boss_form_pos_timer[0] == 1:
+                    posx, self.boss_pos_y = const.BOSS_PATH[random.randint(0, 2)]
+                    self.boss.center_x = posx
+                    self.boss.center_y = self.boss_pos_y
+                    self.boss.teleport = [True, 3]
+                    self.boss_form_pos_timer = [2, 0]
+
+                if self.boss_form_pos_timer[1] > 3 and self.boss_form_pos_timer[0] == 2:
+                    self.boss_form_pos_timer[0] = 0
+
+                # bullet ring
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.pathing(self.boss.center_x, self.boss.center_y, delta_time)
+
+                # spawn homing bullets
+                self.boss_timer = self.boss_timer + delta_time
+                for bullet in self.boss_bullet_list:
+                    bullet.homing(delta_time)
+
+                if self.boss_timer >= 1:
+                    x = BossProjectile(100, 0, self.boss.center_x, self.boss.center_y, self.player_sprite.center_x,
+                                       self.player_sprite.center_y, 0)
+                    self.boss_bullet_list.append(x)
+                    self.scene.add_sprite("bull", x)
+                    self.boss_timer = 0
+
+            else:
                 self.boss.boss_logic(delta_time)
-                return
+                # todo stupid clear shit figure it out memory leak
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                for bullet in self.boss_bullet_list_circle:
+                    bullet.remove_from_sprite_lists()
+                self.boss_bullet_list_circle.clear()
+                for bullet in self.boss_bullet_list:
+                    bullet.homing(delta_time)
 
-            # teleport and wait
-            if self.boss_form_pos_timer[0] == 0:
-                self.boss.teleport = [False, 1]
-                self.boss_form_pos_timer[0] = 1
-
-            if self.boss_form_pos_timer[1] > 3 / 20 and self.boss_form_pos_timer[0] == 1:
-                posx, self.boss_pos_y = const.BOSS_PATH[random.randint(0, 2)]
-                self.boss.center_x = posx
-                self.boss.center_y = self.boss_pos_y
-                self.boss.teleport = [True, 3]
-                self.boss_form_pos_timer = [2, 0]
-
-            if self.boss_form_pos_timer[1] > 3 and self.boss_form_pos_timer[0] == 2:
-                self.boss_form_pos_timer[0] = 0
-
-            # bullet ring
-            for bullet in self.boss_bullet_list_circle:
-                bullet.pathing(self.boss.center_x, self.boss.center_y, delta_time)
-
-            # spawn homing bullets
-            self.boss_timer = self.boss_timer + delta_time
-            for bullet in self.boss_bullet_list:
-                bullet.homing(delta_time)
-
-            if self.boss_timer >= 1:
-                x = BossProjectile(100, 0, self.boss.center_x, self.boss.center_y, self.player_sprite.center_x,
-                                   self.player_sprite.center_y, 0)
-                self.boss_bullet_list.append(x)
-                self.scene.add_sprite("bull", x)
-                self.boss_timer = 0
-
-        else:
-            self.boss.boss_logic(delta_time)
-            # todo stupid clear shit figure it out memory leak
-            for bullet in self.boss_bullet_list_circle:
-                bullet.remove_from_sprite_lists()
-            for bullet in self.boss_bullet_list_circle:
-                bullet.remove_from_sprite_lists()
-            for bullet in self.boss_bullet_list_circle:
-                bullet.remove_from_sprite_lists()
-            for bullet in self.boss_bullet_list_circle:
-                bullet.remove_from_sprite_lists()
-            self.boss_bullet_list_circle.clear()
-            for bullet in self.boss_bullet_list:
-                bullet.homing(delta_time)
-
-        if self.boss.center_x > self.player_sprite.center_x:
-            self.boss.character_face_direction = constants.LEFT_FACING
-        else:
-            self.boss.character_face_direction = constants.RIGHT_FACING
+            if self.boss.center_x > self.player_sprite.center_x:
+                self.boss.character_face_direction = constants.LEFT_FACING
+            else:
+                self.boss.character_face_direction = constants.RIGHT_FACING
 
         self.boss.update(delta_time)
+        '''
         self.physics_engine_boss.update()
         self.boss_list.update_animation()
 
@@ -282,6 +309,7 @@ class LevelOneBoss(Level):
                 # from robot_rumble.Level.titleScreen import TitleScreen
                 # title_screen = TitleScreen(self.window)
                 # self.window.show_view(title_screen)
+        '''
 
 
     def on_draw(self):
