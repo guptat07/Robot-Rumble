@@ -63,8 +63,7 @@ class CollisionHandle():
                 for collision in drone_collisions_with_player_bullet:
                     for drone in enemy_list:
                         if collision == drone:
-                            drone.thrusters.kill()
-                            drone.shooting.kill()
+                            drone.kill_all()
                             drone.explosion = Explosion(drone.center_x,drone.center_y,drone.character_face_direction)
                             drone.remove_from_sprite_lists()
                             self.explosion_list.append(drone.explosion)

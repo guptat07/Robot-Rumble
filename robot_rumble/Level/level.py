@@ -123,10 +123,12 @@ class Level(arcade.View):
                     self.scene.add_sprite("player_attack", bullet)
                     self.player_bullet_list.append(bullet)
                     self.attack_cooldown = 0
+
             if key == arcade.key.S or key == arcade.key.DOWN:
                 if not self.player_sprite.is_damaged:
                     self.player_sprite.is_blocking = True
                     self.scene.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
+
 
 
         if key == arcade.key.ESCAPE:
