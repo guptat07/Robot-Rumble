@@ -131,10 +131,10 @@ class LevelOne(Level):
 
     def level_change_check(self):
         if self.player_sprite.center_x <= 0:
-            level_one_boss = LevelOneBoss(self.window, self.player_sprite)
-            level_one_boss.setup()
-            self.window.show_view(level_one_boss)
-            # level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
-            # level_two_boss.setup()
-            # self.window.show_view(level_two_boss)
+            # level_one_boss = LevelOneBoss(self.window, self.player_sprite)
+            # level_one_boss.setup()
+            # self.window.show_view(level_one_boss)
+            level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
+            level_two_boss.setup()
+            self.window.show_view(level_two_boss)
 

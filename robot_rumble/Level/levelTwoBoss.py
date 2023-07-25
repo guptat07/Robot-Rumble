@@ -32,11 +32,22 @@ class LevelTwoBoss(Level):
         self.boss = None
         self.boss_list = None
 
-        self.PLAYER_START_X = 100
-        self.PLAYER_START_Y = 300
+        self.PLAYER_START_X = 250
+        self.PLAYER_START_Y = 270
 
     def setup(self):
         super().setup()
+
+        player_centered = 0, 0
+        if self.window.width == 1024:
+            player_centered = 160, 0
+        elif self.window.width == 1152:
+            player_centered = 97, 0  # change
+        elif self.window.width == 1280:
+            player_centered = 35, 0  # change
+
+        self.camera.move_to(player_centered)
+
         self.boss_setup()
 
         self.physics_engine_boss = arcade.PhysicsEnginePlatformer(
@@ -94,6 +105,11 @@ class LevelTwoBoss(Level):
         super().level_player_setup()
         self.player_sprite.center_x = self.PLAYER_START_X
         self.player_sprite.center_y = self.PLAYER_START_Y
+
+        if self.window.width == 1024:
+            self.player_sprite.return_health_sprite().center_x = 260
+        elif self.window.width == 1152:
+            self.player_sprite.return_health_sprite().center_x = 220
 
         # If the player is a gunner - set up bullet list
         self.player_bullet_list = arcade.SpriteList()

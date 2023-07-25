@@ -108,8 +108,7 @@ class BossBase(Entity):
         self.is_damaged = True
         if self.health == 0:
             self.is_alive = False
-            self.death.center(self.center_x, self.center_y)
-            self.death.face_direction(self.character_face_direction)
+            self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
             self.death.scale = self.scale
             self.change_x = 0
             self.change_y = 0
