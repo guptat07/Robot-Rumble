@@ -169,39 +169,15 @@ class LevelOneBoss(Level):
         super().on_update(delta_time,False)
 
         self.physics_engine_boss.update()
-        self.physics_engine_level.update()  # TODO: MOVE UP INTO LEVEL
+        self.physics_engine_level.update()
+
+        #TODO: figure out why boss doesn't work with all code, or just leave this here but fix tweaking from boss health bar
+        #fix death not killing all bullets
+        #fix boss movement being fucking weird
+        #add attack to stage two
         if self.boss.health > 0:
             self.collision_handle.update_boss_collision(self.player_bullet_list,self.boss)
             self.collision_handle.update_player_boss(self.player_sprite,self.boss)
-
-            '''
-            for bullet in self.player_bullet_list:
-                bullet.update(delta_time)
-                boss_collision = arcade.check_for_collision_with_list(self.boss, self.player_bullet_list)
-                # teleport here
-                for collision in boss_collision:
-                    collision.kill()
-                    self.boss.health -= 1
-                    if self.boss.health <= 0:
-                        death = Player_Death()
-                        death.scale = 3
-                        death.center_x = self.boss.center_x
-                        death.center_y = self.boss.center_y
-                        self.scene.add_sprite("Death", death)
-                        self.death_list.append(death)
-                        self.boss.kill()
-                        self.boss.is_active = False
-                        self.boss.change_x = 0
-                        self.boss.change_y = 0
-    
-                        if death.die(delta_time):
-                            death.remove_from_sprite_lists()
-                            # from robot_rumble.Level.titleScreen import TitleScreen
-                            # title_screen = TitleScreen(self.window)
-                            # self.window.show_view(title_screen)
-            '''
-
-
 
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
 
@@ -297,6 +273,13 @@ class LevelOneBoss(Level):
                 self.boss.character_face_direction = constants.LEFT_FACING
             else:
                 self.boss.character_face_direction = constants.RIGHT_FACING
+
+        else:
+            self.boss.return_health_sprite().kill()
+            for bullet in self.boss_bullet_list_circle:
+                bullet.kill()
+            for bullet in self.boss_bullet_list:
+                bullet.kill()
 
         self.boss.update(delta_time)
         '''
