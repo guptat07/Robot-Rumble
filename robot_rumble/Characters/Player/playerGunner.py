@@ -30,7 +30,7 @@ class PlayerGunner(PlayerBase):
 
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[1]
-        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER * 1/2 #MOVESPEED KAYLEE U CAN CHANGE
+        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER  # MOVESPEED KAYLEE U CAN CHANGE
 
     def setup(self):
         super().setup()
@@ -38,7 +38,7 @@ class PlayerGunner(PlayerBase):
     def update(self,delta_time):
         super().update(delta_time)
 
-    def spawn_attack(self): #this implementation should be done in its own way per characyter
+    def spawn_attack(self):  # this implementation should be done in its own way per character
         self.is_attacking = True
         bullet = PlayerBullet(self.center_x, self.center_y, self.character_face_direction)
         self.weapons_list.append(bullet)

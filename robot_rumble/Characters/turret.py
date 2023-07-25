@@ -2,6 +2,7 @@ import arcade
 
 from robot_rumble.Util import constants
 from robot_rumble.Characters.entities import Entity
+from robot_rumble.Characters.projectiles import TurretBullet
 from importlib.resources import files
 
 from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet
@@ -24,6 +25,7 @@ class Turret(Entity):
         self.shoot_animate = 0
         self.is_shooting = False
         self.time_to_shoot = 0
+        self.bullet_list = []
 
         self.scale = constants.ENEMY_SCALING
 
@@ -34,7 +36,17 @@ class Turret(Entity):
         self.texture = self.look[1]
 
     def update(self):
-        pass
+        for bullet in self.bullet_list:
+            bullet.move()
+            bullet.update()
+
+    def turret_bullet(self, delta_time):
+        if self.turret_logic(delta_time):
+            bullet = TurretBullet(self.center_x, self.center_y)
+            self.bullet_list.append(bullet)
+            return bullet
+        else:
+            return None
 
     def turret_logic(self, delta_time):
         if not self.is_shooting:
