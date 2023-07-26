@@ -13,7 +13,7 @@ class Crawler(Entity):
 
         # Used for flipping between image sequences (i.e., animation logic)
         self.cur_texture = 0
-        self.cur_time_frame = 0
+        self.cur_time_frame = 1 / 10
 
         # set center x, y, and direction
         self.character_face_direction = direction
@@ -28,6 +28,11 @@ class Crawler(Entity):
         # these guys walk, they don't bob up and down. initialize walking logic variables (+- horizontal boundaries)
         self.right_walk_limit = self.start_x + 100
         self.left_walk_limit = self.start_x - 100
+
+        if self.character_face_direction == constants.RIGHT_FACING:
+            self.change_x = 0.75
+        else:
+            self.change_x = -0.75
 
         # Shot animation time, determine if it's shooting, time between shots, and a list of all the bullets
         self.shoot_animate = 0
