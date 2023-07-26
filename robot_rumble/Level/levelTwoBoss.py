@@ -211,7 +211,7 @@ class LevelTwoBoss(Level):
             self.boss.death.kill()
             self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
                                              center_x=self.PLAYER_START_X,
-                                             center_y=self.PLAYER_START_Y)
+                                             center_y=self.PLAYER_START_Y-13)
             self.scene.add_sprite(name="Door", sprite=self.door_sprite)
             if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
                 arcade.stop_sound(self.background_music_player)
