@@ -113,7 +113,7 @@ class CollisionHandle:
                             elif type(self.player) == PlayerFighter and self.player.slash_can_hit[3]:
                                 self.player.slash_can_hit[3] = False
                                 boss.hit()
-                        elif self.player.is_jumping:
+                        elif self.player.is_jumping and self.player.jump_can_hit:
                             boss.hit()
                             self.player.jump_can_hit = False
         else:
