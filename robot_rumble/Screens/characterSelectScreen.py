@@ -23,6 +23,8 @@ class CharacterSelectScreen(arcade.View):
         arcade.draw_lrtb_rectangle_filled(0, 0,
                                           self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
+        self.click_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("menu_button_press.wav"))
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
         section_space_width = self.window.width / 3
@@ -124,6 +126,7 @@ class CharacterSelectScreen(arcade.View):
                          )
 
     def on_click_char1(self, event):
+        arcade.play_sound(self.click_sound)
         self.clear()
         self.manager.disable()
         from robot_rumble.Level.levelOne import LevelOne
@@ -132,6 +135,7 @@ class CharacterSelectScreen(arcade.View):
         self.window.show_view(level_one)
 
     def on_click_char2(self, event):
+        arcade.play_sound(self.click_sound)
         self.clear()
         self.manager.disable()
         from robot_rumble.Level.levelOne import LevelOne
@@ -140,6 +144,7 @@ class CharacterSelectScreen(arcade.View):
         self.window.show_view(level_one)
 
     def on_click_char3(self, event):
+        arcade.play_sound(self.click_sound)
         self.clear()
         self.manager.disable()
         from robot_rumble.Level.levelOne import LevelOne

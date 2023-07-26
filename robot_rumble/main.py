@@ -282,8 +282,8 @@ class MyGame(arcade.Window):
         #TODO: add all collisions into collision handle class, does the same thing as before just wrapped and reduced redudnant code
         self.collision_handle = CollisionHandle(self.player_sprite)
         if self.scene_type == constants.SCENE_LEVEL_BOSS_ONE or self.scene_type == constants.SCENE_LEVEL_BOSS_TWO:
-            self.player_sprite.center_x = 100
-            self.player_sprite.center_y = 300
+            self.player_sprite.center_x = 250
+            self.player_sprite.center_y = 275
         else:
             self.player_sprite.center_x = PLAYER_START_X
             self.player_sprite.center_y = PLAYER_START_Y

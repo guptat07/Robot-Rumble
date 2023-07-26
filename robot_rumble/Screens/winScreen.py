@@ -12,6 +12,8 @@ class WinScreen(arcade.View):
         arcade.draw_lrtb_rectangle_filled(0, 0,
                                           self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
+        self.click_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("menu_button_press.wav"))
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
         # a UIManager to handle the UI.
@@ -59,6 +61,7 @@ class WinScreen(arcade.View):
         self.manager.draw()
 
     def on_click_start(self, event):
+        arcade.play_sound(self.click_sound)
         self.manager.disable()
         from robot_rumble.Screens.titleScreen import TitleScreen
         title_screen = TitleScreen(self.window)

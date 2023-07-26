@@ -1,6 +1,7 @@
 import arcade
 
 from robot_rumble.Util import constants
+from importlib.resources import files
 
 
 class Entity(arcade.Sprite):
@@ -40,6 +41,12 @@ class Entity(arcade.Sprite):
         self.is_dashing = False
         self.is_damaged = False
         self.is_blocking = False
+        self.fix_slash = False
+        # 0 is for gunner, 1 is for swordster, 2 is for fighter
+        self.character = 0
+        self.move_player = False
+
+        self.walk_sound = arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_step.wav"))
 
     def setup(self):
         pass
@@ -110,7 +117,9 @@ class Entity(arcade.Sprite):
                 if self.attack[0] >= len(self.attack[1]) - 1:
                     self.attack[0] = 0
                     self.is_attacking = False
+                    self.fix_slash = True
                     self.cur_time_frame = 1 / 3
+                    self.move_player = True
                 else:
                     self.attack[0] += 1
                     self.cur_time_frame = 0
@@ -121,6 +130,18 @@ class Entity(arcade.Sprite):
                 # So the first time we enter this branch, self.texture gets set to self.idle_r[1], which is the first animation frame.
                 # Then we either increment the value in the first index or loop it back around to a value of 1.
                 self.texture = self.idle[1][self.idle[0]]
+                if self.move_player:
+                    self.move_player = False
+                    if self.character == 1:
+                        if self.character_face_direction == constants.RIGHT_FACING:
+                            self.center_x -= 32
+                        else:
+                            self.center_x += 32
+                    if self.character == 2:
+                        if self.character_face_direction == constants.RIGHT_FACING:
+                            self.center_x -= 16
+                        else:
+                            self.center_x += 16
                 if self.idle[0] >= len(self.idle[1]) - 1:
                     self.idle[0] = 0
                 else:
@@ -151,7 +172,10 @@ class Entity(arcade.Sprite):
                 self.texture = self.running[1][self.running[0]]
                 if self.running[0] >= len(self.running[1]) - 1:
                     self.running[0] = 0
+                    self.cur_time_frame = 0
                 else:
+                    if self.running[0] % 2 == 0:
+                        arcade.play_sound(self.walk_sound, volume=.5)
                     self.running[0] = self.running[0] + 1
                     self.cur_time_frame = 0
             return

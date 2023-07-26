@@ -16,6 +16,10 @@ class PauseScreen(arcade.View):
         # Set background color
         self.background = arcade.load_texture(files("robot_rumble.assets").joinpath("black_screen.jpeg"))
 
+        # Menu sound
+        self.click_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("menu_button_press.wav"))
+
         # Create a vertical BoxGroup to align buttons
         self.v_box = arcade.gui.UIBoxLayout()
 
@@ -68,10 +72,12 @@ class PauseScreen(arcade.View):
         self.manager.draw()
 
     def on_click_resume(self, event):
+        arcade.play_sound(self.click_sound)
         self.manager.disable()
         self.window.show_view(self.game_view)
 
     def on_click_menu(self, event):
+        arcade.play_sound(self.click_sound)
         self.manager.disable()
         from robot_rumble.Screens.titleScreen import TitleScreen
         title_screen = TitleScreen(self.window)
