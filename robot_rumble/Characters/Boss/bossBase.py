@@ -6,6 +6,7 @@ import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.entities import Entity
 from robot_rumble.Util.spriteload import load_spritesheet_nocount
+from robot_rumble.Util.spriteload import load_spritesheet
 
 
 class BossHealthBar(arcade.Sprite):
@@ -26,7 +27,7 @@ class BossBase(Entity):
         super().__init__()
         self.target = target
 
-        self.health = 1  # TODO CHANGE
+        self.health = 40  # TODO CHANGE
 
         # Rest of Health Bar Creation and Setup
         self.hp_bar = BossHealthBar()
@@ -80,16 +81,6 @@ class BossBase(Entity):
     def return_sprite_lists(self):
         return self.sprite_lists_weapon
 
-    def hit(self):
-        if not self.is_damaged:
-            self.health -= 10
-            self.is_damaged = True
-            if self.health <= 0:
-                self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
-                self.change_x = 0
-                self.change_y = 0
-                self.kill_all()
-
     def return_health_sprite(self):
         return self.hp_bar
 
@@ -104,11 +95,14 @@ class BossBase(Entity):
         if self.health == 0:
             self.is_alive = False
             self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
-            self.death.scale = self.scale
             self.change_x = 0
             self.change_y = 0
             self.kill_all()
             self.kill()
+        self.hp_bar.texture = self.hp_bar.red_bar[40 - self.health]
+        # if self.hp_bar.red_bar[0] < 41:
+        #     self.hp_bar.red_bar[0] = self.hp_bar.red_bar[0] + 1
+        #     self.hp_bar.texture = self.hp_bar.red_bar[self.hp_bar.red_bar[0]]
 
     def kill_all(self):
         pass
