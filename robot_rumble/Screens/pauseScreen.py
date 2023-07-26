@@ -74,6 +74,7 @@ class PauseScreen(arcade.View):
     def on_click_resume(self, event):
         arcade.play_sound(self.click_sound)
         self.manager.disable()
+        self.game_view.background_music_player = arcade.play_sound(self.game_view.background_music, looping=True)
         self.window.show_view(self.game_view)
 
     def on_click_menu(self, event):
