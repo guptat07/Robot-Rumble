@@ -17,6 +17,8 @@ class OptionsScreen(arcade.View):
         arcade.draw_lrtb_rectangle_filled(0, 0,
                                           self.window.width, self.window.height,
                                           color=arcade.color.BLACK)
+        self.click_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("menu_button_press.wav"))
         arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
 
         # Create a vertical BoxGroup to align buttons
@@ -71,15 +73,19 @@ class OptionsScreen(arcade.View):
         self.manager.draw()
 
     def size_1_on_click(self, event):
+        arcade.play_sound(self.click_sound)
         self.window.set_size(1024, 576)
 
     def size_2_on_click(self, event):
+        arcade.play_sound(self.click_sound)
         self.window.set_size(1152, 648)
 
     def size_3_on_click(self, event):
+        arcade.play_sound(self.click_sound)
         self.window.set_size(1280, 720)
 
     def on_click_start(self, event):
+        arcade.play_sound(self.click_sound)
         self.manager.disable()
         from robot_rumble.Screens.titleScreen import TitleScreen
         title_screen = TitleScreen(self.window)

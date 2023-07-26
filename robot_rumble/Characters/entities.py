@@ -1,6 +1,7 @@
 import arcade
 
 from robot_rumble.Util import constants
+from importlib.resources import files
 
 
 class Entity(arcade.Sprite):
@@ -44,6 +45,8 @@ class Entity(arcade.Sprite):
         # 0 is for gunner, 1 is for swordster, 2 is for fighter
         self.character = 0
         self.move_player = False
+
+        self.walk_sound = arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_step.wav"))
 
     def setup(self):
         pass
@@ -169,7 +172,10 @@ class Entity(arcade.Sprite):
                 self.texture = self.running[1][self.running[0]]
                 if self.running[0] >= len(self.running[1]) - 1:
                     self.running[0] = 0
+                    self.cur_time_frame = 0
                 else:
+                    if self.running[0] % 2 == 0:
+                        arcade.play_sound(self.walk_sound, volume=.5)
                     self.running[0] = self.running[0] + 1
                     self.cur_time_frame = 0
             return

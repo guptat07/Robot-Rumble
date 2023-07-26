@@ -2,6 +2,7 @@ import arcade
 from arcade import gl
 from robot_rumble.Screens.pauseScreen import PauseScreen
 from robot_rumble.Util import constants
+from importlib.resources import files
 from robot_rumble.Util.collisionHandler import CollisionHandle
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
@@ -61,6 +62,10 @@ class Level(arcade.View):
         self.view_left = 0
         self.view_bottom = 0
 
+        self.gunner_fire_sound = None
+        self.jump_sound = None
+        self.block_sound = None
+
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
@@ -89,6 +94,15 @@ class Level(arcade.View):
         # Set the background color
         if self.tile_map_level.background_color:
             arcade.set_background_color(self.tile_map_level.background_color)
+        # Load the gunner's firing sound
+        self.gunner_fire_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_gunner.wav"))
+        # Load the jump sound
+        self.jump_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_jump.wav"))
+        # Load the block sound
+        self.block_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_block.wav"))
 
 
         self.collision_handle = CollisionHandle(self.player_sprite)
@@ -124,20 +138,24 @@ class Level(arcade.View):
             self.player_sprite.on_key_press(key, modifiers)
             if (key == arcade.key.UP or key == arcade.key.W) and not self.player_sprite.is_blocking:
                 if self.physics_engine_level.can_jump():
+                    arcade.play_sound(self.jump_sound)
                     self.player_sprite.change_y = constants.JUMP_SPEED
             if key == arcade.key.Q:
                 self.player_sprite.is_attacking = True
                 if type(self.player_sprite) == PlayerSwordster:
+                    arcade.play_sound(self.gunner_fire_sound)
                     if self.player_sprite.character_face_direction == constants.RIGHT_FACING:
                         self.player_sprite.center_x += 32
                     else:
                         self.player_sprite.center_x -= 32
                 if type(self.player_sprite) == PlayerFighter:
+                    arcade.play_sound(self.gunner_fire_sound)
                     if self.player_sprite.character_face_direction == constants.RIGHT_FACING:
                         self.player_sprite.center_x += 16
                     else:
                         self.player_sprite.center_x -= 16
                 if self.attack_cooldown > constants.GUNNER_ATTACK_COOLDOWN and type(self.player_sprite) == PlayerGunner:
+                    arcade.play_sound(self.gunner_fire_sound)
                     bullet = self.player_sprite.spawn_attack()
                     self.scene.add_sprite("player_attack", bullet)
                     self.player_bullet_list.append(bullet)
@@ -145,6 +163,7 @@ class Level(arcade.View):
             if key == arcade.key.S or key == arcade.key.DOWN:
                 if not self.player_sprite.is_damaged and self.block_cooldown > constants.BLOCK_COOLDOWN and not self.player_sprite.is_blocking:
                     self.player_sprite.is_blocking = True
+                    arcade.play_sound(self.block_sound)
                     self.scene.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
         if key == arcade.key.ESCAPE:
             pause = PauseScreen(self)
