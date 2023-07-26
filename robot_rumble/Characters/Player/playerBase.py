@@ -127,7 +127,7 @@ class PlayerBase(Entity):
                 self.change_x = self.PLAYER_MOVEMENT_SPEED
 
     def hit(self):
-        if not self.is_damaged:
+        if not self.is_damaged and not self.is_blocking:
             arcade.play_sound(self.take_damage_sound)
             self.is_damaged = True
             self.health -= 1
