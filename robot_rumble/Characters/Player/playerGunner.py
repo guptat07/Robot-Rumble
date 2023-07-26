@@ -32,6 +32,8 @@ class PlayerGunner(PlayerBase):
         self.texture = self.idle_r[1]
         self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER  # MOVESPEED KAYLEE U CAN CHANGE
 
+        self.character = 0
+
     def setup(self):
         super().setup()
 

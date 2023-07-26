@@ -130,9 +130,6 @@ class LevelOne(Level):
         # collision check between enemy bullets and walls
         self.collision_handle.enemy_bullet_collision_walls(self.enemy_bullet_list, self.platform_list_level)
 
-        if self.player_sprite.health <= 0:
-            self.scene["Player_Death"].visible = True
-
         self.level_change_check()
 
     def level_change_check(self):
