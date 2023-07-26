@@ -98,6 +98,8 @@ class BossBase(Entity):
         if self.target.character == 2:
             self.health -= 1
         self.health -= 1
+        if self.health < 0:
+            self.health = 0
         self.is_damaged = True
         if self.health == 0:
             self.is_alive = False
