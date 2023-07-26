@@ -16,9 +16,22 @@ class ControlScreen(arcade.View):
         # a UIManager to handle the UI.
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
+        arcade.load_font(files("robot_rumble.assets.fonts").joinpath("VT323-Regular.ttf"))
+
+        # Button Style
+        default_style = {
+            "font_name": "VT323",
+            "font_color": arcade.color.WHITE,
+            "font_size": 22,
+
+            # used if button is pressed
+            "bg_color_pressed": arcade.color.WHITE,
+            "border_color_pressed": arcade.color.WHITE,  # also used when hovered
+            "font_color_pressed": arcade.color.BLACK,
+        }
 
         # Create the buttons
-        start_button = arcade.gui.UIFlatButton(x=(self.window.width / 2) - 100, y=10, text="Next", width=200)
+        start_button = arcade.gui.UIFlatButton(x=(self.window.width / 2) - 100, y=10, text="Next", width=200, style=default_style)
         self.manager.add(start_button)
 
         self.click_sound = \
