@@ -131,7 +131,7 @@ class PlayerBase(Entity):
 
     def hit(self):
         # moved hit from main into player, player handles its own health now
-        if not self.is_damaged:
+        if not self.is_damaged and not self.is_blocking:
             self.is_damaged = True
             self.health -= 1
             if self.health == 0:

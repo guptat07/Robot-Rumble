@@ -124,6 +124,9 @@ class BossBase(Entity):
         return self.hp_bar
 
     def hit(self):
+        # Fighter double damage
+        if self.target.character == 2:
+            self.health -= 1
         self.health -= 1
         self.is_damaged = True
         if self.health == 0:
