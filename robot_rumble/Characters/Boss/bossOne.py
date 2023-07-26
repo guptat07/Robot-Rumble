@@ -75,8 +75,8 @@ class BossOne(BossBase):
 
             # If timer runs out OR health changes during stunned moment
             if self.boss_logic_timer >= constants.BOSS_STUN_TIME or self.health != self.damaged_curr_health:
-                if self.health < self.damaged_curr_health:  # if took damage, do more
-                    self.health -= 9
+                #if self.health < self.damaged_curr_health:  # if took damage, do more
+                    #self.health -= 9
                 self.damaged = 2
             self.change_x = 0
             return
