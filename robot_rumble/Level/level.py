@@ -219,6 +219,7 @@ class Level(arcade.View):
     def on_update(self, delta_time, use_camera=True):
         if self.player_sprite.death.animation_finished:
             from robot_rumble.Screens.deathScreen import DeathScreen
+            arcade.stop_sound(self.background_music_player)
             death_screen = DeathScreen(self.window)
             self.window.show_view(death_screen)
 

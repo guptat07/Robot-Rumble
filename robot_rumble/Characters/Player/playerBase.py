@@ -12,7 +12,7 @@ class PlayerBase(Entity):
     def __init__(self):
         super().__init__()
         # Set health
-        self.health = 2000
+        self.health = 20
         self.health_bar = PlayerHealthBar()
         self.death = Player_Death()
         self.is_alive = True
