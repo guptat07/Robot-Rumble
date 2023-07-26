@@ -47,11 +47,9 @@ class LevelOneBoss(Level):
         self.PLAYER_START_X = 600
         self.PLAYER_START_Y = 200
 
+    def setup(self):
         self.background_music = \
             arcade.load_sound(files("robot_rumble.assets.sounds.music").joinpath("boss_bgm.wav"))
-        self.background_music_player = None
-
-    def setup(self):
         super().setup()
         player_centered = 0, 0
         if self.window.width == 1024:
