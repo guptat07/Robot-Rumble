@@ -82,7 +82,7 @@ class CollisionHandle:
             return None
 
     def update_player_boss(self, player, boss):
-        if arcade.check_for_collision(boss, player):
+        if arcade.check_for_collision(boss, player) and not boss.is_damaged:
             player.hit()
             if not boss.boss_first_form and boss.damaged == -1:
                 boss.damaged = 0
