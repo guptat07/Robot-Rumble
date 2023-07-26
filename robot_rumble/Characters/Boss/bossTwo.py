@@ -271,6 +271,7 @@ class BossTwo(BossBase):
     def kill_all(self):
         for sword in self.sword_list:
             sword.kill()
+            sword.remove_from_sprite_lists()
 
     def update(self, delta_time):
         if self.is_attacking:

@@ -232,6 +232,9 @@ class Level(arcade.View):
         self.attack_cooldown += delta_time
         self.block_cooldown += delta_time
 
+        if self.player_sprite.health <= 0:
+            self.scene["Player_Death"].visible = True
+
     def on_fall(self):
         self.player_sprite.hit()
         self.player_sprite.center_x = self.PLAYER_START_X

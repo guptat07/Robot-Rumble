@@ -368,7 +368,6 @@ class BossOne(BossBase):
                     self.boss_form_pos_timer[0] = 0
             else:
                 self.boss_logic(delta_time)
-                # todo stupid clear shit figure it out memory leak
                 for bullet in self.boss_bullet_list_circle:
                     bullet.remove_from_sprite_lists()
                 for bullet in self.boss_bullet_list_circle:
