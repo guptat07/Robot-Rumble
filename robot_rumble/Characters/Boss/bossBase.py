@@ -26,7 +26,7 @@ class BossBase(Entity):
         super().__init__()
         self.target = target
 
-        self.health = 1  # TODO CHANGE
+        self.health = 20  # TODO CHANGE
 
         # Rest of Health Bar Creation and Setup
         self.hp_bar = BossHealthBar()
