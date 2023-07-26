@@ -20,6 +20,11 @@ class Explosion(Entity):
         # Used for flipping between image sequences
         self.cur_texture = 0
 
+        # Explosion sound
+        self.explosion_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("enemy_explosion.wav"))
+        self.explosion_sound_played = False
+
         self.explode_time = 0
         self.bomb_r, self.bomb_l = load_spritesheet_pair("robot_rumble.assets.enemies", "explode.png", 7, 64, 64)
 
@@ -44,6 +49,9 @@ class Explosion(Entity):
             self.bomb[0] = 1
             return True
         elif self.explode_time > constants.DRONE_TIMER / 2:
+            if self.explosion_sound_played is False:
+                self.explosion_sound_played = True
+                arcade.play_sound(self.explosion_sound)
             self.texture = self.bomb[self.bomb[0]]
             self.bomb[0] += 1
             self.explode_time = 0

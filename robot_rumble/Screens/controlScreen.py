@@ -21,6 +21,9 @@ class ControlScreen(arcade.View):
         start_button = arcade.gui.UIFlatButton(x=(self.window.width / 2) - 100, y=10, text="Next", width=200)
         self.manager.add(start_button)
 
+        self.click_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("menu_button_press.wav"))
+
         start_button.on_click = self.on_click_start
 
     def on_draw(self):
@@ -32,6 +35,7 @@ class ControlScreen(arcade.View):
         self.manager.draw()
 
     def on_click_start(self, event):
+        arcade.play_sound(self.click_sound)
         self.manager.disable()
         char_select = CharacterSelectScreen(self.window)
         self.window.show_view(char_select)

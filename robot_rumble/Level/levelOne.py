@@ -24,6 +24,10 @@ class LevelOne(Level):
 
         self.player_type = player_type
 
+        self.background_music = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.music").joinpath("level_one_bgm.wav"))
+        self.background_music_player = None
+
     def setup(self):
         super().setup()
 
@@ -40,6 +44,7 @@ class LevelOne(Level):
             gravity_constant=constants.GRAVITY,
             walls=self.scene[constants.LAYER_NAME_PLATFORMS],
         )
+        self.background_music_player = arcade.play_sound(self.background_music, looping=True)
 
     def level_enemy_setup(self):
         # make the drone
@@ -134,6 +139,7 @@ class LevelOne(Level):
 
     def level_change_check(self):
         if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
+            arcade.stop_sound(self.background_music_player)
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)

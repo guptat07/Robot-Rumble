@@ -48,6 +48,13 @@ class PlayerBase(Entity):
         self.sparkle_sprite.center_y = self.center_y
         self.sparkle_sprite.scale = self.scale
 
+        # Walking sound
+        self.walk_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_step.wav"))
+        # Damage sound
+        self.take_damage_sound = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_take_damage.wav"))
+
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
         # Regardless of animation, determine if character is facing left or right
@@ -97,6 +104,8 @@ class PlayerBase(Entity):
                         self.fix_slash = True
                         self.cur_time_frame = 1/3
                     else:
+                        if self.running_attack[0] == 3 or self.running_attack[0] == 6:
+                            arcade.play_sound(self.walk_sound)
                         self.running_attack[0] = self.running_attack[0] + 1
                         self.cur_time_frame = 0
                 return
@@ -132,6 +141,7 @@ class PlayerBase(Entity):
     def hit(self):
         # moved hit from main into player, player handles its own health now
         if not self.is_damaged:
+            arcade.play_sound(self.take_damage_sound)
             self.is_damaged = True
             self.health -= 1
             if self.health == 0:
@@ -154,7 +164,6 @@ class PlayerBase(Entity):
         if self.is_alive:
             if key == arcade.key.LEFT or key == arcade.key.A:
                 self.left_pressed = True
-
             elif key == arcade.key.RIGHT or key == arcade.key.D:
                 self.right_pressed = True
 
@@ -162,7 +171,6 @@ class PlayerBase(Entity):
         """Called when the user releases a key."""
         if key == arcade.key.LEFT or key == arcade.key.A:
             self.left_pressed = False
-
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.right_pressed = False
 

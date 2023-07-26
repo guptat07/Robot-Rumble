@@ -41,6 +41,10 @@ class LevelTwoBoss(Level):
         self.PLAYER_START_X = 250
         self.PLAYER_START_Y = 270
 
+        self.background_music = \
+            arcade.load_sound(files("robot_rumble.assets.sounds.music").joinpath("boss_bgm.wav"))
+        self.background_music_player = None
+
     def setup(self):
         super().setup()
 
@@ -68,6 +72,7 @@ class LevelTwoBoss(Level):
             walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
+        self.background_music_player = arcade.play_sound(self.background_music, looping=True)
         if self.window.width == 1024:
             self.boss.return_health_sprite().center_x = 672
         elif self.window.width == 1152:
@@ -218,6 +223,7 @@ class LevelTwoBoss(Level):
                                              center_y=self.PLAYER_START_Y)
             self.scene.add_sprite(name="Door", sprite=self.door_sprite)
             if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
+                arcade.stop_sound(self.background_music_player)
                 from robot_rumble.Screens.winScreen import WinScreen
                 win_screen = WinScreen(self.window)
                 self.window.show_view(win_screen)
