@@ -406,3 +406,8 @@ class BossOne(BossBase):
             bullet.kill()
 
         self.kill()
+
+    def hit(self):
+        super().hit()
+        if self.damaged != -1:
+            self.damaged = -1
