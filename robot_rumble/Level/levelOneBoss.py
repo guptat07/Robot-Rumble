@@ -74,7 +74,6 @@ class LevelOneBoss(Level):
             gravity_constant=constants.GRAVITY,
             walls=[self.wall_list_boss_level, self.platform_list_boss],
         )
-        self.background_music_player = arcade.play_sound(self.background_music, looping=True)
 
     def boss_setup(self):
 
@@ -276,6 +275,7 @@ class LevelOneBoss(Level):
                                              center_x=self.PLAYER_START_X,
                                              center_y=self.PLAYER_START_Y - 75)
             self.scene.add_sprite(name="Door", sprite=self.door_sprite)
+
             if arcade.get_distance_between_sprites(self.player_sprite, self.door_sprite) <= 20:
                 arcade.stop_sound(self.background_music_player)
                 from robot_rumble.Level.levelTwo import LevelTwo
