@@ -33,8 +33,6 @@ class CharacterSelectScreen(arcade.View):
 
         # Create a BoxGroup to align buttons
         self.v_box = arcade.gui.UIBoxLayout(vertical=False, space_between=self.space_between)
-        self.button_box = arcade.gui.UIBoxLayout()
-
         self.button_width = section_space_width - ((section_space_width * .1) / 2)
         button_height = section_space_height * 2
 
@@ -73,19 +71,11 @@ class CharacterSelectScreen(arcade.View):
         char_2.on_click = self.on_click_char2
         char_3.on_click = self.on_click_char3
 
-
         self.manager.add(
             arcade.gui.UIAnchorWidget(
                 anchor_x="center",
                 anchor_y="center",
                 child=self.v_box
-            )
-        )
-        self.manager.add(
-            arcade.gui.UIAnchorWidget(
-                anchor_x="center",
-                anchor_y="bottom",
-                child=self.button_box
             )
         )
 
@@ -103,22 +93,22 @@ class CharacterSelectScreen(arcade.View):
         self.manager.draw()
         self.scene.draw(filter=gl.NEAREST)
 
-        arcade.draw_text(start_x=(self.window.width / 3) / 2 - len("Gunner") * 16 //2,
-                         start_y=(self.window.height/3)/1.5,
+        arcade.draw_text(start_x=(self.window.width / 3) / 2 - len("Gunner") * 16 // 2,
+                         start_y=(self.window.height / 3) / 1.5,
                          color=arcade.color.WHITE,
                          text="Gunner",
                          font_name="VT323",
                          font_size=32
                          )
-        arcade.draw_text(start_x=(self.window.width / 2) - len("Knight") * 16 //2,
-                         start_y=(self.window.height/3)/1.5,
+        arcade.draw_text(start_x=(self.window.width / 2) - len("Knight") * 16 // 2,
+                         start_y=(self.window.height / 3) / 1.5,
                          color=arcade.color.WHITE,
                          text="Knight",
                          font_name="VT323",
                          font_size=32
                          )
-        arcade.draw_text(start_x=(self.window.width / 3) + (self.window.width / 3 * 3) / 2 - len("Brawler") * 16 //2,
-                         start_y=(self.window.height/3)/1.5,
+        arcade.draw_text(start_x=(self.window.width / 3) + (self.window.width / 3 * 3) / 2 - len("Brawler") * 16 // 2,
+                         start_y=(self.window.height / 3) / 1.5,
                          color=arcade.color.WHITE,
                          text="Brawler",
                          font_name="VT323",

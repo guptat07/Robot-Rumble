@@ -1,16 +1,14 @@
+from importlib.resources import files
+
 import arcade
+
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
-from robot_rumble.Characters.death import Explosion
 from robot_rumble.Characters.drone import Drone
-from robot_rumble.Characters.projectiles import DroneBullet
 from robot_rumble.Level.level import Level
-from importlib.resources import files
 from robot_rumble.Level.levelOneBoss import LevelOneBoss
-from robot_rumble.Util.collisionHandler import CollisionHandle
-from robot_rumble.Level.levelTwoBoss import LevelTwoBoss
 
 
 class LevelOne(Level):
@@ -32,8 +30,8 @@ class LevelOne(Level):
         super().setup()
 
         self.door_sprite = arcade.Sprite(filename=files("robot_rumble.assets").joinpath("door.png"),
-                                    center_x=self.PLAYER_START_X + 50,
-                                    center_y=self.PLAYER_START_Y - 840) #- 840
+                                         center_x=self.PLAYER_START_X + 50,
+                                         center_y=self.PLAYER_START_Y - 840)
         self.scene.add_sprite(name="Door", sprite=self.door_sprite)
 
         self.level_enemy_setup()
@@ -61,7 +59,6 @@ class LevelOne(Level):
             self.scene.add_sprite("Shooting", drone.shooting)
             self.drone_list.append(drone)
 
-
     def level_player_setup(self):
         if self.player_type == 'gunner':
             self.player_sprite = PlayerGunner()
@@ -77,9 +74,11 @@ class LevelOne(Level):
         # Name of map file to load
         map_name_level = files("robot_rumble.assets").joinpath("Prototype.json")
 
-        # Layer specific options are defined based on Layer names in a dictionary
-        # Doing this will make the SpriteList for the platforms layer
-        # use spatial hashing for detection.
+        '''
+        Layer specific options are defined based on Layer names in a dictionary
+        Doing this will make the SpriteList for the platforms layer
+        Use spatial hashing for detection.
+        '''
         layer_options_level = {
             "Platforms": {
                 "use_spatial_hash": True,
@@ -143,5 +142,3 @@ class LevelOne(Level):
             level_one_boss = LevelOneBoss(self.window, self.player_sprite)
             level_one_boss.setup()
             self.window.show_view(level_one_boss)
-
-

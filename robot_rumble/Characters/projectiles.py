@@ -1,7 +1,8 @@
+import math
 from importlib.resources import files
 
 import arcade
-import math
+
 import robot_rumble.Util.constants as constants
 from robot_rumble.Characters.entities import Entity
 from robot_rumble.Util.spriteload import load_spritesheet_pair
@@ -33,29 +34,16 @@ class BossProjectile(Entity):
         self.center_x = offset_x + self.radius * math.sin(self.angle)  # New x
         self.center_y = offset_y + self.radius * math.cos(self.angle)  # New y
 
-        # self.center_x = constants.SCREEN_WIDTH // 2
-        # self.center_y = constants.SCREEN_HEIGHT // 2
-
         if self.timer >= self.time_before_death:
             super().kill()
 
     def homing(self, delta_time):
 
         self.timer = self.timer + delta_time
-        # print("diff x and y:")
-        # print(self.diff_x)
-        # print(self.diff_y)
-        # print(math.degrees(math.atan2(self.diff_y,self.diff_x)))
         angle = math.atan2(self.diff_y, self.diff_x)
-        # print("angle:", angle)
-        # self.angle = math.degrees(angle)
 
         self.center_x = self.center_x + math.cos(angle) * constants.BULLET_SPEED_ROTATION
         self.center_y = self.center_y + math.sin(angle) * constants.BULLET_SPEED_ROTATION
-        # self.center_x = constants.SCREEN_WIDTH // 2
-        # self.center_y = constants.SCREEN_HEIGHT // 2
-        # print("x", self.center_x)
-        # print("y", self.center_y)
 
         if self.timer >= self.time_before_death:
             super().kill()

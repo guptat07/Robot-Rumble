@@ -1,16 +1,12 @@
 import random
-import sys
+from importlib.resources import files
 
 import arcade
 
+import robot_rumble.Util.constants as const
 from robot_rumble.Characters.Boss.bossOne import BossOne
-from robot_rumble.Characters.Player.playerBase import PlayerBase
-from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Level.level import Level
-import robot_rumble.Util.constants as const
-from importlib.resources import files
-
 from robot_rumble.Util import constants
 
 
@@ -42,11 +38,11 @@ class LevelOneBoss(Level):
         self.boss_hit_time = 0
 
         self.boss_death = None
+
         # Variable for the boss bullet
         self.boss_bullet_list = None
         self.boss_bullet_list_circle = None
         self.door_sprite = None
-
 
         self.PLAYER_START_X = 600
         self.PLAYER_START_Y = 200
@@ -57,9 +53,9 @@ class LevelOneBoss(Level):
 
     def setup(self):
         super().setup()
-        player_centered = 0,0
+        player_centered = 0, 0
         if self.window.width == 1024:
-            player_centered = 160,0
+            player_centered = 160, 0
         elif self.window.width == 1152:
             player_centered = 97, 0
         elif self.window.width == 1280:
@@ -105,15 +101,12 @@ class LevelOneBoss(Level):
             self.boss.return_health_sprite().center_x = self.window.width // 2 + 30
         self.boss.return_health_sprite().center_y = self.window.height - 20
 
-        #self.boss_death = self.boss.return_death_sprite()
-        self.scene.add_sprite("boss_death",self.boss.return_death_sprite())
+        # self.boss_death = self.boss.return_death_sprite()
+        self.scene.add_sprite("boss_death", self.boss.return_death_sprite())
 
         self.scene["boss_death"].visible = False
 
         self.scene.add_sprite("Boss_HP", self.boss.return_health_sprite())
-
-
-
 
         # Boss Bullet Ring
         for i in range(0, 360, 60):
@@ -123,7 +116,6 @@ class LevelOneBoss(Level):
             self.boss_bullet_list_circle.append(y)
             self.scene.add_sprite("name", x)
             self.scene.add_sprite("name", y)
-
 
     def level_map_setup(self):
         # Name of map file to load
@@ -166,33 +158,18 @@ class LevelOneBoss(Level):
         self.scene.add_sprite_list("player_bullet_list")
 
     def on_update(self, delta_time):
-        '''
-        boss_collision = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
-        self.boss_hit_time += delta_time
-        if self.boss_hit_time > 1:
-            for boss_hit in boss_collision:
-                self.player_sprite.health -= 1
-                self.hit()
-            self.boss_hit_time = 0
-
-        boss_collision.clear()
-        '''
         # Did the player fall off the map?
         if self.player_sprite.center_y < -50:
             self.on_fall()
 
-        super().on_update(delta_time,False)
+        super().on_update(delta_time, False)
 
         self.physics_engine_boss.update()
         self.physics_engine_level.update()
 
-        #TODO: figure out why boss doesn't work with all code, or just leave this here but fix tweaking from boss health bar
-        #fix death not killing all bullets
-        #fix boss movement being fucking weird
-        #add attack to stage two
         if self.boss.health > 0:
-            self.collision_handle.update_boss_collision(self.player_bullet_list,self.boss)
-            self.collision_handle.update_player_boss(self.player_sprite,self.boss)
+            self.collision_handle.update_boss_collision(self.player_bullet_list, self.boss)
+            self.collision_handle.update_player_boss(self.player_sprite, self.boss)
             self.collision_handle.update_boss_collision_melee(self.boss_list, self.boss)
 
             bullet_collisions = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullet_list)
@@ -208,10 +185,8 @@ class LevelOneBoss(Level):
                 bull.remove_from_sprite_lists()
                 self.player_sprite.hit()
 
-
-            self.collision_handle.update_player_collision_with_bullet(self.boss.boss_bullet_list,delta_time)
-            self.collision_handle.update_player_collision_with_bullet(self.boss.boss_bullet_list_circle,delta_time)
-
+            self.collision_handle.update_player_collision_with_bullet(self.boss.boss_bullet_list, delta_time)
+            self.collision_handle.update_player_collision_with_bullet(self.boss.boss_bullet_list_circle, delta_time)
 
             self.boss_form_swap_timer = self.boss_form_swap_timer + delta_time
             self.boss_form_pos_timer[1] = self.boss_form_pos_timer[1] + delta_time
@@ -239,12 +214,6 @@ class LevelOneBoss(Level):
                 else:
                     self.boss.character_face_direction = constants.RIGHT_FACING
                 self.boss.change_x = 0
-
-                '''
-                if self.boss.damaged != -1:
-                    self.boss.boss_logic(delta_time)
-                    return
-                '''
 
                 # teleport and wait
                 if self.boss_form_pos_timer[0] == 0:
@@ -279,7 +248,6 @@ class LevelOneBoss(Level):
 
             else:
                 self.boss.boss_logic(delta_time)
-                # todo stupid clear shit figure it out memory leak
                 for bullet in self.boss_bullet_list_circle:
                     bullet.remove_from_sprite_lists()
                 for bullet in self.boss_bullet_list_circle:
@@ -300,7 +268,7 @@ class LevelOneBoss(Level):
         else:
             self.scene["boss_death"].visible = True
 
-            #death stuff
+            # death stuff
             self.boss.return_health_sprite().kill()
             for bullet in self.boss_bullet_list_circle:
                 bullet.kill()
@@ -318,25 +286,9 @@ class LevelOneBoss(Level):
                 self.window.show_view(level_two)
 
         self.boss.update(delta_time)
-        '''
-        self.physics_engine_boss.update()
-        self.boss_list.update_animation()
-
-        for death in self.death_list:
-            if death.die(delta_time):
-                death.remove_from_sprite_lists()
-                # from robot_rumble.Level.titleScreen import TitleScreen
-                # title_screen = TitleScreen(self.window)
-                # self.window.show_view(title_screen)
-        '''
 
     def on_key_press(self, key, modifiers):
         super().on_key_press(key, modifiers)
-        '''
-        if key == arcade.key.L:
-            self.boss_first_form = False
-            self.boss_form_swap_timer = 0
-            '''
 
     def on_draw(self):
         super().on_draw()

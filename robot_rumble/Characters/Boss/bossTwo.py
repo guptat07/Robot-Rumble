@@ -1,12 +1,10 @@
 import random
-import arcade
-from arcade import gl
 
 from robot_rumble.Characters.Boss.bossBase import BossBase
-from robot_rumble.Characters.projectiles import BossProjectile
-from robot_rumble.Util import constants
-from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet_pair_nocount
 from robot_rumble.Characters.projectiles import Sword
+from robot_rumble.Util import constants
+from robot_rumble.Util.spriteload import load_spritesheet_pair_nocount
+
 
 class BossTwo(BossBase):
     def __init__(self, target):
@@ -61,8 +59,6 @@ class BossTwo(BossBase):
     def boss_logic(self, delta_time):
         self.is_attacking = False
         self.is_jumping = False
-
-        # NOTE TO SELF: Be careful about how states are left because of swap
 
         self.boss_form_swap_timer += delta_time
         # Check if the form needs to be changed

@@ -1,10 +1,8 @@
 import arcade
 
+from robot_rumble.Characters.entities import Entity
 from robot_rumble.Characters.projectiles import DroneBullet
 from robot_rumble.Util import constants
-from robot_rumble.Characters.entities import Entity
-from importlib.resources import files
-
 from robot_rumble.Util.spriteload import load_spritesheet_pair
 
 
@@ -22,7 +20,7 @@ class Drone(Entity):
         self.move_up = True
         self.limit_drone = 1
 
-        #set center x and y and direction
+        # set center x and y and direction
         self.character_face_direction = direction
         self.center_y = y
         self.center_x = x
@@ -40,7 +38,8 @@ class Drone(Entity):
 
         # Load textures
         self.look_l, self.look_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1.png", 3, 32, 32)
-        self.shoot_l, self.shoot_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1_attack_effect.png", 6, 32, 32)
+        self.shoot_l, self.shoot_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1_attack_effect.png", 6,
+                                                           32, 32)
         self.fire_l, self.fire_r = load_spritesheet_pair("robot_rumble.assets.enemies", "enemy1_flying.png", 2, 32, 32)
 
         if self.character_face_direction == constants.RIGHT_FACING:
@@ -83,7 +82,6 @@ class Drone(Entity):
             self.thrusters.kill()
             self.shooting.kill()
 
-
     def drone_bullet(self, delta_time):
         if self.drone_logic(delta_time):
             bullet = DroneBullet(self.shooting.center_x, self.shooting.center_y, self.character_face_direction)
@@ -91,8 +89,6 @@ class Drone(Entity):
             return bullet
         else:
             return None
-
-
 
     def drone_logic(self, delta_time):
         if not self.is_shooting:

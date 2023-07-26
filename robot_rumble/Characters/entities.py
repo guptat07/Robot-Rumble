@@ -1,7 +1,8 @@
+from importlib.resources import files
+
 import arcade
 
 from robot_rumble.Util import constants
-from importlib.resources import files
 
 
 class Entity(arcade.Sprite):
@@ -125,10 +126,13 @@ class Entity(arcade.Sprite):
                     self.cur_time_frame = 0
             # Having the idle animation loop every .33 seconds
             elif self.cur_time_frame >= 1 / 3:
-                # Load the correct idle animation based on most recent direction faced
-                # Basically, on startup, index 0 should hold a value of 1.
-                # So the first time we enter this branch, self.texture gets set to self.idle_r[1], which is the first animation frame.
-                # Then we either increment the value in the first index or loop it back around to a value of 1.
+                '''
+                Load the correct idle animation based on most recent direction faced
+                Basically, on startup, index 0 should hold a value of 1.
+                So the first time we enter this branch, self.texture gets set to self.idle_r[1], 
+                which is the first animation frame.
+                Then we either increment the value in the first index or loop it back around to a value of 1.
+                '''
                 self.texture = self.idle[1][self.idle[0]]
                 if self.move_player:
                     self.move_player = False
@@ -185,19 +189,3 @@ class Entity(arcade.Sprite):
 
     def on_key_release(self, key, modifiers=0):
         pass
-
-
-'''
-old class
-class Entity(arcade.Sprite):
-    def __init__(self):
-        super().__init__()
-
-        # Default to facing right
-        self.facing_direction = constants.LEFT_FACING
-
-        # Used for image sequences
-        self.cur_texture = 0
-        self.scale = 1
-        self.character_face_direction = constants.RIGHT_FACING
-        '''
