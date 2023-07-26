@@ -1,9 +1,9 @@
-import arcade
-
-from robot_rumble.Util import constants
-from robot_rumble.Characters.entities import Entity
 from importlib.resources import files
 
+import arcade
+
+from robot_rumble.Characters.entities import Entity
+from robot_rumble.Util import constants
 from robot_rumble.Util.spriteload import load_spritesheet_pair
 
 
@@ -68,15 +68,16 @@ class Player_Death(Entity):
         self.animation_finished = False
 
         self.death_time = 0
-        self.death_gunner_r, self.death_gunner_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets", "death1.png", 7, 64, 32)
-        self.death_swordster_r, self.death_swordster_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets", "death1.png", 7, 64, 32)
-        self.death_fighter_r, self.death_fighter_l = load_spritesheet_pair("robot_rumble.assets.fighter_assets", "death1.png", 7, 64, 32)
-
+        self.death_gunner_r, self.death_gunner_l = load_spritesheet_pair("robot_rumble.assets.gunner_assets",
+                                                                         "death1.png", 7, 64, 32)
+        self.death_swordster_r, self.death_swordster_l = load_spritesheet_pair("robot_rumble.assets.swordster_assets",
+                                                                               "death1.png", 7, 64, 32)
+        self.death_fighter_r, self.death_fighter_l = load_spritesheet_pair("robot_rumble.assets.fighter_assets",
+                                                                           "death1.png", 7, 64, 32)
 
         self.scale = constants.ENEMY_SCALING
         self.death_r = self.death_gunner_r
         self.death_l = self.death_gunner_l
-
 
         if self.character_face_direction == constants.RIGHT_FACING:
             self.death = self.death_r
@@ -111,12 +112,11 @@ class Player_Death(Entity):
                 self.death_l = self.death_fighter_l
         self.face_direction(self.character_face_direction)
 
-
     def die(self, delta_time):
         self.death_time += delta_time
         if self.death[0] + 1 >= len(self.death):
             self.death[0] = 1
-            self.animation_finished = True  # added finished, this actually kills the game
+            self.animation_finished = True
             return True
         elif self.death_time > constants.DRONE_TIMER / 2:
             self.texture = self.death[self.death[0]]
