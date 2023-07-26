@@ -141,6 +141,11 @@ class PlayerBase(Entity):
                 self.health_bar.hp_list[0] = self.health_bar.hp_list[0] + 1
                 self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
 
+    def heal(self):
+        self.health = 20
+        self.health_bar.hp_list[0] = 1
+        self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
+
 
     def spawn_attack(self):
         pass

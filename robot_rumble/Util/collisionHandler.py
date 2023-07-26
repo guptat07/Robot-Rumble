@@ -72,6 +72,12 @@ class CollisionHandle:
                             collision.remove_from_sprite_lists()
                             self.explosion_list.append(collision.explosion)
                             return collision.explosion
+        elif enemy_type == constants.HEART:
+            heart_collision = arcade.check_for_collision_with_list(self.player, enemy_list)
+            for collision in heart_collision:
+                self.player.heal()
+                collision.kill()
+                collision.remove_from_sprite_lists()
         else:
             return None
 
