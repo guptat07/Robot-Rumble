@@ -100,9 +100,6 @@ class BossBase(Entity):
             self.kill_all()
             self.kill()
         self.hp_bar.texture = self.hp_bar.red_bar[40 - self.health]
-        # if self.hp_bar.red_bar[0] < 41:
-        #     self.hp_bar.red_bar[0] = self.hp_bar.red_bar[0] + 1
-        #     self.hp_bar.texture = self.hp_bar.red_bar[self.hp_bar.red_bar[0]]
 
     def kill_all(self):
         pass

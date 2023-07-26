@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='robot_rumble',
-    version='0.1.4',
+    version='0.1.5',
     packages=setuptools.find_packages(),
     url='https://github.com/guptat07/Robot-Rumble',
     license='',
