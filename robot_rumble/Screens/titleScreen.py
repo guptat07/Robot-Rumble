@@ -1,10 +1,10 @@
+from importlib.resources import files
+
 import arcade
 from arcade.gui import UIManager
 
-from robot_rumble.Level.levelTwo import LevelTwo
 from robot_rumble.Screens.controlScreen import ControlScreen
 from robot_rumble.Screens.optionsScreen import OptionsScreen
-from importlib.resources import files
 
 
 class TitleScreen(arcade.View):

@@ -1,28 +1,28 @@
-import arcade
-from importlib.resources import files
-from robot_rumble.Characters.entities import Entity
-
-from arcade import gl
-
-from robot_rumble.Characters.death import Player_Death
-from robot_rumble.Characters.entities import Entity
-from robot_rumble.Util import constants
-from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet_pair_nocount
 from robot_rumble.Characters.Player.playerBase import PlayerBase
+from robot_rumble.Util import constants
+from robot_rumble.Util.spriteload import load_spritesheet_pair_nocount
 
 
 class PlayerSwordster(PlayerBase):
     def __init__(self):
         super().__init__()
         # Load textures
-        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 2, 32, 32)
-        self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)
-        self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "run_unmasked.png", 8, 32, 32)
-        self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)
-        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_unmasked.png", 7, 32, 32)
-        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "jump_attack_unmasked.png", 7, 48, 32)
-        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "damaged_masked.png", 6, 32, 32)
-        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "flashing.png", 2, 32, 32)
+        self.idle_r, self.idle_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets", "idle2.png", 2,
+                                                                 32, 32)
+        self.attack_r, self.attack_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets",
+                                                                     "attack_unmasked.png", 22, 64, 32)
+        self.running_r, self.running_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets",
+                                                                       "run_unmasked.png", 8, 32, 32)
+        self.running_attack_r, self.running_attack_l = load_spritesheet_pair_nocount(
+            "robot_rumble.assets.swordster_assets", "attack_unmasked.png", 22, 64, 32)
+        self.jumping_r, self.jumping_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets",
+                                                                       "jump_unmasked.png", 7, 32, 32)
+        self.jumping_attack_r, self.jumping_attack_l = load_spritesheet_pair_nocount(
+            "robot_rumble.assets.swordster_assets", "jump_attack_unmasked.png", 7, 48, 32)
+        self.damaged_r, self.damaged_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets",
+                                                                       "damaged_masked.png", 6, 32, 32)
+        self.blocking_r, self.blocking_l = load_spritesheet_pair_nocount("robot_rumble.assets.swordster_assets",
+                                                                         "flashing.png", 2, 32, 32)
 
         self.idle = [0, self.idle_r]
         self.running = [0, self.running_r]
@@ -34,21 +34,20 @@ class PlayerSwordster(PlayerBase):
         self.jumping_attack = [0, self.jumping_attack_r]
         self.blocking = [0, self.blocking_r]
 
-        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER * 3/4
-        
+        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER * 3 / 4
+
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[0]
 
         self.slash_can_hit = [True, True, True]
         self.jump_can_hit = True
-        self.slashes = [8,14]
+        self.slashes = [8, 14]
         self.character = 1
 
         self.death.change_player_type("swordster")
 
-    def update(self,delta_time):
+    def update(self, delta_time):
         super().update(delta_time)
-
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
@@ -96,4 +95,3 @@ class PlayerSwordster(PlayerBase):
                         else:
                             self.jumping_attack[0] = self.jumping_attack[0] + 1
                 return
-

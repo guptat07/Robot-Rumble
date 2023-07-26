@@ -1,21 +1,15 @@
-import arcade
 from importlib.resources import files
-from robot_rumble.Characters.entities import Entity
 
-from arcade import gl
+import arcade
 
 from robot_rumble.Characters.death import Player_Death
 from robot_rumble.Characters.entities import Entity
-from robot_rumble.Characters.projectiles import PlayerBullet
 from robot_rumble.Util import constants
-from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet, load_spritesheet_pair_nocount
+from robot_rumble.Util.spriteload import load_spritesheet, load_spritesheet_pair_nocount
 
 
 class PlayerBase(Entity):
-    """ Player Class """
-
     def __init__(self):
-        # CALL SUPER INNIT AFTER LOADING TEXTURES
         super().__init__()
         # Set health
         self.health = 2000
@@ -39,7 +33,7 @@ class PlayerBase(Entity):
         self.right_pressed = False
         self.PLAYER_MOVEMENT_SPEED = 0
 
-        # weapons
+        # Weapons
         self.weapons_list = []
 
         self.sparkle_sprite = arcade.Sprite()
@@ -68,7 +62,7 @@ class PlayerBase(Entity):
             self.blocking[1] = self.blocking_r
 
         if not self.is_damaged:
-            if self.is_blocking == True:
+            if self.is_blocking:
                 self.change_x = 0
                 self.texture = self.blocking[1][self.blocking[0]]
                 self.sparkle_sprite.texture = self.sparkle[1][self.sparkle[0]]
@@ -92,10 +86,6 @@ class PlayerBase(Entity):
 
             # Moving
             if self.change_x != 0 or self.change_y != 0:
-
-                # Jumping used to be here but currently it's in each child class since they are slightly different between the gunner and swordster
-
-                # Have the running animation loop every .133 seconds
                 if self.cur_time_frame >= 1 / 60 and self.change_y == 0 and self.is_attacking:
                     self.texture = self.running_attack[1][self.running_attack[0]]
                     if self.running_attack[0] >= len(self.running_attack[1]) - 1:
@@ -117,7 +107,6 @@ class PlayerBase(Entity):
             self.sparkle_sprite.center_y = self.center_y
             if not self.is_blocking:
                 self.sparkle_sprite.remove_from_sprite_lists()
-            # re-add when using driver / remove when using main
             self.update_player_speed()
             for weapon in self.weapons_list:
                 weapon.update(delta_time)
@@ -125,21 +114,19 @@ class PlayerBase(Entity):
             if self.death.die(delta_time):
                 self.is_alive = False
 
-    def drawing(self):  # TODO: ADD TO SPRITE LIST IN MAIN AND THEN REMOVE FROM LIST SO IT DOES IT ONCE
+    def drawing(self):
         pass
 
     def update_player_speed(self):
-        # this is currently not used, one in main is being used
         self.change_x = 0
         if not self.is_blocking:
             # Using the key pressed variables lets us create more responsive x-axis movement
             if self.left_pressed and not self.right_pressed:
-                self.change_x = -self.PLAYER_MOVEMENT_SPEED  # DEFINE THIS IN SUBCLASSES
+                self.change_x = -self.PLAYER_MOVEMENT_SPEED
             elif self.right_pressed and not self.left_pressed:
                 self.change_x = self.PLAYER_MOVEMENT_SPEED
 
     def hit(self):
-        # moved hit from main into player, player handles its own health now
         if not self.is_damaged and not self.is_blocking:
             arcade.play_sound(self.take_damage_sound)
             self.is_damaged = True
@@ -147,8 +134,6 @@ class PlayerBase(Entity):
             if self.health == 0:
                 self.is_alive = False
                 self.death.center(self.center_x, self.center_y, self.scale, self.character_face_direction)
-                # This line was removed because the current player doesn't have direction
-                # death.face_direction(self.player_sprite.character_face_direction)
                 self.change_x = 0
                 self.change_y = 0
                 self.kill()
@@ -157,7 +142,7 @@ class PlayerBase(Entity):
                 self.health_bar.texture = self.health_bar.hp_list[self.health_bar.hp_list[0]]
 
 
-    def spawn_attack(self):  # this implementation should be done in its own way per characyter
+    def spawn_attack(self):
         pass
 
     def on_key_press(self, key, modifiers=0):
@@ -185,9 +170,9 @@ class PlayerHealthBar(arcade.Sprite):
     def __init__(self):
         # Set up parent class
         super().__init__()
-        # load spritesheet
+        # Load Sprite Sheet
         self.hp_list = load_spritesheet("robot_rumble.assets.ui", "health_bar.png", 21, 61, 19)
-        self.texture = self.hp_list[self.hp_list[0]]  # index 0 is the counter keeping track of which frame we are on
+        self.texture = self.hp_list[self.hp_list[0]]
 
         self.scale = 3
         self.center_x = 100

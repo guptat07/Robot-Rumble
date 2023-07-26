@@ -1,12 +1,14 @@
+from importlib.resources import files
+
 import arcade
 from arcade import gl
-from robot_rumble.Screens.pauseScreen import PauseScreen
-from robot_rumble.Util import constants
-from importlib.resources import files
-from robot_rumble.Util.collisionHandler import CollisionHandle
+
+from robot_rumble.Characters.Player.playerFighter import PlayerFighter
 from robot_rumble.Characters.Player.playerGunner import PlayerGunner
 from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
-from robot_rumble.Characters.Player.playerFighter import PlayerFighter
+from robot_rumble.Screens.pauseScreen import PauseScreen
+from robot_rumble.Util import constants
+from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
 class Level(arcade.View):
@@ -89,7 +91,6 @@ class Level(arcade.View):
         self.enemy_bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("enemy_bullet_list")
 
-
         # --- Other stuff
         # Set the background color
         if self.tile_map_level.background_color:
@@ -103,7 +104,6 @@ class Level(arcade.View):
         # Load the block sound
         self.block_sound = \
             arcade.load_sound(files("robot_rumble.assets.sounds.effects").joinpath("robot_block.wav"))
-
 
         self.collision_handle = CollisionHandle(self.player_sprite)
 
@@ -169,8 +169,6 @@ class Level(arcade.View):
             pause = PauseScreen(self)
             self.window.show_view(pause)
             self.isPaused = True
-        if key == arcade.key.F:
-            print(self.player_sprite.center_y)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
@@ -197,7 +195,8 @@ class Level(arcade.View):
             self.screen_center_x = (self.tile_map_level.tile_width * self.tile_map_level.width * 4) - self.window.width
         if self.window.height // 2 + self.player_sprite.center_y > \
                 (self.tile_map_level.tile_height * self.tile_map_level.height) * 4:
-            self.screen_center_y = (self.tile_map_level.tile_height * self.tile_map_level.height * 4) - self.window.height
+            self.screen_center_y = (
+                                               self.tile_map_level.tile_height * self.tile_map_level.height * 4) - self.window.height
 
         player_centered = self.screen_center_x, self.screen_center_y
 
@@ -223,8 +222,6 @@ class Level(arcade.View):
         self.player_sprite.update(delta_time)
         self.attack_cooldown += delta_time
         self.block_cooldown += delta_time
-
-
 
     def on_fall(self):
         self.player_sprite.hit()

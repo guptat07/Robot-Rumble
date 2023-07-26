@@ -1,11 +1,7 @@
-import arcade
-
-from robot_rumble.Util import constants
 from robot_rumble.Characters.entities import Entity
 from robot_rumble.Characters.projectiles import TurretBullet
-from importlib.resources import files
-
-from robot_rumble.Util.spriteload import load_spritesheet_pair, load_spritesheet
+from robot_rumble.Util import constants
+from robot_rumble.Util.spriteload import load_spritesheet
 
 
 class Turret(Entity):

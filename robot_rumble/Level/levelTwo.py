@@ -1,20 +1,12 @@
-import arcade
-import robot_rumble.Util.constants as constants
-
-from robot_rumble.Characters.Player.playerBase import PlayerBase
-from robot_rumble.Characters.Player.playerFighter import PlayerFighter
-from robot_rumble.Characters.Player.playerGunner import PlayerGunner
-from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
-
-from robot_rumble.Characters.death import Explosion
-from robot_rumble.Characters.drone import Drone
-from robot_rumble.Characters.crawler import Crawler
-from robot_rumble.Characters.projectiles import DroneBullet, CrawlerBullet, TurretBullet
-from robot_rumble.Characters.turret import Turret
-
-from robot_rumble.Level.level import Level
 from importlib.resources import files
-from robot_rumble.Level.levelOneBoss import LevelOneBoss
+
+import arcade
+
+import robot_rumble.Util.constants as constants
+from robot_rumble.Characters.crawler import Crawler
+from robot_rumble.Characters.drone import Drone
+from robot_rumble.Characters.turret import Turret
+from robot_rumble.Level.level import Level
 from robot_rumble.Level.levelTwoBoss import LevelTwoBoss
 from robot_rumble.Util.collisionHandler import CollisionHandle
 
@@ -162,12 +154,6 @@ class LevelTwo(Level):
         # from the map as SpriteLists in the scene in the proper order.
         self.scene = arcade.Scene.from_tilemap(self.tile_map_level)
 
-    # def on_draw(self):
-    #     super().on_draw()
-    #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
-    #     for wall in self.scene.get_sprite_list("Platforms"):
-    #         wall.draw_hit_box(arcade.color.RED, 3)
-
     def on_update(self, delta_time):
         """Movement and game logic"""
         # Read the user's inputs to run appropriate animations
@@ -232,10 +218,3 @@ class LevelTwo(Level):
             level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
             level_two_boss.setup()
             self.window.show_view(level_two_boss)
-
-
-    def on_key_press(self, key, modifiers):
-        super().on_key_press(key, modifiers)
-        if key == arcade.key.E:
-            print(self.player_sprite.center_x)
-            print(self.player_sprite.center_y)

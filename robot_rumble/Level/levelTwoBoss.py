@@ -1,17 +1,10 @@
-import random
-import sys
+from importlib.resources import files
 
 import arcade
 
 from robot_rumble.Characters.Boss.bossTwo import BossTwo
-from robot_rumble.Characters.Player.playerBase import PlayerBase
-from robot_rumble.Characters.death import Player_Death
-from robot_rumble.Characters.projectiles import BossProjectile
 from robot_rumble.Level.level import Level
-from importlib.resources import files
 from robot_rumble.Util import constants
-from robot_rumble.Characters.Player.playerFighter import PlayerFighter
-from robot_rumble.Characters.Player.playerSwordster import PlayerSwordster
 from robot_rumble.Util.collisionHandler import CollisionHandle
 
 
@@ -98,7 +91,6 @@ class LevelTwoBoss(Level):
 
         self.scene.add_sprite("Boss_HP", self.boss.return_health_sprite())
 
-
     def level_map_setup(self):
         # Name of map file to load
         map_name_level = files("robot_rumble.assets").joinpath("Boss2_Level.json")
@@ -141,7 +133,7 @@ class LevelTwoBoss(Level):
         self.scene.add_sprite_list("player_bullet_list")
 
     def on_update(self, delta_time):
-        super().on_update(delta_time,False)
+        super().on_update(delta_time, False)
 
         # Check for collisions between player and enemies
         self.collision_handle.update_boss_collision_melee(self.boss_list, self.boss)
@@ -167,7 +159,7 @@ class LevelTwoBoss(Level):
                 self.boss.hit()
 
         self.physics_engine_boss.update()
-        self.physics_engine_level.update() #TODO: MOVE UP INTO LEVEL
+        self.physics_engine_level.update()  # TODO: MOVE UP INTO LEVEL
         for physics_engine_sword in self.physics_engine_sword_list:
             physics_engine_sword.update()
 
@@ -198,14 +190,17 @@ class LevelTwoBoss(Level):
 
         if self.boss.is_alive:
             if self.boss.is_attacking:
-                if (self.boss.character_face_direction == constants.RIGHT_FACING and self.player_sprite.center_x > self.boss.center_x) \
-                        or (self.boss.character_face_direction == constants.LEFT_FACING and self.player_sprite.center_x < self.boss.center_x):
+                if (
+                        self.boss.character_face_direction == constants.RIGHT_FACING and self.player_sprite.center_x > self.boss.center_x) \
+                        or (
+                        self.boss.character_face_direction == constants.LEFT_FACING and self.player_sprite.center_x < self.boss.center_x):
                     boss_hit_player = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
                     if len(boss_hit_player) > 0 and not self.player_sprite.is_blocking:
                         if (self.boss.attack[0] < self.boss.secondslash) and self.boss.slash_can_hit[0]:
                             self.player_sprite.hit()
                             self.boss.slash_can_hit[0] = False
-                        elif ((self.boss.attack[0] >= self.boss.secondslash and self.boss.attack[0] < self.boss.thirdslash)) and self.boss.slash_can_hit[1]:
+                        elif ((self.boss.attack[0] >= self.boss.secondslash and self.boss.attack[
+                            0] < self.boss.thirdslash)) and self.boss.slash_can_hit[1]:
                             self.player_sprite.hit()
                             self.boss.slash_can_hit[1] = False
                         elif (self.boss.attack[0] >= self.boss.thirdslash) and self.boss.slash_can_hit[2]:
@@ -214,7 +209,6 @@ class LevelTwoBoss(Level):
                         elif self.boss.is_jumping:
                             self.player_sprite.hit()
                             self.boss.jump_can_hit = False
-
 
         if self.boss.death.animation_finished:
             self.boss.death.kill()
@@ -228,17 +222,7 @@ class LevelTwoBoss(Level):
                 win_screen = WinScreen(self.window)
                 self.window.show_view(win_screen)
 
-
-
     def on_draw(self):
         super().on_draw()
         self.boss.drawing()
 
-    def on_key_press(self, key, modifiers):
-        super().on_key_press(key, modifiers)
-        if key == arcade.key.P:
-            print("Boss X: ", self.boss.center_x)
-            print("Boss Y: ", self.boss.center_y)
-        if key == arcade.key.O:
-            print("Player X: ", self.player_sprite.center_x)
-            print("Player Y: ", self.player_sprite.center_y)

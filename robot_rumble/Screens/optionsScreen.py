@@ -36,13 +36,6 @@ class OptionsScreen(arcade.View):
             "font_color_pressed": arcade.color.BLACK,
         }
 
-        # Create Text Label
-        ui_text_label = arcade.gui.UITextArea(text="Change Screen Size",
-                                              width=260,
-                                              font_size=36,
-                                              font_name="VT323")
-        self.v_box.add(ui_text_label.with_space_around(bottom=50))
-
         # Create the buttons
         size_1 = arcade.gui.UIFlatButton(text="1024 x 576", width=200, style=default_style)
         self.v_box.add(size_1.with_space_around(bottom=20))
@@ -71,6 +64,10 @@ class OptionsScreen(arcade.View):
     def on_draw(self):
         self.clear()
         self.manager.draw()
+        arcade.draw_text("Change Screen Size",
+                         self.window.width // 2 - (len("Change Screen Size") * 26 // 2),
+                         self.window.height // 1.25,
+                         font_size=52, font_name="VT323")
 
     def size_1_on_click(self, event):
         arcade.play_sound(self.click_sound)
