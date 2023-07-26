@@ -34,11 +34,9 @@ class LevelTwoBoss(Level):
         self.PLAYER_START_X = 250
         self.PLAYER_START_Y = 270
 
+    def setup(self):
         self.background_music = \
             arcade.load_sound(files("robot_rumble.assets.sounds.music").joinpath("boss_bgm.wav"))
-        self.background_music_player = None
-
-    def setup(self):
         super().setup()
 
         player_centered = 0, 0
@@ -65,7 +63,6 @@ class LevelTwoBoss(Level):
             walls=[self.wall_list_boss_level, self.platform_list_boss, self.foreground_boss_level],
         )
 
-        self.background_music_player = arcade.play_sound(self.background_music, looping=True)
         if self.window.width == 1024:
             self.boss.return_health_sprite().center_x = 672
         elif self.window.width == 1152:
