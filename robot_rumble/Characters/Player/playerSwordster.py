@@ -34,7 +34,7 @@ class PlayerSwordster(PlayerBase):
         self.jumping_attack = [0, self.jumping_attack_r]
         self.blocking = [0, self.blocking_r]
 
-        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER * 3 / 4
+        self.PLAYER_MOVEMENT_SPEED = constants.MOVE_SPEED_PLAYER * 1.05
 
         # Set an initial texture. Required for the code to run.
         self.texture = self.idle_r[0]
