@@ -29,11 +29,9 @@ class LevelTwo(Level):
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
 
+    def setup(self):
         self.background_music = \
             arcade.load_sound(files("robot_rumble.assets.sounds.music").joinpath("level_two_bgm.wav"))
-        self.background_music_player = None
-
-    def setup(self):
         super().setup()
         self.collision_handle = CollisionHandle(self.player_sprite)
 
@@ -52,7 +50,6 @@ class LevelTwo(Level):
             gravity_constant=constants.GRAVITY,
             walls=self.scene[constants.LAYER_NAME_PLATFORMS],
         )
-        self.background_music_player = arcade.play_sound(self.background_music, looping=True)
 
     def level_enemy_setup(self):
         # There are 3 enemy types (sort of— 3 things can damage you, but you can only attack two).

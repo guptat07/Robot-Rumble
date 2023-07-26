@@ -67,6 +67,8 @@ class Level(arcade.View):
         self.gunner_fire_sound = None
         self.jump_sound = None
         self.block_sound = None
+        self.background_music_player = None
+        self.background_music = None
 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
@@ -90,6 +92,8 @@ class Level(arcade.View):
 
         self.enemy_bullet_list = arcade.SpriteList()
         self.scene.add_sprite_list("enemy_bullet_list")
+
+        self.background_music_player = arcade.play_sound(self.background_music, looping=True)
 
         # --- Other stuff
         # Set the background color
@@ -171,6 +175,8 @@ class Level(arcade.View):
             pause = PauseScreen(self)
             self.window.show_view(pause)
             self.isPaused = True
+            arcade.stop_sound(self.background_music_player)
+
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
