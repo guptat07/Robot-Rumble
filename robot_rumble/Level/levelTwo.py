@@ -229,3 +229,11 @@ class LevelTwo(Level):
             level_two_boss = LevelTwoBoss(self.window, self.player_sprite)
             level_two_boss.setup()
             self.window.show_view(level_two_boss)
+
+    def on_key_press(self, key, modifiers):
+        super().on_key_press(key, modifiers)
+        if key == arcade.key.L:
+            self.player_sprite.center_x = 40
+            self.player_sprite.center_y = 2280
+
+

@@ -176,6 +176,8 @@ class Level(arcade.View):
             self.window.show_view(pause)
             self.isPaused = True
             arcade.stop_sound(self.background_music_player)
+        if key == arcade.key.M:
+            self.player_sprite.heal()
 
 
     def on_key_release(self, key, modifiers):

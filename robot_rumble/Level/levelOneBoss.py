@@ -287,6 +287,8 @@ class LevelOneBoss(Level):
 
     def on_key_press(self, key, modifiers):
         super().on_key_press(key, modifiers)
+        if key == arcade.key.L:
+            self.boss.hit()
 
     def on_draw(self):
         super().on_draw()

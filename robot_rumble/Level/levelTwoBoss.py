@@ -223,3 +223,7 @@ class LevelTwoBoss(Level):
         super().on_draw()
         self.boss.drawing()
 
+    def on_key_press(self, key, modifiers):
+        super().on_key_press(key, modifiers)
+        if key == arcade.key.L:
+            self.boss.hit()
