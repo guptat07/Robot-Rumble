@@ -170,6 +170,8 @@ class Level(arcade.View):
                     arcade.play_sound(self.block_sound)
                     self.scene.add_sprite("Sparkle", self.player_sprite.sparkle_sprite)
         if key == arcade.key.ESCAPE:
+            self.player_sprite.right_pressed = False
+            self.player_sprite.left_pressed = False
             pause = PauseScreen(self)
             self.window.show_view(pause)
             self.isPaused = True

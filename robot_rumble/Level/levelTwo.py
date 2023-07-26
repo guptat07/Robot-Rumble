@@ -9,6 +9,7 @@ from robot_rumble.Characters.turret import Turret
 from robot_rumble.Level.level import Level
 from robot_rumble.Level.levelTwoBoss import LevelTwoBoss
 from robot_rumble.Util.collisionHandler import CollisionHandle
+from robot_rumble.Characters.heart import Heart
 
 
 class LevelTwo(Level):
@@ -23,6 +24,7 @@ class LevelTwo(Level):
 
         self.player_sprite = player
         self.door_sprite = None
+        self.heart_list = None
 
         self.LAYER_NAME_HORIZONTAL_MOVING_PLATFORMS = "Horizontal Moving Platforms"
         self.LAYER_NAME_VERTICAL_MOVING_PLATFORMS = "Vertical Moving Platforms"
@@ -105,6 +107,12 @@ class LevelTwo(Level):
             self.scene.add_sprite("Turret", turret)
             self.turret_list.append(turret)
 
+        self.heart_list = arcade.SpriteList()
+        self.scene.add_sprite_list("heart_list")
+        heart = Heart(1000, 100)
+        self.scene.add_sprite("Heart", heart)
+        self.heart_list.append(heart)
+
     def level_player_setup(self):
         super().level_player_setup()
         self.player_sprite.center_x = self.PLAYER_START_X
@@ -166,6 +174,9 @@ class LevelTwo(Level):
             self.player_sprite.center_x = 1000
             self.player_sprite.center_y = 60
 
+        # Health pack collision
+        self.collision_handle.update_enemy_collision(self.player_bullet_list, self.heart_list, constants.HEART)
+
         # enemy EXPLOSION
         drone_explosion = self.collision_handle.update_enemy_collision(self.player_bullet_list, self.drone_list,
                                                                        constants.ENEMY_DRONE)
@@ -200,6 +211,9 @@ class LevelTwo(Level):
             if turret_bullet is not None:
                 self.scene.add_sprite("turret_bullet", turret_bullet)
                 self.enemy_bullet_list.append(turret_bullet)
+
+        for heart in self.heart_list:
+            heart.update(delta_time)
 
         self.collision_handle.update_collision(delta_time, self.enemy_bullet_list, [self.drone_list, self.crawler_list])
 
