@@ -28,13 +28,6 @@ class TitleScreen(arcade.View):
         # Create a vertical BoxGroup to align buttons
         self.v_box = arcade.gui.UIBoxLayout()
 
-        # Create Text Label
-        ui_text_label = arcade.gui.UITextArea(text="Robot Rumble",
-                                              width=260,
-                                              font_size=40,
-                                              font_name="VT323")
-        self.v_box.add(ui_text_label.with_space_around(bottom=50))
-
         # Button Style
         default_style = {
             "font_name": "VT323",
@@ -71,6 +64,10 @@ class TitleScreen(arcade.View):
     def on_draw(self):
         self.clear()
         self.manager.draw()
+        arcade.draw_text("Robot Rumble",
+                         self.window.width // 2 - (len("Robot Rumble") * 32 // 2),
+                         self.window.height // 1.25,
+                         font_size=64, font_name="VT323")
 
     def on_click_start(self, event):
         arcade.play_sound(self.click_sound)
